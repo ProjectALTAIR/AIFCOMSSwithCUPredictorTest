@@ -1,0 +1,42 @@
+{
+    "Churchill": {
+        "latitude"  :   52.2135,
+        "longitude" :   0.0964,
+        "altitude"  :   0
+    },
+    "Elsworth": {
+        "latitude"  :   52.2511,
+        "longitude" :   -0.0927,
+        "altitude"  :   0
+    },
+    "Adelaide": {
+        "altitude"  :   0,
+        "latitude"  :   -34.9499,
+        "longitude" :   138.5194
+    },
+    "Brightwalton": {
+        "altitude"  :   0,
+        "latitude"  :   51.51143,
+        "longitude" :   -1.38870
+    },
+    "Boston Spa": { 
+        "latitude"  :   53.8997,
+        "longitude" :   -1.3629,
+        "altitude"  :   0
+    },
+    "Wistow": {
+        "altitude"  :   0,
+        "latitude"  :   -35.1217,
+        "longitude" :   138.8503
+    },
+    "Cookstown": {
+        "altitude"  :   60,
+        "latitude"  :   54.632162,
+        "longitude" :   -6.757982
+    },
+    "Preston St Mary": {
+        "latitude"  :   52.1215,
+        "longitude" :   0.8078,
+        "altitude"  :   70
+    }
+}

@@ -1,0 +1,3 @@
+/hepuser/jalbert/cusf-standalone-predictor-master/pred_src/CMakeFiles/edit_cache.dir
+/hepuser/jalbert/cusf-standalone-predictor-master/pred_src/CMakeFiles/rebuild_cache.dir
+/hepuser/jalbert/cusf-standalone-predictor-master/pred_src/CMakeFiles/pred.dir
