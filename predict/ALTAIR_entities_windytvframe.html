@@ -242,13 +242,16 @@
 		var values = W.interpolation.interpolateValues(lat, lon, roundALTAIRAlt);
 		
 		if (lastMarker != 0) {
-			lastMarker.remove();
+//			lastMarker.remove();
+			map.removeLayer(lastMarker);
 		}
 		if (lastPolyline != 0) {
-			lastPolyline.remove();
+//			lastPolyline.remove();
+			map.removeLayer(lastPolyline);
 		}
 		if($(".location_marker").length) {
-			$(".location_marker").remove();
+//			$(".location_marker").remove();
+			map.removeLayer($(".location_marker"));
 		}
 		
 //		var ALTAIRAltText = 'ALTAIR = ' + roundALTAIRAlt + ' ASL<br/>Terrain =    ' + roundALTAIRTer +'  ASL<br/>';
@@ -349,7 +352,8 @@
                     dataType: 'text',
                     success:  function(result) {
                          if (lastPredline != 0) {
-                            lastPredline.remove();
+//                            lastPredline.remove();
+			      map.removeLayer(lastPredline);
                          }
                          var allRows = result.split(/\r?\n|\r/);
                          latLonsALTAIRPred = [];
