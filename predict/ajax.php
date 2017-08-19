@@ -16,11 +16,8 @@ case "submitForm":
     $json_return['valid'] = "false";
     $thepost = implode(" ", $_POST);
 
-    error_log("The damn hour variable: ");
-    error_log($thepost);
-
-//    echo "<script>console.log( 'The damn hour variable: " . (int)$_POST['hour'] . "' );</script>";
-//    echo "<script>console.log( 'The damn minute variable: " . (int)$_POST['min'] . "' );</script>";
+//    error_log("The damn hour variable: ");
+//    error_log($thepost);
 
         // First, make a model from the form data
         if ( !$pred_model = createModel($_POST)) {
