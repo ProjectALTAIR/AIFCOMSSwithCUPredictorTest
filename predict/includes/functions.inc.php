@@ -5,6 +5,7 @@
  * Jon Sowman 2010
  */
 
+require_once("php_variables.php")
 require_once("config.inc.php");
 require_once("statsd.php");
 
@@ -148,7 +149,14 @@ function runPred($pred_model) {
     // $sh = "/usr/bin/python >& /tmp/crapp.out";
     // $sh = "ls /";
     // $sh = ROOT . "predict.py --cd=" . ROOT . " --fork --alarm --redirect=" . ROOT . "$bog -v --latdelta="
-    $sh = "/usr/bin/python " . ROOT . "predict.py --cd=" . ROOT . " --fork --alarm --redirect=" . ROOT . "$bog -vv --latdelta="
+    
+    $sh_start = "";
+    $sh_fork = " --fork";
+    if(strtolower(substr(PHP_OS, 0, 3)) == 'win'){
+        $sh_start = "start /B \"\" ";
+        $sh_fork = "";
+    }
+    $sh = $sh_start . PYTHON_PATH . " " . ROOT_DIR . "predict.py --cd=" . ROOT_DIR . $sh_fork . "--alarm --redirect=" . ROOT_DIR . "$bog -vv --latdelta="
         .$pred_model['delta_lat']." --londelta=".$pred_model['delta_lon']
         ." -p1 -f".$pred_model['delta_time']." -t ".$pred_model['timestamp']
         ." --lat=".$predictor_lat." --lon=".$predictor_lon." " . $use_hd

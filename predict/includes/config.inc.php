@@ -10,10 +10,6 @@ define("ADMIN_EMAIL", "jalbert@uvic.ca,jon@hexoc.com");
 
 define("LOCATION_SAVE_ENABLE", true);
 
-// Path to the root of the git repo inc. trailing /
-// define("ROOT", "/var/www/html/cusf-standalone-predictor-master/predict/");
-define("ROOT", "/var/www/html/cusf-standalone-predictor-master/");
-
 // Path to python virtualenv to use
 // define("PYTHON", ROOT . "ENV/bin/python");
 
