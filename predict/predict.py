@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-# Path to predictor binary
-pred_binary = './pred_src/pred'
-
 # Modules from the Python standard library.
 import datetime
 import time as timelib
@@ -20,6 +17,27 @@ import tempfile
 import shutil
 import bisect
 import simplejson as json
+
+# handle both predict.py's
+filepath = os.path.dirname(os.path.abspath(__file__))
+if filepath.endswith('predict'):
+    from py_variables import *
+else:
+    sys.path.append(os.path.join(filepath, 'predict'))
+    from py_variables import *
+
+# determine OS
+OS_IS_WINDOWS = False
+if 'win' in sys.platform.lower():
+    OS_IS_WINDOWS = True
+
+# Path to predictor binary
+if OS_IS_WINDOWS:
+    # Windows
+    pred_binary = './pred_src/pred.exe'
+else:
+    # probably Linux, may need to update this when supporting Mac
+    pred_binary = './pred_src/pred'
 
 statsd.init_statsd({'STATSD_BUCKET_PREFIX': 'habhub.predictor'})
 
@@ -265,7 +283,7 @@ def main():
             options.lon, options.londelta)
 
 #    gfs_dir = "/var/www/cusf-standalone-predictor/gfs/"
-    gfs_dir = "/var/www/html/cusf-standalone-predictor-master/gfs/"
+    gfs_dir = os.path.join(ROOT_DIR, "gfs")
 
     gfs_dir = tempfile.mkdtemp(dir=gfs_dir)
 
@@ -308,13 +326,20 @@ def main():
             pred_output.append(line.strip())
 
     exit_code = pred_process.wait()
+    
+    if OS_IS_WINDOWS:
+        copy_path = os.path.join(ROOT_DIR, "predict")
+    else:
+        copy_path = '/tmp'
+    
+    copy_path = os.path.join(copy_path, 'flight_path.csv')
 
     log.info('Copying file:')
     log.info(uuid_path+'flight_path.csv')
     log.info('to file:')
-    log.info('/tmp/flight_path.csv')
+    log.info(copy_path)
 
-    shutil.copyfile(uuid_path+'flight_path.csv','/tmp/flight_path.csv')
+    shutil.copyfile(uuid_path+'flight_path.csv',copy_path)
 
     shutil.rmtree(gfs_dir)
 
@@ -661,10 +686,24 @@ def detach_process(redirect):
     if os.fork() > 0:
         os._exit(0)
 
+def alarm_workaround(parent):
+    # wait for the parent
+    parent.join(600)
+    # if the parent (main) thread is still alive, then we need to kill it
+    if parent.isAlive():
+        os._exit(0)
+
 def setup_alarm():
     # Prevent hung download:
-    import signal
-    signal.alarm(600)
+    if OS_IS_WINDOWS:
+        import threading
+        t = threading.Thread(target=alarm_workaround, args=(threading.currentThread(),))
+        # setting the thread as a daemon means we don't need to worry about cleaning it up
+        t.daemon = True
+        t.start()
+    else:
+        import signal
+        signal.alarm(600)
 
 # If this is being run from the interpreter, run the main function.
 if __name__ == '__main__':

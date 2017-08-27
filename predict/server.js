@@ -7,7 +7,8 @@
     var url = require('url');
     var request = require('request');
 
-
+    var variables = require('./js_variables.js');
+    var ROOT_DIR = variables.ROOT_DIR;
 
 // JA Serial port connection code BEGIN  (added 13sep16)
 
@@ -67,7 +68,11 @@
            });
         } else if (data.substring(0, 11) == "ALTAIRPOS: ") {
            var pureData = data.replace("ALTAIRPOS: ", "");
-           fs.writeFile("/tmp/altairpos.txt", pureData, function(err) {
+           var pos_path = "/tmp/altairpos.txt";
+           if(process.platform.toLowerCase().includes("win")){
+               pos_path = ROOT_DIR + "altairpos.txt";
+           }
+           fs.writeFile(pos_path, pureData, function(err) {
               if (err) {
                 return console.log(err);
               }
