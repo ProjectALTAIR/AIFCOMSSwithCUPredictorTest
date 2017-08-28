@@ -6,7 +6,7 @@ First, make sure that your Mac, Linux, or Windows computer has Python
 (and if not, then please install it, using the instructions on the Python website). <br>
 
 Then additionally, for the specific case of Windows machines (but this is not necessary on Mac or Linux), 
-please also install <i>either</i> Cygwin [https://www.cygwin.com](https://www.cygwin.com) <i>or</i> Visual Studio ([https://www.visualstudio.com](https://www.visualstudio.com)).  Note that if you choose to install Visual Studio (rather than Cygwin) on
+please also install <i>either</i> Cygwin ([https://www.cygwin.com](https://www.cygwin.com)) <i>or</i> Visual Studio ([https://www.visualstudio.com](https://www.visualstudio.com)).  Note that if you choose to install Visual Studio (rather than Cygwin) on
 your Windows machine, then after you install Visual Studio, all commands below must be run in powershell, rather
 than in the standard Windows command - you can access powershell from the standard Windows command line by
 typing: `$ powershell`, and note that it is also necessary to run the command terminal with Administrator privileges.<br>
