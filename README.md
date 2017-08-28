@@ -157,7 +157,7 @@ In a terminal, navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory, 
 Open your web browser, and navigate to `localhost:8080/AIFCOMSS.html`. You should then have AIFCOMSS running in your browser.
 
 
-<ul>If you prefer VirtualBox to Cygwin:</ul>
+If you prefer VirtualBox to Cygwin:
 
 Install VirtualBox [https://www.virtualbox.org/wiki/Downloads](https://www.virtualbox.org/wiki/Downloads) and create a virtual 
 machine. I would recommend 2GB of RAM and 25 GiO of memory allocated to your virtual machine. Once your virtual machine is 
