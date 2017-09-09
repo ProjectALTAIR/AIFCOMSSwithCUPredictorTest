@@ -5,7 +5,7 @@
  * Jon Sowman 2010
  */
 
-require_once("php_variables.php")
+require_once("php_variables.php");
 require_once("config.inc.php");
 require_once("statsd.php");
 
