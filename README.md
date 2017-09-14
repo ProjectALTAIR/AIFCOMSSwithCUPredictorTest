@@ -30,7 +30,7 @@ This will terminate unimportant Windows processes using port 80.  (Mind that Sky
 unless you change your Skype settings.)
 
 Now, navigate to the directory from which your HTML and PHP files are being served (in Linux for example, 
-this would be `/var/www` or `/var/www/html`, for AMPPS on Windows, this would be `C:\path\to\Ampps\www\html`, ie. the installation path of AMPPS) and install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/)). Install
+this would be `/var/www` or `/var/www/html`, for AMPPS on Windows, this would be `C:\path\to\Ampps\www\html`, i.e. the installation path of AMPPS) and install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/)). Install
 Cesium.js ([http://cesiumjs.org/downloads.html](http://cesiumjs.org/downloads.html)) to a new subdirectory
 here - you'll need it later. For Ubuntu, and Linux in general, Node-v6.11.2 is required. It is very easy to
 install through the following commands :
