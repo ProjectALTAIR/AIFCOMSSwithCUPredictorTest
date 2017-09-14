@@ -136,9 +136,6 @@ to the `AIFCOMSSwithCUPredictorTest` directory, and run
     pip install numpy
 
 to install some of the Python requirements. 
-Navigate to the download directory in the terminal, and install the package using
-
-    pip install numpy?1.13.1+mkl?cp27?cp27m?XXX.whl
 
 Navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory and run
 
