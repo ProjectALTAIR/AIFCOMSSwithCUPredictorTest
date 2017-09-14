@@ -49,7 +49,7 @@ from this GitHub AIFCOMSSwithCUPredictorTest repository intact.
 
 There are a few paths that need to be changed at this point:
 
- * In `/www/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (i.e., `/www/AIFCOMSSwithCUPredictorTest/`). **Make sure the path ends with a `/`**.  Also, change `PYTHON_PATH` to the location of your Python executable (eg., `/usr/bin/python` on Linux or `C:\Python27\python.exe` on Windows).
+ * In `/www/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (e.g., `/www/AIFCOMSSwithCUPredictorTest/`). **Make sure the path ends with a `/`**.  Also, change `PYTHON_PATH` to the location of your Python executable (eg., `/usr/bin/python` on Linux or `C:\Python27\python.exe` on Windows).
  * In both `/www/AIFCOMSSwithCUPredictorTest/predict/py_variables.py` and `/www/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change `ROOT_DIR` to the same value as in the previous file.
 
 and one that might possibly need to be (depending on your setup):
