@@ -49,7 +49,7 @@ from this GitHub AIFCOMSSwithCUPredictorTest repository intact.
 
 There are a few paths that need to be changed at this point:
 
- * In `/www/AIFCOMSSwithCUPredictorTest/predict/php_variables.php`, change `ROOT_DIR` to the location of the project folder (i.e., `/www/AIFCOMSSwithCUPredictorTest/`). **Make sure the path ends with a `/`**.  Also, change `PYTHON_PATH` to the location of your Python executable (eg., `/usr/bin/python` on Linux or `C:\Python27\python.exe` on Windows).
+ * In `/www/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (i.e., `/www/AIFCOMSSwithCUPredictorTest/`). **Make sure the path ends with a `/`**.  Also, change `PYTHON_PATH` to the location of your Python executable (eg., `/usr/bin/python` on Linux or `C:\Python27\python.exe` on Windows).
  * In both `/www/AIFCOMSSwithCUPredictorTest/predict/py_variables.py` and `/www/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change `ROOT_DIR` to the same value as in the previous file.
 
 and one that might possibly need to be (depending on your setup):
@@ -89,7 +89,7 @@ Furthermore, the `/var/www/AIFCOMSSwithCUPredictorTest/predict/preds` and `/var/
 directories must be given full (rwx) access by the PHP interpreter and both `predict.py` files. The simplest way to do so is 
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
 
-Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `sudo pip install -r requirements_linux.txt` to install some of the 
+Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_linux.txt` to install some of the 
 Python requirements. Change directories to `/var/www/AIFCOMSSwithCUPredictor/predict/` and run `npm update` to install the 
 remaining requirements.
 
@@ -133,10 +133,9 @@ Open the terminal, navigate
 to the `AIFCOMSSwithCUPredictorTest` directory, and run
 
     pip install -r requirements_win.txt
+    pip install numpy
 
-to install some of the Python requirements. Open your web browser, go to 
-[http://www.lfd.uci.edu/~gohlke/pythonlibs](http://www.lfd.uci.edu/~gohlke/pythonlibs/), and download one of the 
-`numpy?1.13.1+mkl?cp27?cp27m?XXX.whl` files, where XXX is replaced by your system architecture (either `win32` or `win_amd64`). 
+to install some of the Python requirements. 
 Navigate to the download directory in the terminal, and install the package using
 
     pip install numpy?1.13.1+mkl?cp27?cp27m?XXX.whl
@@ -165,14 +164,8 @@ created, download Ubuntu [https://www.ubuntu.com/download/desktop](https://www.u
 virtual optical disk on your virtual machine, install it, and you're done! General instructions can be found here : 
 [https://linus.nci.nih.gov/bdge/installUbuntu.html](https://linus.nci.nih.gov/bdge/installUbuntu.html)
 
-Then follow the upper instructions concerning Linux installation (though note that the port 80 problem remains, as your 
-connection is provided by a Windows machine).  In addition to those instructions, the following programs need to be installed:
-
-MSYS 2 : [http://www.msys2.org/](http://www.msys2.org/)
-CMake : [https://cmake.org/download/](https://cmake.org/download/)
-
-With these programs you will be able to download the required libraries and compile the predictor program, though it is 
-complicated and attempts have been unsuccessful up to now.
+Then follow the upper instructions concerning Linux installation (though be sure to note that the port 80 problem described above remains, as your 
+connection is provided by a Windows machine).
 
 #### Some debugging hints if you need them (Linux)
 
