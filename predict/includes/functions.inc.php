@@ -156,7 +156,7 @@ function runPred($pred_model) {
         $sh_start = "start /B \"\" ";
         $sh_fork = "";
     }
-    $sh = $sh_start . PYTHON_PATH . " " . ROOT_DIR . "predict.py --cd=" . ROOT_DIR . $sh_fork . "--alarm --redirect=" . ROOT_DIR . "$bog -vv --latdelta="
+    $sh = $sh_start . PYTHON_PATH . " " . ROOT_DIR . "predict.py --cd=" . ROOT_DIR . $sh_fork . " --alarm --redirect=" . ROOT_DIR . "$bog -vv --latdelta="
         .$pred_model['delta_lat']." --londelta=".$pred_model['delta_lon']
         ." -p1 -f".$pred_model['delta_time']." -t ".$pred_model['timestamp']
         ." --lat=".$predictor_lat." --lon=".$predictor_lon." " . $use_hd
