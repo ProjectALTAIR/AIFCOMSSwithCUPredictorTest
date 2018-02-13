@@ -22,7 +22,7 @@ AMP (Apache/MySQL/PHP) stack. Instructions can be found online for:
 Ignore any optional steps - the goal is just to get PHP pages to display.
 
 Note that on Windows, it is probable that port 80 will be occupied preventing PHP to run. To fix the problem,      
-run the command terminal as administrator an enter the following line :
+run the command terminal as administrator, and enter the following line :
 
         $ net stop http
 
