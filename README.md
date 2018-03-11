@@ -114,7 +114,7 @@ instructions starting about 40 lines below) is required to compile some of the s
 It's recommended that you do not add the Cygwin bin folders to your system path, as this will replace some of the usual Windows 
 cmd commands.
 
-Launch the Cygwin terminal, and navigate to the `AIFCOMSSwithCUPredictor/pred_src` directory - note that the `C:` drive is 
+Launch the Cygwin terminal, and navigate to the `AIFCOMSSwithCUPredictorTest/pred_src` directory - note that the `C:` drive is 
 located at `/cygdrive/c` when using this terminal. Run
 
     cmake .
