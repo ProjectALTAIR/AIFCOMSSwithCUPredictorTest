@@ -3,7 +3,7 @@
 
 First, make sure that your Mac, Linux, or Windows computer has Python 
 ([https://www.python.org](https://www.python.org) - but NOT version 3.x of Python - version 2.7 is best (Python v3 is really a quite different language from v2, and not backwards-compatible with v2), installed 
-(and if not, then please install it, using the instructions on the Python website.  Install pip, if asked, during the Python installation.) <br>
+(and if not, then please install Python v2.7, using the instructions on the Python website.  Install pip, if asked, during the Python installation.) <br>
 
 Then additionally, for the specific case of Windows machines (but this is not necessary on Mac or Linux), 
 please also install <i>either</i> Cygwin ([https://www.cygwin.com](https://www.cygwin.com)) <i>or</i> Visual Studio ([https://www.visualstudio.com](https://www.visualstudio.com)).  Note that if you choose to install Visual Studio (rather than Cygwin) on
@@ -17,12 +17,12 @@ AMP (Apache/MySQL/PHP) stack. Instructions can be found online for:
  * Ubuntu Linux: [https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/](https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/)
  * Mac OS: [http://www.ampps.com/](http://www.ampps.com/)
  * Windows: [http://www.ampps.com/](http://www.ampps.com/)
-	 * NOTE: install AMPPS into a location that does not have spaces, ie. NOT `Program Files`
+	 * NOTE: install AMPPS into a location that does not have spaces, ie. NOT `Program Files` -- I recommend that it be installed directly under C:\ , i.e. C:\Ampps\ .
 
 Ignore any optional steps - the goal is just to get PHP pages to display.
 
 Note that on Windows, it is probable that port 80 will be occupied preventing PHP to run. To fix the problem,      
-run the command terminal as administrator, and enter the following line :
+run the command terminal as administrator (by right-clicking on cmd.exe, and selecting Run as Administrator), and enter the following line :
 
         $ net stop http
 
