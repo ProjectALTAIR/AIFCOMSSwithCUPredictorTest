@@ -2,7 +2,7 @@
 ## Installation
 
 First, make sure that your Mac, Linux, or Windows computer has Python 
-([https://www.python.org](https://www.python.org)) - but NOT version 3.x of Python - version 2.7 is best (note that Python v3 is really a quite different language from v2, and not backwards-compatible with v2), installed 
+([https://www.python.org](https://www.python.org)) - but NOT version 3.x of Python - version 2.7 is best (note that Python v3 is really a quite different language from Python v2, and not backwards-compatible with v2), installed 
 (and if not, then please install Python v2.7, using the instructions on the Python website.  Install pip, if asked, during the Python installation.) <br>
 
 Then additionally, for the specific case of Windows machines (but this is not necessary on Mac or Linux), 
