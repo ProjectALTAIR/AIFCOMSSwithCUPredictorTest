@@ -1,1 +1,1 @@
-exports.ROOT_DIR = '/path/to/AIFCOMSSwithCUPredictorTest/'
+exports.ROOT_DIR = '/path/to/AIFCOMSSwithCUPredictorTest/predict/'
