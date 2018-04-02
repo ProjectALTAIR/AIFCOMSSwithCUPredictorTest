@@ -2,8 +2,8 @@
 ## Installation
 
 First, make sure that your Mac, Linux, or Windows computer has Python 
-([https://www.python.org](https://www.python.org) - version 2.7 is best, and install pip if asked) installed 
-(and if not, then please install it, using the instructions on the Python website). <br>
+([https://www.python.org](https://www.python.org) - but NOT any version 3.x of Python - version 2.7 is best (Python v3 is really a quite different language from v2, and not backwards-compatible with v2), installed 
+(and if not, then please install it, using the instructions on the Python website.  Install pip, if asked, during the Python installation.) <br>
 
 Then additionally, for the specific case of Windows machines (but this is not necessary on Mac or Linux), 
 please also install <i>either</i> Cygwin ([https://www.cygwin.com](https://www.cygwin.com)) <i>or</i> Visual Studio ([https://www.visualstudio.com](https://www.visualstudio.com)).  Note that if you choose to install Visual Studio (rather than Cygwin) on
@@ -30,7 +30,7 @@ This will terminate unimportant Windows processes using port 80.  (Mind that Sky
 unless you change your Skype settings.)
 
 Now, navigate to the directory from which your HTML and PHP files are being served (in Linux for example, 
-this would be `/var/www` or `/var/www/html`, for AMPPS on Windows, this would be `C:\path\to\Ampps\www\html`, i.e. the installation path of AMPPS) and install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/)). Install
+this would be `/var/www` or `/var/www/html`, for AMPPS on Windows, this would be `C:\path\to\Ampps\www\html`, i.e. the installation path of AMPPS) and install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/)). Install version 1.29 (not the most recent version, but version 1.29) of
 Cesium.js ([http://cesiumjs.org/downloads.html](http://cesiumjs.org/downloads.html)) to a new subdirectory
 here - you'll need it later. For Ubuntu, and Linux in general, Node-v6.11.2 is required. It is very easy to
 install through the following commands :
