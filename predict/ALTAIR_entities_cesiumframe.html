@@ -128,6 +128,7 @@ var ALTAIRParachute = viewer.entities.add({
     }
 });
 
+var updatePosition = true;
 // var propCheckboxChecked = true;
 // var propCheckboxChecked = propCheckbox.checked;
 var eventCounter = 0;
@@ -207,13 +208,20 @@ for (var i = 0; i < 4; ++i) {
 
 }
 
+// If we're running on Windows, don't spin the propellers or update the position
+// (since that doesn't work, for reasons which are not very well understood).
+if (window.navigator.userAgent.indexOf("Win") != -1) updatePosition = false;
+
 viewer.clock.onTick.addEventListener(function () {
     eventCounter++;
-    if (eventCounter % 5 == 0) {
-        viewer.camera.flyTo({
-          destination : ALTAIRGondola
-        });
-
+    if ((updatePosition || eventCounter > 300) && eventCounter % 5 == 0) {
+      
+        if (updatePosition) {
+            viewer.camera.flyTo({
+              destination : ALTAIRGondola
+            });
+        }
+          
         aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
         aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
         aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
