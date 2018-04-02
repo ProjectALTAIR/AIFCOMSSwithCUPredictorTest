@@ -129,15 +129,18 @@ installation directory to the `pred_src` directory containing `pred.exe`:
  -  `cygpcre-1.dll`
  -  `cygwin1.dll`
 
-Open the terminal, navigate 
-to the `AIFCOMSSwithCUPredictorTest` directory, and run
+Open a command terminal, navigate to the `AIFCOMSSwithCUPredictorTest` directory, and run
 
     pip install -r requirements_win.txt
     pip install numpy
 
-to install some of the Python requirements. 
+to install some of the Python requirements.  (Note that you might need to use the full path to the location of your pip.exe executable.)
 
-Navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory and run
+Then navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory and run
+
+    npm install
+
+then
 
     npm update
 
