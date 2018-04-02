@@ -108,8 +108,8 @@ instructions starting about 40 lines below) is required to compile some of the s
  - devel -> gcc-g++
  - devel -> make
  - devel -> cmake
- - lib -> libglib2.0-devel
- - lib -> libglib2.0_0
+ - libs -> libglib2.0-devel
+ - libs -> libglib2.0_0
 
 It's recommended that you do not add the Cygwin bin folders to your system path, as this will replace some of the usual Windows 
 cmd commands.
