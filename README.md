@@ -17,7 +17,7 @@ AMP (Apache/MySQL/PHP) stack. Instructions can be found online for:
  * Ubuntu Linux: [https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/](https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/)
  * Mac OS: [http://www.ampps.com/](http://www.ampps.com/)
  * Windows: [http://www.ampps.com/](http://www.ampps.com/)
-	 * NOTE: install AMPPS into a location that does not have spaces, ie. NOT `Program Files` -- I recommend that it be installed directly under C:\ , i.e. C:\Ampps\ .
+	 * NOTE: install AMPPS into a location that does not have spaces, ie. NOT `Program Files` -- I recommend that it be installed directly under C:\ , i.e. as C:\Ampps\ .
 
 Ignore any optional steps - the goal is just to get PHP pages to display.
 
@@ -39,7 +39,7 @@ install through the following commands :
         $ curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
         $ sudo apt-get install nodejs
 
-Back in your `/www` (i.e., `/var/www` or `/var/www/html` or `C:\Ampps\www\html`, etc etc)
+Back in your `/www/` (i.e., `/var/www/` or `/var/www/html/` or `C:\Ampps\www\`, etc etc)
 directory, download the package repository at
 [https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest)
 so that all the project files are located at `/www/AIFCOMSSwithCUPredictorTest/`. Copy all of the files
@@ -49,8 +49,8 @@ from this GitHub AIFCOMSSwithCUPredictorTest repository intact.
 
 There are a few paths that need to be changed at this point:
 
- * In `/www/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (e.g., `/www/AIFCOMSSwithCUPredictorTest/`). **Make sure the path ends with a `/`**.  Also, change `PYTHON_PATH` to the location of your Python executable (eg., `/usr/bin/python` on Linux or `C:\Python27\python.exe` on Windows).
- * In both `/www/AIFCOMSSwithCUPredictorTest/predict/py_variables.py` and `/www/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change `ROOT_DIR` to the same value as in the previous file.
+ * In `/www/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (e.g., `/www/AIFCOMSSwithCUPredictorTest/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\`). **Make sure the path ends with a `/` or `\\` (the latter on Windows)**.  Also, change `PYTHON_PATH` to the location of your Python executable (eg., `/usr/bin/python` on Linux or `C:\\Python27\\python.exe` on Windows). **On Windows, make sure you have *double* backslashes in the filenames, to prevent the backslashes from being interpreted as escape characters.**
+ * In `/www/AIFCOMSSwithCUPredictorTest/predict/py_variables.py`, change `ROOT_DIR` to the same value as in the previous file.  In `/www/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change exports.ROOT_DIR to be the same value, but with the addition of predict/ at the end, i.e. `/www/AIFCOMSSwithCUPredictorTest/predict/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\predict\\`.
 
 and one that might possibly need to be (depending on your setup):
 
@@ -106,7 +106,7 @@ instructions starting about 40 lines below) is required to compile some of the s
 [https://www.cygwin.com](https://www.cygwin.com). Run the setup, and in addition to the default packages also install:
 
  - devel -> gcc-g++
- - devek -> make
+ - devel -> make
  - devel -> cmake
  - lib -> libglib2.0-devel
  - lib -> libglib2.0_0
