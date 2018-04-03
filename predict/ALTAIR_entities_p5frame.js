@@ -3,7 +3,9 @@ var    fontString             = 'assets/LucidaSansRegular.ttf';
 var    arduinoPortString1     = "tty.usbmodem";
 var    arduinoPortString2     = "COM4";
 var    portSpeed              =  9600;
+var    audibleAlarms          =  true;
 var    numAlarms              =    30;
+var    timeBtwALTAIRPosComms  =    59;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
 var    timeBetweenAlarmSounds =    20;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
 var    timeBtwScopeTrkComms   =   150;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
 var    gravAcc                =     9.81; // m/s^2
@@ -37,6 +39,7 @@ var    blockButtons      = false;
 var    alarmOn           = []; // There are  numAlarms  alarms.  For each one: 0 == off, 1 == on but silenced, 2 == on (and not silenced)
 var    alarmCounter      = 0;
 var    scopeTrackCounter = 0;
+var    altairPosCounter  = 0;
 
 var    setting           = [];
 var    rpm               = [];
@@ -71,7 +74,7 @@ var socket = new WebSocket("ws://localhost:8081");
 var overButton = -999;
 
 function preload() {
-   alarm      = loadSound('assets/Alarm.wav');
+   if (audibleAlarms) alarm = loadSound('assets/Alarm.wav');
 }
 
 function setup() {
@@ -122,7 +125,10 @@ function getAltairArduinoInfoLine() {
   else {
 
   }
-  socket.send("ALTAIRPOS: " + lat.toString() + " " + long.toString() + " " + ele.toString());
+  ++altairPosCounter;
+  if (altairPosCounter % timeBtwALTAIRPosComms == 0) {
+    socket.send("ALTAIRPOS: " + lat.toString() + " " + long.toString() + " " + ele.toString());
+  }
 }
 
 socket.on('message', function(data, flags) {
@@ -982,7 +988,7 @@ function makeAutomationButtons() {
   if (!isCutdown) makeCutdownButton();
 
   makePanicButton();
-  if (anyAlarmIsOn()) {
+  if (audibleAlarms && anyAlarmIsOn()) {
     soundAlarm();
     makeSilenceAlarmsButton();
   }
