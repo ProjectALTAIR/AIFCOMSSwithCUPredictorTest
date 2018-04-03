@@ -156,7 +156,7 @@ In a terminal, navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory, 
 Open your web browser, and navigate to `localhost:8080/AIFCOMSS.html`. You should then have AIFCOMSS running in your browser.  
 
 **If** the bottom frame (the p5.js window) always just says "Loading ..." (that problem can often occur, especially on some Windows systems), then modify line 6 of `predict\ALTAIR_entities_p5frame.js` to change the value of the
-audibleAlarms variable on that line from `true` to `false`, and then re-run.
+audibleAlarms variable on that line from `true` to `false`, and then re-run (and let me know if you have any problems).
 
 
 <i>If you prefer VirtualBox to Cygwin</i>:
