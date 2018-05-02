@@ -42,8 +42,8 @@ install through the following commands :
 Back in your `/www/` (i.e., `/var/www/` or `/var/www/html/` or `C:\Ampps\www\`, etc etc)
 directory, download the package repository at
 [https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest)
-so that all the project files are located at `/www/AIFCOMSSwithCUPredictorTest/`  (and <font color="red">note that the directory should be
-called `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master`</font>). Copy all of the files
+so that all the project files are located at `/www/AIFCOMSSwithCUPredictorTest/`  (and **note that the directory should be
+called `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master`**). Copy all of the files
 ***except server.js and package.json*** from your Cesium directory into
 `/www/AIFCOMSSwithCUPredictorTest/predict`, leaving the original `server.js` and `package.json` files
 from this GitHub AIFCOMSSwithCUPredictorTest repository intact.
