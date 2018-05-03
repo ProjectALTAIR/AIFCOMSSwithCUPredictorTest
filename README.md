@@ -51,7 +51,8 @@ from this GitHub AIFCOMSSwithCUPredictorTest repository intact.
 There are a few paths that need to be changed at this point:
 
  * In `/www/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (e.g., `/www/AIFCOMSSwithCUPredictorTest/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\`). **Make sure the path ends with a `/` or `\\` (the latter on Windows)**.  Also, change `PYTHON_PATH` to the location of your Python executable (eg., `/usr/bin/python` on Linux or `C:\\Python27\\python.exe` on Windows). **On Windows, make sure you have *double* backslashes in the filenames, to prevent the backslashes from being interpreted as escape characters.**
- * In `/www/AIFCOMSSwithCUPredictorTest/predict/py_variables.py`, change `ROOT_DIR` to the same value as in the previous file.  And in `/www/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change exports.ROOT_DIR to be the same value, but with the addition of predict/ at the end, i.e. `/www/AIFCOMSSwithCUPredictorTest/predict/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\predict\\`.
+ * In `/www/AIFCOMSSwithCUPredictorTest/predict/py_variables.py`, change `ROOT_DIR` to the same value as you set it in the above (`php_variables.php`) file.  
+ * And in `/www/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change exports.ROOT_DIR to be the same value, but with the addition of predict/ at the end, i.e. `/www/AIFCOMSSwithCUPredictorTest/predict/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\predict\\`.
 
 and one that might possibly need to be (depending on your setup):
 
