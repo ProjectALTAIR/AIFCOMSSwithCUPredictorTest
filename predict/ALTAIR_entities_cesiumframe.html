@@ -128,6 +128,7 @@ var ALTAIRParachute = viewer.entities.add({
     }
 });
 
+var isUnusualWindowsMachine = false;
 var updatePosition = true;
 // var propCheckboxChecked = true;
 // var propCheckboxChecked = propCheckbox.checked;
@@ -208,9 +209,10 @@ for (var i = 0; i < 4; ++i) {
 
 }
 
-// If we're running on Windows, don't spin the propellers or update the position
+// If we're running on certain unusual Windows machines (like Justin's
+// Windows 7 desktop), don't spin the propellers or update the position
 // (since that doesn't work, for reasons which are not very well understood).
-if (window.navigator.userAgent.indexOf("Win") != -1) updatePosition = false;
+if (isUnusualWindowsMachine && window.navigator.userAgent.indexOf("Win") != -1) updatePosition = false;
 
 viewer.clock.onTick.addEventListener(function () {
     eventCounter++;
