@@ -26,31 +26,36 @@
 
     var arduinoPortString1     = "cu.usbmodem";
     var arduinoPortString2     = "COM4";
+    var arduinoPortString2a    = process.argv[2];
     var arduinoPortName        = "";
     var genericPortNamesList   = "Connected serial port names: ";
     var myPort                 = null;
 
     serialport.list(function (err, ports) {
-      var isFirstPort = true;
-      ports.forEach(function(port) {
-        if (!isFirstPort) genericPortNamesList = genericPortNamesList.concat(" , ");
-        genericPortNamesList = genericPortNamesList.concat(port.comName);
-        if (port.comName.indexOf(arduinoPortString2) != -1) arduinoPortName = port.comName;
-        if (port.comName.indexOf(arduinoPortString1) != -1) arduinoPortName = port.comName;
-        isFirstPort = false;
-      });
-      console.log(genericPortNamesList);
+        var isFirstPort = true;
+        ports.forEach(function(port) {
+           if (!isFirstPort) genericPortNamesList = genericPortNamesList.concat(" , ");
+           genericPortNamesList = genericPortNamesList.concat(port.comName);
+           if (arduinoPortString2a == "") {
+              if (port.comName.indexOf(arduinoPortString2)  != -1) arduinoPortName = port.comName;
+           } else {
+              if (port.comName.indexOf(arduinoPortString2a) != -1) arduinoPortName = port.comName;
+           }
+           if (port.comName.indexOf(arduinoPortString1) != -1) arduinoPortName = port.comName;
+           isFirstPort = false;
+        });
+        console.log(genericPortNamesList);
     });
 
     function showPortOpen() {
-       console.log('Serial port open.  Data rate: ' + myPort.options.baudRate);
-       console.log("");
+        console.log('Serial port open.  Data rate: ' + myPort.options.baudRate);
+        console.log("");
     }
  
     // This function broadcasts messages to all webSocket clients
     function broadcast(data) {
         for (myConnection in connections) {   // iterate over the array of connections
-            connections[myConnection].send(data); // send the data to each connection
+           connections[myConnection].send(data); // send the data to each connection
         }
     }
 
