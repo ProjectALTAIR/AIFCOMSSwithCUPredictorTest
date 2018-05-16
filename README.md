@@ -97,7 +97,7 @@ You should then have AIFCOMSS running in your web browser.
 
 Windows has no built in C compiler or interpreter.
 
-Thus, Cygwin (or some other analogous environment -- if you, for example, prefer VirtualBox to Cygwin, then see the VirtualBox 
+Thus, Cygwin (or some other analogous environment: if you, for example, prefer VirtualBox to Cygwin, then see the VirtualBox 
 instructions starting about 40 lines below.  Visual Studio \[[https://www.visualstudio.com](https://www.visualstudio.com)]
 would be a third option, if you so choose.  Note that if you choose to install Visual Studio \[rather than Cygwin or VirtualBox\] on
 your Windows machine, then after you install Visual Studio, all commands below must be run in powershell, rather
