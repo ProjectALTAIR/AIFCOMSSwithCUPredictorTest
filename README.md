@@ -40,7 +40,8 @@ so that all the project files are located at `/www/AIFCOMSSwithCUPredictorTest/`
 called** `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master`). Copy all of the files
 ***except server.js and package.json*** from your Cesium directory into
 `/www/AIFCOMSSwithCUPredictorTest/predict`, leaving the original `server.js` and `package.json` files
-from this GitHub AIFCOMSSwithCUPredictorTest repository intact.
+from this GitHub AIFCOMSSwithCUPredictorTest repository intact.  (A few other files will show up as duplicates;
+users should replace those other existing files in `/www/AIFCOMSSwithCUPredictorTest/predict` with the new files from your Cesium directory, rather than ignoring those files.)
 
 There are a few paths that need to be changed at this point:
 
