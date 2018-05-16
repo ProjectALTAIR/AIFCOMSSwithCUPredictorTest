@@ -5,7 +5,7 @@ First, make sure that your Mac, Linux, or Windows computer has Python
 ([https://www.python.org](https://www.python.org)) - but NOT version 3.x of Python - version 2.7 is best (note that Python v3 is really a quite different language from Python v2, and not backwards-compatible with v2), installed 
 (and if not, then please install Python v2.7, using the instructions on the Python website.  Install pip, if asked, during the Python installation.) <br>
 
-On <i>any</i> platform (Mac, Linux, or Windows), this package also requires the installation of an 
+On <i>any</i> platform (Mac, Linux, or Windows), this package <i>also</i> requires the installation of an 
 AMP (Apache/MySQL/PHP) stack. Instructions can be found online for:
 
  * Ubuntu Linux: [https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/](https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/)
