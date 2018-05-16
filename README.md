@@ -5,13 +5,7 @@ First, make sure that your Mac, Linux, or Windows computer has Python
 ([https://www.python.org](https://www.python.org)) - but NOT version 3.x of Python - version 2.7 is best (note that Python v3 is really a quite different language from Python v2, and not backwards-compatible with v2), installed 
 (and if not, then please install Python v2.7, using the instructions on the Python website.  Install pip, if asked, during the Python installation.) <br>
 
-Then additionally, for the specific case of Windows machines (but this is not necessary on Mac or Linux), 
-please also install <i>either</i> Cygwin ([https://www.cygwin.com](https://www.cygwin.com)) <i>or</i> Visual Studio ([https://www.visualstudio.com](https://www.visualstudio.com)).  Note that if you choose to install Visual Studio (rather than Cygwin) on
-your Windows machine, then after you install Visual Studio, all commands below must be run in powershell, rather
-than in the standard Windows command - you can access powershell from the standard Windows command line by
-typing: `$ powershell`, and note that it is also necessary to run the command terminal with Administrator privileges.<br>
-
-Following that, on <i>any</i> platform (Mac, Linux, or Windows), this package requires the installation of an 
+On <i>any</i> platform (Mac, Linux, or Windows), this package requires the installation of an 
 AMP (Apache/MySQL/PHP) stack. Instructions can be found online for:
 
  * Ubuntu Linux: [https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/](https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/)
@@ -104,7 +98,11 @@ You should then have AIFCOMSS running in your web browser.
 Windows has no built in C compiler or interpreter.
 
 Thus, Cygwin (or some other analogous environment -- if you, for example, prefer VirtualBox to Cygwin, then see the VirtualBox 
-instructions starting about 40 lines below) is required to compile some of the source files - download it at 
+instructions starting about 40 lines below.  Visual Studio \[[https://www.visualstudio.com](https://www.visualstudio.com)]
+would be a third option, if you so choose.  Note that if you choose to install Visual Studio \[rather than Cygwin or VirtualBox\] on
+your Windows machine, then after you install Visual Studio, all commands below must be run in powershell, rather
+than in the standard Windows command - you can access powershell from the standard Windows command line by
+typing: `$ powershell`, and note that it is also necessary to run the command terminal with Administrator privileges) is required to compile some of the source files - download Cygwin at 
 [https://www.cygwin.com](https://www.cygwin.com). Run the setup, and in addition to the default packages also install:
 
  - devel -> gcc-g++
