@@ -209,14 +209,13 @@ for (var i = 0; i < 4; ++i) {
 
 }
 
-// If we're running on certain unusual Windows machines (like Justin's
-// Windows 7 desktop), don't spin the propellers or update the position
-// (since that doesn't work, for reasons which are not very well understood).
-if (isUnusualWindowsMachine && window.navigator.userAgent.indexOf("Win") != -1) updatePosition = false;
+// If we're running on Windows machines, don't spin the propellers or update the
+// position (since that doesn't work, for reasons which are not very well understood).
+if (window.navigator.userAgent.indexOf("Win") != -1) updatePosition = false;
 
 viewer.clock.onTick.addEventListener(function () {
     eventCounter++;
-    if ((updatePosition || eventCounter > 300) && eventCounter % 5 == 0) {
+    if (!(isUnusualWindowsMachine && eventCounter <= 300) && eventCounter % 5 == 0) {
       
         if (updatePosition) {
             viewer.camera.flyTo({
