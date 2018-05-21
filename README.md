@@ -145,7 +145,7 @@ then
 
     npm update
 
-to install the remaining requirements.
+to install the remaining requirements.  (Note that if `npm install` does not work for you within a command terminal, please instead try it within either a cygwin terminal, or powershell, from the `AIFCOMSSwithCUPredictorTest/predict` directory as above.) 
 
 Launch Ampps, and in your web browser navigate to `localhost/ampps`. Click on Apache Configuration, turn `mod_headers` on, and 
 restart Apache.
