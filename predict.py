@@ -659,8 +659,8 @@ def dataset_for_time(time, hd):
                 return dataset
 #        except:
 #            raise Exception()
-        except pydap.exceptions.ServerError:
-            log.debug('Server error in dataset at %s' % url)
+        except pydap.exceptions.ServerError as e:
+            log.debug('Server error in dataset at %s from %s' % (url, e) )
             # Skip server error.
             pass
 
