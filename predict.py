@@ -356,6 +356,7 @@ def main():
         statsd.increment('success_minor_warnings')
     else:
         assert exit_code == 0
+        log.info('The predictor pred.exe executable exit_code = %s' % exit_code )
         update_progress(pred_running=False, pred_complete=True)
         statsd.increment('success')
 
