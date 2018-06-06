@@ -332,18 +332,6 @@ def main():
     else:
         copy_path = '/tmp'
     
-    copy_path = os.path.join(copy_path, 'flight_path.csv')
-
-    log.info('Copying file:')
-    log.info(uuid_path+'flight_path.csv')
-    log.info('to file:')
-    log.info(copy_path)
-
-    shutil.copyfile(uuid_path+'flight_path.csv',copy_path)
-
-    shutil.rmtree(gfs_dir)
-
-
     if exit_code == 1:
         # Hard error from the predictor. Tell the javascript it completed, so that it will show the trace,
         # but pop up a 'warnings' window with the error messages
@@ -359,6 +347,19 @@ def main():
         assert exit_code == 0
         update_progress(pred_running=False, pred_complete=True)
         statsd.increment('success')
+    
+    copy_path = os.path.join(copy_path, 'flight_path.csv')
+
+    log.info('Copying file:')
+    log.info(uuid_path+'flight_path.csv')
+    log.info('to file:')
+    log.info(copy_path)
+
+    shutil.copyfile(uuid_path+'flight_path.csv',copy_path)
+
+    shutil.rmtree(gfs_dir)
+
+
 
 def purge_cache():
     """
