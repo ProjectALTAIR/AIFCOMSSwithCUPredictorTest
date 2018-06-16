@@ -75,7 +75,7 @@ to compile the code found there. Once compiled, the following files must be made
  * `/var/www/AIFCOMSSwithCUPredictorTest/predict/predict.py`
  * `/var/www/AIFCOMSSwithCUPredictorTest/pred_src/pred`
  * `/var/www/AIFCOMSSwithCUPredictorTest/cron/clear-pydap-cache-cronjob.sh`
- * `/var/www/AIFCOMSSwithCUPredictorTest/cron/purge-predictions-cronjob.sh`
+ * `/var/www/AIFCOMSSwithCUPredictorTest/cron/prune-predictions-cronjob.sh`
 
 Furthermore, the `/var/www/AIFCOMSSwithCUPredictorTest/predict/preds` and `/var/www/AIFCOMSSwithCUPredictorTest/gfs` 
 directories must be given full (rwx) access by the PHP interpreter and both `predict.py` files. The simplest way to do so is 
