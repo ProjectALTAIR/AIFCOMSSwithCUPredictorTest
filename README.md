@@ -170,15 +170,14 @@ virtual optical disk on your virtual machine, install it, and you're done! Gener
 Then follow the upper instructions concerning Linux installation (though be sure to note that the port 80 problem described above remains, as your 
 connection is provided by a Windows machine).
 
-#### Some debugging hints if you need them (Linux)
+#### Some debugging hints if you need them (all OS's)
 
-Run your server and use the developer console of your browser to find any display or protocol errors. Identify the code 
-language at the source of the error and use its log file to solve the problem.
+Run your server, and use the developer Javascript console of your browser to find any display or protocol errors. Identify the code language at the source of the error, and the use its log file -- see below for location -- to solve the problem.
 
-Log files for the different code languages used can be found here :
+The log files for the different code languages used can be found in the locations below :
 
- * JavaScript : Developer console of the server
- * PHP : /var/log/apache2/error.log
- * Python : /var/www/AIFCOMSSwithCUPredictorTest/predict/pred/[the folder corresponding to your run]
+ * Javascript : The developer Javascript console of the server (you can find this in your web browser).
+ * PHP : /var/log/apache2/error.log (on Linux)
+ * Python : /var/www/AIFCOMSSwithCUPredictorTest/predict/pred/[the folder corresponding to your run] (on Linux)
 
 
