@@ -89,6 +89,10 @@ In this same `predict` directory, run `node server.js`.  Open a web browser, and
 
 You should then have AIFCOMSS running in your web browser.
 
+#### Mac OS X (tested on v. 10.13.5 "High Sierra")
+
+To be added very shortly.
+
 #### Windows (tested on Windows 7)
 
 Windows has no built in C compiler or interpreter.
