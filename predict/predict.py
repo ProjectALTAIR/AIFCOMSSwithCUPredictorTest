@@ -26,17 +26,20 @@ else:
     sys.path.append(os.path.join(filepath, 'predict'))
     from py_variables import *
 
-# determine OS
+# determine OS: darwin = Mac, other forms of win = Windows
 OS_IS_WINDOWS = False
 if 'win' in sys.platform.lower():
     OS_IS_WINDOWS = True
 
+if 'darwin' in sys.platform.lower():
+    OS_IS_WINDOWS = False
+    
 # Path to predictor binary
 if OS_IS_WINDOWS:
     # Windows
     pred_binary = './pred_src/pred.exe'
 else:
-    # probably Linux, may need to update this when supporting Mac
+    # probably Linux or Mac
     pred_binary = './pred_src/pred'
 
 statsd.init_statsd({'STATSD_BUCKET_PREFIX': 'habhub.predictor'})
