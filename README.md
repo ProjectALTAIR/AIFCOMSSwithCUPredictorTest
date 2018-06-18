@@ -82,8 +82,7 @@ directories must be given full (rwx) access by the PHP interpreter and both `pre
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
 
 Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_linux.txt` to install some of the 
-Python requirements. Change directories to `/var/www/AIFCOMSSwithCUPredictor/predict/` and run `npm update` to install the 
-remaining requirements.
+Python requirements. Change directories to `/var/www/AIFCOMSSwithCUPredictorTest/predict/` and run `npm update` to install the remaining requirements.
 
 In this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
@@ -91,7 +90,34 @@ You should then have AIFCOMSS running in your web browser.
 
 #### Mac OS X (tested on v. 10.13.5 "High Sierra")
 
-To be added very shortly.
+Check that you have CMake installed on your Mac by typing `which cmake` in a terminal window from your
+`/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` directory.  If you don't have it, then download the .dmg
+Mac installer for it from https://cmake.org/download/ , and then install it, following all instructions.  After that,
+`which cmake` should find your installed CMake executable in `/usr/local/bin/cmake`.
+
+Then, navigate to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/pred_src` and run
+
+    $ cmake .
+    $ make
+
+to compile the code found there. Once compiled, the following files must be made executable (`sudo chmod +x [file]`):
+
+ * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict.py`
+ * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/predict.py`
+ * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/pred_src/pred`
+ * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/cron/clear-pydap-cache-cronjob.sh`
+ * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/cron/prune-predictions-cronjob.sh`
+
+Furthermore, the `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/preds` and `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/gfs` 
+directories must be given full (rwx) access by the PHP interpreter and both `predict.py` files. The simplest way to do so is 
+using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
+
+Navigate back to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_macos.txt` to install some of the 
+Python requirements. Change directories to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/` and run `npm update` to install the remaining requirements.
+
+In this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
+
+You should then have AIFCOMSS running in your web browser.
 
 #### Windows (tested on Windows 7)
 
