@@ -1,6 +1,6 @@
 # AIFCOMSS with CUSF Prediction
 
-Windows screenshot
+Windows screenshot                                   Mac screenshot
 
 ![Windows screenshot](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_19jun18.jpg)
 
