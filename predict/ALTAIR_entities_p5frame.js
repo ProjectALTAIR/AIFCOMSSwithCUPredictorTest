@@ -415,8 +415,9 @@ function displayUM7SystemInfo() {
 
 //  accelGraphics.rotateX(0.2);
 //  accelGraphics.rotateZ(0.5);
-  accelGraphics.camera(30.*accel[0], -30.*accel[2], 0.);
-  accelGraphics.translate(0.,0.,-150.);
+//  accelGraphics.camera(30.*accel[0], -30.*accel[2], 0.);
+//  accelGraphics.translate(0.,0.,-150.);
+  accelGraphics.translate(-75.,-75.,-150.);
   accelGraphics.rotateY(radians(yaw));
   accelGraphics.rotateZ(-radians(pitch));
   accelGraphics.rotateX(radians(roll));
@@ -441,14 +442,16 @@ function displayUM7SystemInfo() {
   accelGraphics.rotateX(-radians(roll));
   accelGraphics.rotateZ(radians(pitch));
   accelGraphics.rotateY(-radians(yaw));
-  accelGraphics.translate(0.,0.,150.);
-  accelGraphics.camera(-30.*accel[0], 30.*accel[2], 0.);
+  accelGraphics.translate(75.,75.,150.);
+//  accelGraphics.translate(0.,0.,150.);
+//  accelGraphics.camera(-30.*accel[0], 30.*accel[2], 0.);
 
   // image(accelGraphics, 0, 0, 115, 115, 768, 37, 115, 115);
   image(accelGraphics, 768, 37, 115, 115, 0, 0, 115, 115);
 
-  orientGraphics.camera(30., -30., 0.);
-  orientGraphics.translate(0.,0.,-150.);
+//  orientGraphics.camera(30., -30., 0.);
+//  orientGraphics.translate(0.,0.,-150.);
+  orientGraphics.translate(-110.,-65.,-150.);
   orientGraphics.rotateY(radians(yaw));
   orientGraphics.rotateZ(-radians(pitch));
   orientGraphics.rotateX(radians(roll));
@@ -466,7 +469,9 @@ function displayUM7SystemInfo() {
   orientGraphics.ambientMaterial(0.05, 0.09, 0.85);
   orientGraphics.box(5., 80., 5.);
   orientGraphics.translate(0.,-40.,0.);
+  orientGraphics.rotateX(-radians(180.));
   orientGraphics.cone(10., 20.);
+  orientGraphics.rotateX(radians(180.));
 
   orientGraphics.translate(0.,80.,-40.);
   orientGraphics.ambientMaterial(0., 0.7, 0.);
@@ -480,27 +485,28 @@ function displayUM7SystemInfo() {
   orientGraphics.rotateX(-radians(roll));
   orientGraphics.rotateZ(radians(pitch));
   orientGraphics.rotateY(-radians(yaw));
-  orientGraphics.translate(0.,0.,150.);
-  orientGraphics.camera(-30., 30., 0.);
+  orientGraphics.translate(110.,65.,150.);
+//  orientGraphics.translate(0.,0.,150.);
+//  orientGraphics.camera(-30., 30., 0.);
 
   // image(orientGraphics, 0, 0, 150, 150, 880, 18, 150, 150);
   image(orientGraphics, 880, 18, 150, 150, 0, 0, 150, 150);
 
   noStroke();
 
-  drawType("Z", 932.+
+  drawType("Z", 940.+
            70.*Math.sin(radians(pitch)),  
                                        160.-
                70.*Math.cos(radians(pitch))-
                50.*Math.cos(radians(roll)),  0.4,                       0.6,                           1.0);
 //  drawType("X", 995.               , 110., 0.9,                       0.5,                           0.5);
-  drawType("X", 875.+ 
+  drawType("X", 880.+ 
            50.*Math.cos(radians(yaw))+
            70.*Math.cos(radians(pitch)), 
-                                       110.+
+                                       100.+
                70.*Math.sin(radians(pitch)), 0.9,                       0.5,                           0.5);
-  drawType("Y", 940.-                
-           50.*Math.sin(radians(yaw)), 102.-
+  drawType("Y", 925.-                
+           50.*Math.sin(radians(yaw)), 130.-
                50.*Math.sin(radians(roll)),  0.,                        0.7,                           0.);
 
 
