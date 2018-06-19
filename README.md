@@ -2,7 +2,7 @@
 
 Windows screenshot
 
-![Windows screenshot](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_19jun18.jpg =150x)
+![Windows screenshot](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_19jun18.jpg)
 
 ## Installation
 
