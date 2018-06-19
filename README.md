@@ -1,4 +1,7 @@
 # AIFCOMSS with CUSF Prediction
+
+![Windows screenshot](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_19jun18.jpg)
+
 ## Installation
 
 First, make sure that your Mac, Linux, or Windows computer has Python 
