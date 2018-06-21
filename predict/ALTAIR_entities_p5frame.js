@@ -169,7 +169,16 @@ function displayPropulsionSystemInfo() {
 
   noStroke();
   rect(650, 301, 50, 3);
+  textSize(10);
+  drawType("1/2    Full",   640., 409., 0., 0., 0.);
+  drawType("step  step",    640., 418., 0., 0., 0.);
+  textSize(13);
+  drawType("Modify power",  684., 433., 0., 0., 0.);
+  drawType("to all motors", 684., 447., 0., 0., 0.);
+  textSize(17);
   stroke(0);
+  makeButtons(667., 421., 7);
+  makeButtons(644., 421., 8);
   line(664, 300, 655, 300);
   line(664, 305, 655, 305);
   noFill();
@@ -203,7 +212,7 @@ function displayPropulsionSystemInfo() {
     textAlign(LEFT);
     drawType("/10",               165. + 235.*i + 240.*isRight, 360. - 30.*isHigh,   0.,                          0.,                             0.);
     stroke(0);
-    makeButtons(                  200. + 235.*i + 240.*isRight, 343. - 30.*isHigh,   i);
+    makeButtons(                  200. + 235.*i + 240.*isRight, 343. - 30.*isHigh, i+3);
 
     fillHeight = 40.*(rpm[i]/(maxRPM*1.2));
     if (rpm[i] > 0.)                    { propIsGreen = 1;
@@ -539,7 +548,7 @@ function displayUM7SystemInfo() {
   drawType(nf(setting[5],1,1),  1308.,  65., 0.,                        0.7,                           0.);
   textAlign(LEFT);
   drawType("/10",               1308.,  65., 0.,                        0.,                            0.);
-  makeButtons(                  1152.,  47., 5);
+  makeButtons(                  1152.,  47., 0);
   noStroke();
   drawType("Meas rot ang:  ",   1170.,  90., 0.,                        0.,                            0.);
   textAlign(RIGHT);
@@ -717,7 +726,7 @@ function displayCutdownSteeringAndEnvInfo() {
     textAlign(LEFT);
     drawType("Servo:",                             427.,  45., 0.,                        0.,                            0.);
     drawType("/10",                                486.,  45., 0.,                        0.,                            0.);
-    makeButtons(                   437.,  47., 6);
+    makeButtons(                   437.,  47., 1);
     noStroke();
   }
 
@@ -766,7 +775,7 @@ function displayCutdownSteeringAndEnvInfo() {
     drawType("Servo",                              451.,  51., 0.,                        0.,                            0.);
     drawType("Setting:",                           451.,  67., 0.,                        0.,                            0.);
     drawType("/10",                                558.,  65., 0.,                        0.,                            0.);
-    makeButtons(                   592.,  47., 4);
+    makeButtons(                   592.,  47., 2);
     noStroke();
     if (cutdownSteeringServoRotAng > 0.) {
       drawType("RIGHT",                            512.,  25., 0.,                        0.7,                           0.);
@@ -1626,6 +1635,22 @@ function mouseReleased() {
 //      }
       socket.send("LOG: Gave command to raise control setting # " + servoNum);
       break;
+    case 14:
+      overButton = -999;
+//      if (!testArduinoUnconnected) {
+        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
+        socket.send(String.fromCharCode("U".charCodeAt(0)));                       // write 'U' to increase the power of each propulsion motor by 1 unit
+//      }
+      socket.send("LOG: Gave command to increase the power of each propulsion motor by 1 unit");
+      break;
+    case 16:
+      overButton = -999;
+//      if (!testArduinoUnconnected) {
+        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
+        socket.send(String.fromCharCode("H".charCodeAt(0)));                       // write 'H' to increase the power of each propulsion motor by 1/2 unit
+//      }
+      socket.send("LOG: Gave command to increase the power of each propulsion motor by 1/2 unit");
+      break;
     case 50:
     case 52:
     case 54:
@@ -1633,7 +1658,7 @@ function mouseReleased() {
       lightNum = (overButton-50)/2;
       overButton = -999;
       socket.send('m'); socket.send('l');   // 'm'odify 'l'ight (ensure we avoid modifications due to noise)
-      socket.send(String.fromCharCode(lightNum+("A".charCodeAt(0))));            // write 'A' if laser diode light source 0, 'B' if laser diode light source 1, etc.
+      socket.send(String.fromCharCode(lightNum+("A".charCodeAt(0))));              // write 'A' if laser diode light source 0, 'B' if laser diode light source 1, etc.
       socket.send("LOG: Gave command to turn ON laser diode light source # " + lightNum);
       break;
     case 60:
@@ -1643,7 +1668,7 @@ function mouseReleased() {
       lightNum = (overButton-60)/2;
       overButton = -999;
       socket.send('m'); socket.send('l');   // 'm'odify 'l'ight (ensure we avoid modifications due to noise)
-      socket.send(String.fromCharCode(lightNum+("F".charCodeAt(0))));            // write 'F' if diffusive light source 0, 'G' if diffusive light source 1, etc.
+      socket.send(String.fromCharCode(lightNum+("F".charCodeAt(0))));              // write 'F' if diffusive light source 0, 'G' if diffusive light source 1, etc.
       socket.send("LOG: Gave command to turn ON diffusive light source # " + lightNum);
       break;
     case 1:
@@ -1660,6 +1685,22 @@ function mouseReleased() {
         socket.send(String.fromCharCode(servoNum+("a".charCodeAt(0))));            // write 'a' if servo 0, 'b' if servo 1, etc.
 //      }
       socket.send("LOG: Gave command to lower control setting # " + servoNum);
+      break;
+    case 15:
+      overButton = -999;
+//      if (!testArduinoUnconnected) {
+        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
+        socket.send(String.fromCharCode("u".charCodeAt(0)));                       // write 'u' to decrease the power of each propulsion motor by 1 unit
+//      }
+      socket.send("LOG: Gave command to decrease the power of each propulsion motor by 1 unit");
+      break;
+    case 17:
+      overButton = -999;
+//      if (!testArduinoUnconnected) {
+        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
+        socket.send(String.fromCharCode("h".charCodeAt(0)));                       // write 'h' to decrease the power of each propulsion motor by 1/2 unit
+//      }
+      socket.send("LOG: Gave command to decrease the power of each propulsion motor by 1/2 unit");
       break;
     case 51:
     case 53:
