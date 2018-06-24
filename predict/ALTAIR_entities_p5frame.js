@@ -21,6 +21,7 @@ var    twoBarRSSI             =   -85.0;  // in dBm -- marginal signal strength
 var    threeBarRSSI           =   -60.0;  // in dBm -- minimum acceptable signal strength (below this, there is an alarm)
 var    fourBarRSSI            =   -35.0;  // in dBm -- solid signal strength
 var    fiveBarRSSI            =   -11.0;  // in dBm -- very strong signal strength
+var    maxDroppedMessageFrac  =     0.2;  // alarm if more than 20% of messages are dropped
 var    minVoltage             =    11.1;  // volts
 var    maxVoltage             =    12.9;  // volts
 
@@ -57,7 +58,12 @@ var    photodiodeReadout = [];
 var    lat, long, ele, horizSigma, vertSigma;
 var    gLTAIRLat, gLTAIRLon, gLTAIRAlt;
 var    groundLat, groundLong, groundEle;
-var    altairRSSI, groundRSSI;
+var    GPSInUse;                                    // 0 = mast u-blox NEO-M8N, 1 = DFRobot u-blox G6010
+var    orientInUse;                                 // 0 = mast Adafruit BNO055, 1 = interior CHRobotics UM7, 2 = mast Sparkfun HMC6343
+var    radioInUse;                                  // 0 = DNT, 1 = SHX, 2 = RFM23BP
+var    altairRSSI, groundRSSI, altairDropMessFrac, groundDropMessFrac;
+var    altairAlt1RSSI, groundAlt1RSSI, altairAlt1DropMessFrac, groundAlt1DropMessFrac;
+var    altairAlt2RSSI, groundAlt2RSSI, altairAlt2DropMessFrac, groundAlt2DropMessFrac;
 var    microSDSpaceOccupied, microSDSpaceRemaining;
 var    lightSourceStatus;
 var    isCutdown;
@@ -212,7 +218,7 @@ function displayPropulsionSystemInfo() {
     textAlign(LEFT);
     drawType("/10",               165. + 235.*i + 240.*isRight, 360. - 30.*isHigh,   0.,                          0.,                             0.);
     stroke(0);
-    makeButtons(                  200. + 235.*i + 240.*isRight, 343. - 30.*isHigh, i+3);
+    makeButtons(                  200. + 235.*i + 240.*isRight, 343. - 30.*isHigh,   i+3);
 
     fillHeight = 40.*(rpm[i]/(maxRPM*1.2));
     if (rpm[i] > 0.)                    { propIsGreen = 1;
@@ -416,6 +422,23 @@ function displayPropulsionSystemInfo() {
 
 function displayUM7SystemInfo() {
 
+  var  orientInUseName,  alt1OrientName,  alt2OrientName;
+
+  // default (orientInUse == 0)
+  orientInUseName      = "mast Adafruit BNO055";
+  alt1OrientName       = "inter. CHRobotics UM7";
+  alt2OrientName       = "mast Sparkfun HMC6343";
+
+  if (orientInUse == 1) {
+      orientInUseName  = "inter. CHRobotics UM7";
+      alt1OrientName   = "mast Adafruit BNO055";
+      alt2OrientName   = "mast Sparkfun HMC6343";
+  } else if (orientInUse == 2) {
+      orientInUseName  = "mast Sparkfun HMC6343";
+      alt1OrientName   = "mast Adafruit BNO055";
+      alt2OrientName   = "inter. CHRobotics UM7";
+  }
+
   accelGraphics.background(1.0, 1.0, 1.0);
   orientGraphics.background(1.0, 1.0, 1.0);
 
@@ -584,9 +607,12 @@ function displayUM7SystemInfo() {
   textSize(10);
   drawType("2",                  762.,  83., 0.,                        0.,                            0.);
   textSize(17);
-  drawType("Accel",              802.,  20., 0.,                        0.,                            0.);
-  drawType("vectors",            795.,  35., 0.,                        0.,                            0.);
-  drawType("Orientation",        910.,  20., 0.,                        0.,                            0.);
+  drawType("Acceleration",       660.,  18., 0.,                        0.,                            0.);
+  drawType("Orientation",        970.,  18., 0.,                        0.,                            0.);
+  textSize(13);
+  drawType("via",                777.,  12., 0.,                        0.,                            0.);
+  drawType(orientInUseName,      797.,  12., 0.,                        0.7,                           0.);
+  makeChangeOrientButtons();
 
   drawType("Orientation sensor", 697., 180., UM7health,                 0.,                            0.);
   drawType("health: ",           697., 200., UM7health,                 0.,                            0.);
@@ -898,8 +924,22 @@ function displayCutdownSteeringAndEnvInfo() {
 
 function displayGPSInfo() {
 
-  drawType("GPS",                    340.,  20., 0.,                        0.,                            0.);
+  var GPSInUseName;
 
+  // default (GPSInUse == 0)
+  GPSInUseName     = "mast NEO-M8N";
+  if (GPSInUse == 1) {
+      GPSInUseName = "DFRobot G6010";
+  }
+
+  textSize(15);
+  drawType("GPS",                    287.,  13., 0.,                        0.,                            0.);
+  textSize(13);
+  drawType("via",                    287.,  28., 0.,                        0.,                            0.);
+  drawType(GPSInUseName,             307.,  28., 0.,                        0.7,                           0.);
+  makeChangeGPSButton();
+
+  textSize(17);
   drawType("Lat. =",                 260.,  47., 0.,                        0.,                            0.);
   if (lat > 0.)  drawType("N",       408.,  47., 0.,                        0.,                            0.);
   else           drawType("S",       408.,  47., 0.,                        0.,                            0.);
@@ -924,12 +964,12 @@ function displayGPSInfo() {
   drawType(nf(int(vertSigma)),       476., 113., 0.,                        0.7,                           0.);
   textAlign(LEFT);
 
-  drawType("Ground station",         170., 132., 0.,                        0.,                            0.);
-  drawType("in control:",            189., 146., 0.,                        0.,                            0.);
-  drawType(controlGroundStationName, 186., 161., 0.,                        0.7,                           0.);
-  drawType("Monitoring GSs:",        400., 132., 0.,                        0.,                            0.);
+  drawType("Ground station",         170., 134., 0.,                        0.,                            0.);
+  drawType("in control:",            189., 148., 0.,                        0.,                            0.);
+  drawType(controlGroundStationName, 186., 163., 0.,                        0.7,                           0.);
+  drawType("Monitoring GSs:",        400., 134., 0.,                        0.,                            0.);
   textSize(10);
-  drawType(monGroundStationName[0],  440., 146., 0.,                        0.7,                           0.);
+  drawType(monGroundStationName[0],  440., 148., 0.,                        0.7,                           0.);
   drawType("o",                      401.,  38., 0.,                        0.,                            0.);
   drawType("o",                      401.,  60., 0.,                        0.,                            0.);
   drawType("Lat. =",                 288., 134., 0.,                        0.,                            0.);
@@ -955,47 +995,288 @@ function displayGPSInfo() {
 
 function displayConnectionInfo() {
 
-  if (altairRSSI < threeBarRSSI)                 if (alarmOn[23] == 0) alarmOn[23] = 2;
-  else                                           alarmOn[23] = 0;
-  if (groundRSSI < threeBarRSSI)                 if (alarmOn[24] == 0) alarmOn[24] = 2;
-  else                                           alarmOn[24] = 0;
+  var  longRadioInUseName,  longAlt1RadioName,  longAlt2RadioName;
+  var shortRadioInUseName, shortAlt1RadioName, shortAlt2RadioName;
 
-  drawType("Connection Strength",   30.,  20., 0.,                        0.,                            0.);
+  // default (radioInUse == 0)
+  longRadioInUseName      = "DNT900 910 MHz";
+  longAlt1RadioName       = "SHX144 144 MHz";
+  longAlt2RadioName       = "RFM23b 440 MHz";
+  shortRadioInUseName     = "DNT";
+  shortAlt1RadioName      = "SHX";
+  shortAlt2RadioName      = "RFM";
 
-  drawType("ALTAIR -> ground",      75.,  50., 0.,                        0.,                            0.);
-  drawType("RSSI =",                73.,  66., 0.,                        0.,                            0.);
-  drawType("dBm",                  177.,  66., 0.,                        0.,                            0.);
+  if (radioInUse == 1) {
+      longRadioInUseName  = "SHX144 144 MHz";
+      longAlt1RadioName   = "DNT900 910 MHz";
+      longAlt2RadioName   = "RFM23b 440 MHz";
+      shortRadioInUseName = "SHX";
+      shortAlt1RadioName  = "DNT";
+      shortAlt2RadioName  = "RFM";
+  } else if (radioInUse == 2) {
+      longRadioInUseName  = "RFM23b 440 MHz";
+      longAlt1RadioName   = "DNT900 910 MHz";
+      longAlt2RadioName   = "SHX144 144 MHz";
+      shortRadioInUseName = "RFM";
+      shortAlt1RadioName  = "DNT";
+      shortAlt2RadioName  = "SHX";
+  }
 
-  drawType("ground -> ALTAIR",      75.,  95., 0.,                        0.,                            0.);
-  drawType("RSSI =",                73., 111., 0.,                        0.,                            0.);
-  drawType("dBm",                  177., 111., 0.,                        0.,                            0.);
+  if (altairRSSI < threeBarRSSI)                  if (alarmOn[23] == 0) alarmOn[23] = 2;
+  else                                            alarmOn[23] = 0;
+  if (groundRSSI < threeBarRSSI)                  if (alarmOn[24] == 0) alarmOn[24] = 2;
+  else                                            alarmOn[24] = 0;
+  if (altairDropMessFrac > maxDroppedMessageFrac) if (alarmOn[28] == 0) alarmOn[28] = 2;
+  else                                            alarmOn[28] = 0;
+  if (groundDropMessFrac > maxDroppedMessageFrac) if (alarmOn[29] == 0) alarmOn[29] = 2;
+  else                                            alarmOn[29] = 0;
+
+  textSize(15);
+  drawType("Connection Strength",    4.,  13., 0.,                        0.,                            0.);
+  textSize(13);
+  drawType("via",                    4.,  28., 0.,                        0.,                            0.);
+  drawType(longRadioInUseName,      24.,  28., (alarmOn[23] > 0 || alarmOn[24] > 0 || alarmOn[28] > 0 || alarmOn[29] > 0 ? 1 : 0),                        
+                                           0.7*(alarmOn[23] > 0 || alarmOn[24] > 0 || alarmOn[28] > 0 || alarmOn[29] > 0 ? 0 : 1),                            
+                                                                                                         0.);
+  textSize(17)
+
+
+  drawType("ALTAIR -> ground",      60.,  46., 0.,                        0.,                            0.);
+  textSize(12);
+  drawType("RSSI =",                58.,  60., 0.,                        0.,                            0.);
+  drawType("dBm",                  132.,  60., 0.,                        0.,                            0.);
+  drawType("Dropped messages: ",    58.,  72., 0.,                        0.,                            0.);
+  drawType("%",                    182.,  72., 0.,                        0.,                            0.);
+  drawType(shortAlt1RadioName,     200.,  46., 0.,                        0.7,                           0.);
+  drawType(shortAlt2RadioName,     230.,  46., 0.,                        0.7,                           0.);
+  textSize(10);
+  drawType("%",                    217.,  72., 0.,                        0.,                            0.);
+  drawType("%",                    247.,  72., 0.,                        0.,                            0.);
+  textSize(17);
+
+  drawType("ground -> ALTAIR",      60.,  91., 0.,                        0.,                            0.);
+  textSize(12);
+  drawType("RSSI =",                58., 106., 0.,                        0.,                            0.);
+  drawType("dBm",                  132., 106., 0.,                        0.,                            0.);
+  drawType("Dropped messages: ",    58., 118., 0.,                        0.,                            0.);
+  drawType("%",                    182., 118., 0.,                        0.,                            0.);
+  textSize(10);
+  drawType("%",                    217., 118., 0.,                        0.,                            0.);
+  drawType("%",                    247., 118., 0.,                        0.,                            0.);
+  textSize(17);
 
   drawType("Range =",               10., 146., 0.,                        0.,                            0.);
   drawType("m",                    130., 146., 0.,                        0.,                            0.);
+  makeChangeRadioButtons();
 
   textAlign(RIGHT);
-  drawType(nfp(altairRSSI,2,1),    173.,  66., (alarmOn[23] > 0 ? 1 : 0), 0.7*(alarmOn[24] > 0 ? 0 : 1), 0.);
-  drawType(nfp(groundRSSI,2,1),    173., 111., (alarmOn[24] > 0 ? 1 : 0), 0.7*(alarmOn[23] > 0 ? 0 : 1), 0.);
+  textSize(12);
+  drawType(nfp(altairRSSI,2,1),    129.,  60., (alarmOn[23] > 0 ? 1 : 0), 0.7*(alarmOn[23] > 0 ? 0 : 1), 0.);
+  drawType(nfp(groundRSSI,2,1),    129., 106., (alarmOn[24] > 0 ? 1 : 0), 0.7*(alarmOn[24] > 0 ? 0 : 1), 0.);
+  drawType(nf(int(altairDropMessFrac*100)),    
+                                   181.,  72., (alarmOn[28] > 0 ? 1 : 0), 0.7*(alarmOn[28] > 0 ? 0 : 1), 0.);
+  drawType(nf(int(groundDropMessFrac*100)),    
+                                   181., 118., (alarmOn[29] > 0 ? 1 : 0), 0.7*(alarmOn[29] > 0 ? 0 : 1), 0.);
+  textSize(10);
+  drawType(nfp(altairAlt1RSSI,2,1), 225.,  60., 0.,                       0.7,                           0.);
+  drawType(nfp(groundAlt1RSSI,2,1), 225., 106., 0.,                       0.7,                           0.);
+  drawType(nf(int(altairAlt1DropMessFrac*100)),
+                                   217.,  72.,  0.,                       0.7,                           0.);
+  drawType(nf(int(groundAlt1DropMessFrac*100)),
+                                   217., 118.,  0.,                       0.7,                           0.);
+  drawType(nfp(altairAlt2RSSI,2,1), 255.,  60., 0.,                       0.7,                           0.);
+  drawType(nfp(groundAlt2RSSI,2,1), 255., 106., 0.,                       0.7,                           0.);
+  drawType(nf(int(altairAlt2DropMessFrac*100)),
+                                   247.,  72.,  0.,                       0.7,                           0.);
+  drawType(nf(int(groundAlt2DropMessFrac*100)),
+                                   247., 118.,  0.,                       0.7,                           0.);
+  textSize(17);
   drawType(nf(int(getRange())),    126., 146., 0.                       , 0.7                          , 0.);
   textAlign(LEFT);
 
   fill(color(1.*(alarmOn[23] > 0 ? 1 : 0), 0., 0.));
-  if (altairRSSI > oneBarRSSI)   rect(13.,61.,8.,5.);  
-  else   drawType("NO SIGNAL",         2.,60.,          1.,                        0.,                            0.);
-  if (altairRSSI > twoBarRSSI)   rect(23.,56.,8.,10.);
-  if (altairRSSI > threeBarRSSI) rect(33.,51.,8.,15.);
-  if (altairRSSI > fourBarRSSI)  rect(43.,46.,8.,20.);
-  if (altairRSSI > fiveBarRSSI)  rect(53.,41.,8.,25.);
+  if (altairRSSI > oneBarRSSI)   rect( 3.,61.,8.,5.);  
+  else   drawType("NO SIGNAL",         1.,60.,          1.,                        0.,                            0.);
+  if (altairRSSI > twoBarRSSI)   rect(13.,56.,8.,10.);
+  if (altairRSSI > threeBarRSSI) rect(23.,51.,8.,15.);
+  if (altairRSSI > fourBarRSSI)  rect(33.,46.,8.,20.);
+  if (altairRSSI > fiveBarRSSI)  rect(43.,41.,8.,25.);
 
   fill(color(1.*(alarmOn[24] > 0 ? 1 : 0), 0., 0.));
-  if (groundRSSI > oneBarRSSI)   rect(13.,106.,8.,5.);  
-  else   drawType("NO SIGNAL",         2.,105.,         1.,                        0.,                            0.);
-  if (groundRSSI > twoBarRSSI)   rect(23.,101.,8.,10.);
-  if (groundRSSI > threeBarRSSI) rect(33., 96.,8.,15.);
-  if (groundRSSI > fourBarRSSI)  rect(43., 91.,8.,20.);
-  if (groundRSSI > fiveBarRSSI)  rect(53., 86.,8.,25.);
+  if (groundRSSI > oneBarRSSI)   rect( 3.,106.,8.,5.);  
+  else   drawType("NO SIGNAL",         1.,105.,         1.,                        0.,                            0.);
+  if (groundRSSI > twoBarRSSI)   rect(13.,101.,8.,10.);
+  if (groundRSSI > threeBarRSSI) rect(23., 96.,8.,15.);
+  if (groundRSSI > fourBarRSSI)  rect(33., 91.,8.,20.);
+  if (groundRSSI > fiveBarRSSI)  rect(43., 86.,8.,25.);
 
   stroke(0);
+  line( 25, 29,  72, 29);
+  line(200, 47, 225, 47);
+  line(230, 47, 255, 47);
+}
+
+function makeChangeGPSButton() {
+  var  altGPSName;
+
+  // default (GPSInUse == 0)
+  altGPSName     = "DFRobot G6";
+  if (GPSInUse == 1) {
+      altGPSName = "mast N-M8N";
+  }
+
+  var x = 323., y = 1.;
+  var xSize = 100., ySize = 12., cornerRadius = 8.;
+//  stroke(0);
+  textSize(9);
+  if (mouseX > x && mouseX < x+xSize &&
+      mouseY > y && mouseY < y+ySize) {
+    overButton = 32;
+    if (mouseIsPressed) {
+      fill(1.,0.,0.);
+    } else {
+      overButton = -999;
+      fill(0., 0., 0.);
+    }
+    stroke(1., 1., 1.);
+  } else {
+    fill(1., 1., 1.);
+    stroke(0., 0., 0.);
+  }
+  rect(x,                        y,                                      xSize,      ySize, cornerRadius);
+  noStroke();
+  drawType("Switch to",             x+5.,   y+9., ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.));
+  drawType(altGPSName,              x+45.,  y+9., 0.,      0.7,                0.);
+  textSize(17);
+
+}
+
+function makeChangeOrientButtons() {
+  var  alt1OrientName,  alt2OrientName;
+
+  // default (orientInUse == 0)
+  alt1OrientName       = "CHRobotics UM7";
+  alt2OrientName       = "Sparkfun HMC6343";
+
+  if (orientInUse == 1) {
+      alt1OrientName   = "Adafruit BNO055";
+      alt2OrientName   = "Sparkfun HMC6343";
+  } else if (radioInUse == 2) {
+      alt1OrientName   = "Adafruit BNO055";
+      alt2OrientName   = "CHRobotics UM7";
+  }
+
+  var x = 777., y = 17.;
+  var xSize = 128., ySize = 12., cornerRadius = 8.;
+//  stroke(0);
+  textSize(9);
+  if (mouseX > x && mouseX < x+xSize &&
+      mouseY > y && mouseY < y+ySize) {
+    overButton = 34;
+    if (mouseIsPressed) {
+      fill(1.,0.,0.);
+    } else {
+      overButton = -999;
+      fill(0., 0., 0.);
+    }
+    stroke(1., 1., 1.);
+  } else {
+    fill(1., 1., 1.);
+    stroke(0., 0., 0.);
+  }
+  rect(x,                        y,                                      xSize,      ySize, cornerRadius);
+  noStroke();
+  drawType("Switch to",             x+5.,  y+10., ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),      
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.));
+  drawType(alt1OrientName,          x+45., y+10., 0.,      0.7,                0.);
+  y = 33.;
+  if (mouseX > x && mouseX < x+xSize &&
+      mouseY > y && mouseY < y+ySize) {
+    overButton = 31;
+    if (mouseIsPressed) {
+      fill(1.,0.,0.);
+    } else {
+      overButton = -999;
+      fill(0., 0., 0.);
+    }
+    stroke(1., 1., 1.);
+  } else {
+    fill(1., 1., 1.);
+    stroke(0., 0., 0.);
+  }
+  rect(x,                        y,                                      xSize,      ySize, cornerRadius);
+  noStroke();
+  drawType("Switch to",             x+5.,  y+10., ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.));
+  drawType(alt2OrientName,         x+45., y+10., 0.,      0.7,                0.);
+  textSize(17);
+}
+
+function makeChangeRadioButtons() {
+  var  alt1RadioName,  alt2RadioName;
+
+  // default (radioInUse == 0)
+  alt1RadioName       = "SHX144 144 MHz";
+  alt2RadioName       = "RFM23b 440 MHz";
+
+  if (radioInUse == 1) {
+      alt1RadioName   = "DNT900 910 MHz";
+      alt2RadioName   = "RFM23b 440 MHz";
+  } else if (radioInUse == 2) {
+      alt1RadioName   = "DNT900 910 MHz";
+      alt2RadioName   = "SHX144 144 MHz";
+  }
+
+  var x = 145., y = 1.;
+  var xSize = 135., ySize = 12., cornerRadius = 8.;
+//  stroke(0);
+  textSize(10);
+  if (mouseX > x && mouseX < x+xSize &&
+      mouseY > y && mouseY < y+ySize) {
+    overButton = 30;
+    if (mouseIsPressed) {
+      fill(1.,0.,0.);
+    } else {
+      overButton = -999;
+      fill(0., 0., 0.);
+    }
+    stroke(1., 1., 1.);
+  } else {
+    fill(1., 1., 1.);
+    stroke(0., 0., 0.);
+  }
+  rect(x,                        y,                                      xSize,      ySize, cornerRadius);
+  noStroke();
+  drawType("Switch to",             x+5.,  y+10., ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),      
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.));
+  drawType(alt1RadioName,           x+50., y+10., 0.,      0.7,                0.);
+  y = 18.;
+  if (mouseX > x && mouseX < x+xSize &&
+      mouseY > y && mouseY < y+ySize) {
+    overButton = 31;
+    if (mouseIsPressed) {
+      fill(1.,0.,0.);
+    } else {
+      overButton = -999;
+      fill(0., 0., 0.);
+    }
+    stroke(1., 1., 1.);
+  } else {
+    fill(1., 1., 1.);
+    stroke(0., 0., 0.);
+  }
+  rect(x,                        y,                                      xSize,      ySize, cornerRadius);
+  noStroke();
+  drawType("Switch to",             x+5.,  y+10., ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.),
+                                                  ((mouseX > x && mouseX < x+xSize && mouseY > y && mouseY < y+ySize) ? 1.: 0.));
+  drawType(alt2RadioName,           x+50., y+10., 0.,      0.7,                0.);
+  textSize(17);
 }
 
 function makeAutomationButtons() {
@@ -1588,8 +1869,21 @@ function setFakeAltairValues() {
   groundLat  =   48.48;                 // degrees (north = +, south = -)
   groundLong = -123.37;                 // degrees (east = +, west = -)
   groundEle  =   88.;                   // meters above mean sea level
+  GPSInUse   =    0;                    // mast u-blox NEO-M8N
+  orientInUse =   0;                    // mast Adafruit BNO055
+  radioInUse =    0;                    // DNT900 910 MHz
   altairRSSI =  -10.1;                  // dBm, ALTAIR -> ground
   groundRSSI =  -11.5;                  // dBm, ground -> ALTAIR
+  altairDropMessFrac =  0.11;           // ground -> ALTAIR
+  groundDropMessFrac =  0.10;           // ALTAIR -> ground
+  altairAlt1RSSI =  -18.4;              // alternate radio 1 dBm, ALTAIR -> ground
+  groundAlt1RSSI =  -17.6;              // alternate radio 1 dBm, ground -> ALTAIR
+  altairAlt1DropMessFrac =  0.19;       // alternate radio 1 ground -> ALTAIR
+  groundAlt1DropMessFrac =  0.18;       // alternate radio 1 ALTAIR -> ground
+  altairAlt2RSSI =  -21.2;              // alternate radio 2 dBm, ALTAIR -> ground
+  groundAlt2RSSI =  -18.8;              // alternate radio 2 dBm, ground -> ALTAIR
+  altairAlt2DropMessFrac =  0.20;       // alternate radio 2 ground -> ALTAIR
+  groundAlt2DropMessFrac =  0.17;       // alternate radio 2 ALTAIR -> ground
   microSDSpaceOccupied        =  920.;  // in MB
   microSDSpaceRemaining       = 7040.;  // in MB
   lightSourceStatus           =    0 ;  // binary packed status integer -- 8 bits: 4 lsb for integrative sphere lasers, 4 msb for diffusive source LEDs
@@ -1651,6 +1945,30 @@ function mouseReleased() {
 //      }
       socket.send("LOG: Gave command to increase the power of each propulsion motor by 1/2 unit");
       break;
+    case 30:
+      overButton = -999;
+//      if (!testArduinoUnconnected) {
+        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
+        socket.send(String.fromCharCode("R".charCodeAt(0)));                       // write 'R' to change the radio to the 1st alternate radio
+//      }
+      socket.send("LOG: Gave command to change the radio to the 1st alternate radio");
+      break;
+    case 32:
+      overButton = -999;
+//      if (!testArduinoUnconnected) {
+        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
+        socket.send(String.fromCharCode("G".charCodeAt(0)));                       // write 'R' to change the GPS to the alternate GPS receiver
+//      }
+      socket.send("LOG: Gave command to change the GPS to the alternate GPS");
+      break;
+    case 34:
+      overButton = -999;
+//      if (!testArduinoUnconnected) {
+        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
+        socket.send(String.fromCharCode("O".charCodeAt(0)));                       // write 'O' to change the orientation sensor to the 1st alternate orientation/acceleration sensor
+//      }
+      socket.send("LOG: Gave command to change the orientation sensor to the 1st alternate orientation/acceleration sensor");
+      break;
     case 50:
     case 52:
     case 54:
@@ -1702,6 +2020,22 @@ function mouseReleased() {
 //      }
       socket.send("LOG: Gave command to decrease the power of each propulsion motor by 1/2 unit");
       break;
+    case 31:
+      overButton = -999;
+//      if (!testArduinoUnconnected) {
+        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
+        socket.send(String.fromCharCode("r".charCodeAt(0)));                       // write 'r' to change the radio to the 2nd alternate radio
+//      }
+      socket.send("LOG: Gave command to change the radio to the 2nd alternate radio");
+      break;
+    case 35:
+      overButton = -999;
+//      if (!testArduinoUnconnected) {
+        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
+        socket.send(String.fromCharCode("o".charCodeAt(0)));                       // write 'o' to change the orientation sensor to the 2nd alternate orientation/acceleration sensor
+//      }
+      socket.send("LOG: Gave command to change the orientation sensor to the 2nd alternate orientation/acceleration sensor");
+      break;
     case 51:
     case 53:
     case 55:
@@ -1743,7 +2077,7 @@ function mouseReleased() {
         socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
         socket.send('x');                     // 'x' = shut em all down
 //      }
-      socket.send("LOG: Pressed PANIC button! -- shutting down all motors.");
+      socket.send("LOG: Pressed PANIC button! -- sent command to shut down all motors.");
       break;
     case 101:
       overButton = -999;
