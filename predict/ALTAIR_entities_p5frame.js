@@ -1195,7 +1195,7 @@ function makeChangeOrientButtons() {
   y = 33.;
   if (mouseX > x && mouseX < x+xSize &&
       mouseY > y && mouseY < y+ySize) {
-    overButton = 31;
+    overButton = 35;
     if (mouseIsPressed) {
       fill(1.,0.,0.);
     } else {
@@ -1924,48 +1924,54 @@ function mouseReleased() {
       servoNum = overButton/2;     
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode(servoNum+("A".charCodeAt(0))));            // write 'A' if servo 0, 'B' if servo 1, etc.
+        socket.send('C\x02' + 's' + String.fromCharCode(servoNum+("A".charCodeAt(0))));
+//        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode(servoNum+("A".charCodeAt(0)))); // write 'A' if servo 0, 'B' if servo 1, etc.
 //      }
       socket.send("LOG: Gave command to raise control setting # " + servoNum);
       break;
     case 14:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode("U".charCodeAt(0)));                       // write 'U' to increase the power of each propulsion motor by 1 unit
+        socket.send('C\x02' + 's' + String.fromCharCode("U".charCodeAt(0)));
+//        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode("U".charCodeAt(0)));            // write 'U' to increase the power of each propulsion motor by 1 unit
 //      }
       socket.send("LOG: Gave command to increase the power of each propulsion motor by 1 unit");
       break;
     case 16:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode("H".charCodeAt(0)));                       // write 'H' to increase the power of each propulsion motor by 1/2 unit
+        socket.send('C\x02' + 's' + String.fromCharCode("H".charCodeAt(0)));
+//        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode("H".charCodeAt(0)));            // write 'H' to increase the power of each propulsion motor by 1/2 unit
 //      }
       socket.send("LOG: Gave command to increase the power of each propulsion motor by 1/2 unit");
       break;
     case 30:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode("R".charCodeAt(0)));                       // write 'R' to change the radio to the 1st alternate radio
+        socket.send('C\x02' + 'd' + String.fromCharCode("R".charCodeAt(0)));
+//        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode("R".charCodeAt(0)));            // write 'R' to change the radio to the 1st alternate radio
 //      }
       socket.send("LOG: Gave command to change the radio to the 1st alternate radio");
       break;
     case 32:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode("G".charCodeAt(0)));                       // write 'R' to change the GPS to the alternate GPS receiver
+        socket.send('C\x02' + 'd' + String.fromCharCode("G".charCodeAt(0)));
+//        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode("G".charCodeAt(0)));            // write 'G' to change the GPS to the alternate GPS receiver
 //      }
       socket.send("LOG: Gave command to change the GPS to the alternate GPS");
       break;
     case 34:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode("O".charCodeAt(0)));                       // write 'O' to change the orientation sensor to the 1st alternate orientation/acceleration sensor
+        socket.send('C\x02' + 'd' + String.fromCharCode("O".charCodeAt(0)));
+//        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode("O".charCodeAt(0)));            // write 'O' to change the orientation sensor to the 1st alternate orientation/acceleration sensor
 //      }
       socket.send("LOG: Gave command to change the orientation sensor to the 1st alternate orientation/acceleration sensor");
       break;
@@ -1975,8 +1981,9 @@ function mouseReleased() {
     case 56:
       lightNum = (overButton-50)/2;
       overButton = -999;
-      socket.send('m'); socket.send('l');   // 'm'odify 'l'ight (ensure we avoid modifications due to noise)
-      socket.send(String.fromCharCode(lightNum+("A".charCodeAt(0))));              // write 'A' if laser diode light source 0, 'B' if laser diode light source 1, etc.
+      socket.send('C\x02' + 'l' + String.fromCharCode(lightNum+("A".charCodeAt(0))));
+//      socket.send(0xFC); socket.send(0x02); socket.send('l');           // modify 'l'ight (ensure we avoid modifications due to noise)
+//      socket.send(String.fromCharCode(lightNum+("A".charCodeAt(0))));   // write 'A' if laser diode light source 0, 'B' if laser diode light source 1, etc.
       socket.send("LOG: Gave command to turn ON laser diode light source # " + lightNum);
       break;
     case 60:
@@ -1985,8 +1992,9 @@ function mouseReleased() {
     case 66:
       lightNum = (overButton-60)/2;
       overButton = -999;
-      socket.send('m'); socket.send('l');   // 'm'odify 'l'ight (ensure we avoid modifications due to noise)
-      socket.send(String.fromCharCode(lightNum+("F".charCodeAt(0))));              // write 'F' if diffusive light source 0, 'G' if diffusive light source 1, etc.
+      socket.send('C\x02' + 'l' + String.fromCharCode(lightNum+("F".charCodeAt(0))));
+//      socket.send(0xFC); socket.send(0x02); socket.send('l');           // modify 'l'ight (ensure we avoid modifications due to noise)
+//      socket.send(String.fromCharCode(lightNum+("F".charCodeAt(0))));   // write 'F' if diffusive light source 0, 'G' if diffusive light source 1, etc.
       socket.send("LOG: Gave command to turn ON diffusive light source # " + lightNum);
       break;
     case 1:
@@ -1999,40 +2007,45 @@ function mouseReleased() {
       servoNum = (overButton-1)/2;     
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode(servoNum+("a".charCodeAt(0))));            // write 'a' if servo 0, 'b' if servo 1, etc.
+        socket.send('C\x02' + 's' + String.fromCharCode(servoNum+("a".charCodeAt(0))));
+//        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode(servoNum+("a".charCodeAt(0)))); // write 'a' if servo 0, 'b' if servo 1, etc.
 //      }
       socket.send("LOG: Gave command to lower control setting # " + servoNum);
       break;
     case 15:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode("u".charCodeAt(0)));                       // write 'u' to decrease the power of each propulsion motor by 1 unit
+        socket.send('C\x02' + 's' + String.fromCharCode("u".charCodeAt(0)));
+//        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode("u".charCodeAt(0)));            // write 'u' to decrease the power of each propulsion motor by 1 unit
 //      }
       socket.send("LOG: Gave command to decrease the power of each propulsion motor by 1 unit");
       break;
     case 17:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode("h".charCodeAt(0)));                       // write 'h' to decrease the power of each propulsion motor by 1/2 unit
+        socket.send('C\x02' + 's' + String.fromCharCode("h".charCodeAt(0)));
+//        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode("h".charCodeAt(0)));            // write 'h' to decrease the power of each propulsion motor by 1/2 unit
 //      }
       socket.send("LOG: Gave command to decrease the power of each propulsion motor by 1/2 unit");
       break;
     case 31:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode("r".charCodeAt(0)));                       // write 'r' to change the radio to the 2nd alternate radio
+        socket.send('C\x02' + 'd' + String.fromCharCode("r".charCodeAt(0)));
+//        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode("r".charCodeAt(0)));            // write 'r' to change the radio to the 2nd alternate radio
 //      }
       socket.send("LOG: Gave command to change the radio to the 2nd alternate radio");
       break;
     case 35:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('d');   // 'm'odify 'd'evice (ensure we avoid modifications due to noise)
-        socket.send(String.fromCharCode("o".charCodeAt(0)));                       // write 'o' to change the orientation sensor to the 2nd alternate orientation/acceleration sensor
+        socket.send('C\x02' + 'd' + String.fromCharCode("o".charCodeAt(0)));
+//        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
+//        socket.send(String.fromCharCode("o".charCodeAt(0)));            // write 'o' to change the orientation sensor to the 2nd alternate orientation/acceleration sensor
 //      }
       socket.send("LOG: Gave command to change the orientation sensor to the 2nd alternate orientation/acceleration sensor");
       break;
@@ -2042,8 +2055,9 @@ function mouseReleased() {
     case 57:
       lightNum = (overButton-51)/2;
       overButton = -999;
-      socket.send('m'); socket.send('l');   // 'm'odify 'l'ight (ensure we avoid modifications due to noise)
-      socket.send(String.fromCharCode(lightNum+("a".charCodeAt(0))));            // write 'a' if laser diode light source 0, 'b' if laser diode light source 1, etc.
+      socket.send('C\x02' + 'l' + String.fromCharCode(lightNum+("a".charCodeAt(0))));
+//      socket.send(0xFC); socket.send(0x02); socket.send('l');           // modify 'l'ight (ensure we avoid modifications due to noise)
+//      socket.send(String.fromCharCode(lightNum+("a".charCodeAt(0))));   // write 'a' if laser diode light source 0, 'b' if laser diode light source 1, etc.
       socket.send("LOG: Gave command to turn OFF laser diode light source # " + lightNum);
       break;
     case 61:
@@ -2052,8 +2066,9 @@ function mouseReleased() {
     case 67:
       lightNum = (overButton-61)/2;
       overButton = -999;
-      socket.send('m'); socket.send('l');   // 'm'odify 'l'ight (ensure we avoid modifications due to noise)
-      socket.send(String.fromCharCode(lightNum+("f".charCodeAt(0))));            // write 'f' if diffusive light source 0, 'g' if diffusive light source 1, etc.
+      socket.send('C\x02' + 'l' + String.fromCharCode(lightNum+("f".charCodeAt(0))));
+//      socket.send(0xFC); socket.send(0x02); socket.send('l');           // modify 'l'ight (ensure we avoid modifications due to noise)
+//      socket.send(String.fromCharCode(lightNum+("f".charCodeAt(0))));   // write 'f' if diffusive light source 0, 'g' if diffusive light source 1, etc.
       socket.send("LOG: Gave command to turn OFF diffusive light source # " + lightNum);
       break;
     case 98:
@@ -2066,16 +2081,18 @@ function mouseReleased() {
     case 99:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
-        socket.send('C');                     // 'C' = cut down the gondola
+        socket.send('C\x02' + 'sC');
+//        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
+//        socket.send('C');                                               // 'C' = cut down the gondola
 //      }
       socket.send("LOG: Cutdown initiated -- cutting down the gondola.");
       break;
     case 100:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('m'); socket.send('s');   // 'm'odify 's'ervo (ensure we avoid modifications due to noise)
-        socket.send('x');                     // 'x' = shut em all down
+        socket.send('C\x02' + 'sx');
+//        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
+//        socket.send('x');                                               // 'x' = shut em all down
 //      }
       socket.send("LOG: Pressed PANIC button! -- sent command to shut down all motors.");
       break;
