@@ -11,6 +11,18 @@ include_directories(${GLIB_INCLUDE_DIRS})
 link_directories(${GLIB_LIBRARY_DIRS})
 
 add_executable(pred
+        state/ALTAIR_state.cc
+        state/ALTAIR_state.hh
+        state/ExternalEnvironState.cc
+        state/ExternalEnvironState.hh
+        state/BalloonAndPfoilState.cc
+        state/BalloonAndPfoilState.hh
+        state/GondolaAndPropState.cc
+        state/GondolaAndPropState.hh
+        state/OptSourcePayloadState.cc
+        state/OptSourcePayloadState.hh
+        util/ThrustCalcMethods.cc
+        util/ThrustCalcMethods.hh
 	util/gopt.c
 	util/getdelim.c
 	util/random.h
