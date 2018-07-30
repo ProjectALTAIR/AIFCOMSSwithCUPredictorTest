@@ -8,7 +8,8 @@
         @license  GPL
 
         This is the class containing the present state of the ALTAIR
-        parafoil, balloon, rigging, and helium bleed valve.  
+        parafoil, balloon, solar panels (if installed), rigging, and 
+        helium bleed valve.  
     
         An example usage:
             #include "ALTAIR_state.hh"
@@ -40,20 +41,47 @@ class   BalloonAndPfoilState {
     public:
 
         BalloonAndPfoilState();
-
         virtual ~BalloonAndPfoilState();
 
-        virtual bool                   getIsCutdown();
+        virtual bool                   getIsCutdown()                   { return _isCutdown;                  }
 
-        virtual void                   setIsCutdown(    bool  isCutdown  );
+        virtual bool                   getAreSolarPanelsInstalled()     { return _areSolarPanelsInstalled;    }
+        virtual int                    getNumOfSolarPanels()            { return _numOfSolarPanels;           }
+        virtual float                  getIndivSolarPanelWidth()        { return _indivSolarPanelWidth;       }  // in meters
+        virtual float                  getIndivSolarPanelLength()       { return _indivSolarPanelLength;      }  // in meters
+        virtual float                  getSolarPanelSetupUpperRadius()  { return _solarPanelSetupUpperRadius; }  // in meters
+        virtual float                  getSolarPanelAvgTemp()           { return _solarPanelAvgTemp;          }  // in Celsius
+        virtual float                  getSolarPanelAvgEfficiency()     { return _solarPanelAvgEfficiency;    }
+
+        virtual float                  getBalloonRadius()               { return _balloonRadius;              }  // in meters
+
+
+        virtual void                   setIsCutdown(                  bool  isCutdown                  );
+
+        virtual void                   setAreSolarPanelsInstalled(    bool  areSolarPanelsInstalled    );
+        virtual void                   setNumOfSolarPanels(           int   numOfSolarPanels           );
+        virtual void                   setIndivSolarPanelWidth(       float indivSolarPanelWidth       );
+        virtual void                   setIndivSolarPanelLength(      float indivSolarPanelLength      );
+        virtual void                   setSolarPanelSetupUpperRadius( float solarPanelSetupUpperRadius );
+        virtual void                   setSolarPanelAvgTemp(          float solarPanelAvgTemp          );
+        virtual void                   setSolarPanelAvgEfficiency(    float solarPanelAvgEfficiency    );
+
+        virtual void                   setBalloonRadius(              float balloonRadius              );
 
 
     private:
 
         bool                           _isCutdown;
 
+        bool                           _areSolarPanelsInstalled;
+        int                            _numOfSolarPanels;
+        float                          _indivSolarPanelWidth;
+        float                          _indivSolarPanelLength;
+        float                          _solarPanelSetupUpperRadius;
+        float                          _solarPanelAvgTemp;
+        float                          _solarPanelAvgEfficiency;
+
+        float                          _balloonRadius;
 };
-
-
 
 #endif // __BALLOONANDPFOILSTATE_HH__
