@@ -108,19 +108,19 @@ float ThrustCalcMethods::getMomTransMethodThrust()
         float                 propDiam           =  gondAndProp->getPropellerDiameter() ;
         float                 pitch              =  gondAndProp->getPropellerPitch()    ;
 
-        float                 propRadiusInMeters =  mPerInch   * propDiam / 2.          ;
+        float                 propRadiusInMeters =  propDiam     /  2.                  ;   // propDiam is already in meters
         float                 propXSectionAirmassPerMetre       
-                                                 =  airDensity * M_PI     * 
-                                                    propRadiusInMeters    * 
+                                                 =  airDensity   *  M_PI    * 
+                                                    propRadiusInMeters      * 
                                                     propRadiusInMeters                  ;
            // Note: Here 3.29546 is an emperically determined value.  The method by which
            //       it is obtained is outlined in the source given above this method.
-        float empCorrFactor                      =  propDiam   / (3.29546 * pitch)      ;
+        float empCorrFactor                      =  propDiam     / (3.29546 * pitch)    ;  
 
         for (int i = 0; i < 4; ++i) {
                 float         rpm                =  gondAndProp->getRPMMotor(i+1)       ;
-           // Note: Here we divide by 60 simply as a conversion from RPM to RPS.
-                float         maxTheoSpeed       = (rpm * mPerInch * pitch) / 60.       ;
+           // Note: Here we divide by 60 simply as a conversion from RPM to RPS.  Pitch is already in meters, so maxTheoSpeed is in m/s.
+                float         maxTheoSpeed       = (rpm * pitch) /  60.                 ; 
 
                               thrustProp[i]      =  propXSectionAirmassPerMetre *
                                                     maxTheoSpeed                *
