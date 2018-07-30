@@ -23,6 +23,8 @@ add_executable(pred
         state/OptSourcePayloadState.hh
         util/ThrustCalcMethods.cc
         util/ThrustCalcMethods.hh
+        util/DragCalcMethods.cc
+        util/DragCalcMethods.hh
 	util/gopt.c
 	util/getdelim.c
 	util/random.h
