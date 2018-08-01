@@ -25,6 +25,8 @@ add_executable(pred
         util/ThrustCalcMethods.hh
         util/DragCalcMethods.cc
         util/DragCalcMethods.hh
+        util/SolarPowerCalcMethods.cc
+        util/SolarPowerCalcMethods.hh
 	util/gopt.c
 	util/getdelim.c
 	util/random.h
