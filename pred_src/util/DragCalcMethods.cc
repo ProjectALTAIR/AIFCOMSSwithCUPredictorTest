@@ -58,7 +58,10 @@ float DragCalcMethods::getBalloonDrag()
 	float pressure 			  = extEnv->getOutsideAirPressure()				;
 	float balloonRadius  		  = balAndPfoil->getBalloonRadius()				;
 	
-	float airViscosity 		  = ( 1.458e-6 * sqrt(tempInK) ) / ( 1. + 110.4/tempInK)	;
+        // The formula below approximates dynamic viscosity in SI units (poiseuilles, i.e. kg / (m s) or Pa s).
+        // Note that the dynamic viscosity of gases (somewhat surprisingly!) is largely independent of 
+        // pressure, and thus is only given as a function of temperature.
+	float airViscosity 		  = ( 1.458e-6 * sqrt(tempInK) ) / ( 1. + 110.4/tempInK)	;  
 	float densityOverViscosity 	  = airDensity / airViscosity					;
 	float crossSecArea   		  = M_PI * balloonRadius * balloonRadius     			;
 	float reynoldsNumber 		  = densityOverViscosity * balloonRadius * 2. * payloadSpeed	;
