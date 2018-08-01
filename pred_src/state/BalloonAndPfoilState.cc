@@ -112,7 +112,7 @@ BalloonAndPfoilState::setSolarPanelAvgEfficiency(    float solarPanelAvgEfficien
 
 
 void
-BalloonAndPfoilState::setBalloonRadius(           float balloonRadius                 )
+BalloonAndPfoilState::setBalloonRadius(              float balloonRadius              )
 {
   _balloonRadius              = balloonRadius              ;
 }

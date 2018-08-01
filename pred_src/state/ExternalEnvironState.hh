@@ -50,20 +50,23 @@ class   ExternalEnvironState {
 
         virtual ~ExternalEnvironState();
 
+        virtual long int               getCurrentTime();                 // Standard Unix timestamp (i.e., seconds since midnight Jan. 1, 1970)
         virtual float                  getOutsideTemp();                 // In Celsius
         virtual float                  getOutsideAirPressure();          // In Pascals
         virtual float                  getOutsideAirDensity();           // Related to pressure and temp by the equation of state for air 
         virtual float                  getForwardSpeedRelToWind();
         virtual float                  getElevationASL();                // Elevation (in meters) above mean sea level
 
-        virtual void                   setOutsideTemp(           float  outsideTemp            );
-        virtual void                   setOutsideAirPressure(    float  outsideAirPressure     );
-        virtual void                   setForwardSpeedRelToWind( float  forwardSpeedRelToWind  );
-        virtual void                   setElevationASL(          float  elevationASL           );
+        virtual void                   setCurrentTime(           long int currentTime            );
+        virtual void                   setOutsideTemp(           float    outsideTemp            );
+        virtual void                   setOutsideAirPressure(    float    outsideAirPressure     );
+        virtual void                   setForwardSpeedRelToWind( float    forwardSpeedRelToWind  );
+        virtual void                   setElevationASL(          float    elevationASL           );
 
 
     private:
 
+        long int                       _currentTime;
         float                          _outsideTemp;
         float                          _outsideAirPressure;
         float                          _forwardSpeedRelToWind;

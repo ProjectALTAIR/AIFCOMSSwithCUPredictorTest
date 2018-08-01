@@ -36,7 +36,8 @@
 // Constructor --
 //---------------
 ExternalEnvironState::ExternalEnvironState()
- : _outsideTemp(                0. ),
+ : _currentTime(                0  ),
+   _outsideTemp(                0. ),
    _outsideAirPressure(    101325. ),        // standard atmospheric pressure
    _forwardSpeedRelToWind(      0. ),
    _elevationASL(               5. )
@@ -53,6 +54,12 @@ ExternalEnvironState::~ExternalEnvironState()
 //-----------
 // Methods --
 //-----------
+long int
+ExternalEnvironState::getCurrentTime()
+{
+  return _currentTime;
+}
+
 float
 ExternalEnvironState::getOutsideTemp()
 {
@@ -92,25 +99,31 @@ ExternalEnvironState::getElevationASL()
 
 
 void
-ExternalEnvironState::setOutsideTemp(            float outsideTemp           )
+ExternalEnvironState::setCurrentTime(            long int currentTime           )
+{
+  _currentTime           = currentTime;
+}
+
+void
+ExternalEnvironState::setOutsideTemp(            float    outsideTemp           )
 {
   _outsideTemp           = outsideTemp;
 }
 
 void
-ExternalEnvironState::setOutsideAirPressure(     float outsideAirPressure    )
+ExternalEnvironState::setOutsideAirPressure(     float    outsideAirPressure    )
 {
   _outsideAirPressure    = outsideAirPressure;
 }
 
 void
-ExternalEnvironState::setForwardSpeedRelToWind(  float forwardSpeedRelToWind )
+ExternalEnvironState::setForwardSpeedRelToWind(  float    forwardSpeedRelToWind )
 {
   _forwardSpeedRelToWind = forwardSpeedRelToWind;
 }
 
 void
-ExternalEnvironState::setElevationASL(           float elevationASL          )
+ExternalEnvironState::setElevationASL(           float    elevationASL          )
 {
   _elevationASL          = elevationASL;
 }
