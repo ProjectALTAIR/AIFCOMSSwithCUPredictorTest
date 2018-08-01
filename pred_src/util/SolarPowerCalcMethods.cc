@@ -65,6 +65,13 @@ float SolarPowerCalcMethods::getSolarPanelProjectedArea()
 
 std::vector<float> SolarPowerCalcMethods::getSunToBalloonVector()
 {
-        std::vector<float> theVector;
-	return theVector;
+        std::vector<float>    sunToBalVector                                    ;
+        ExternalEnvironState* extEnv            = altairState->getExtEnv()      ;
+
+        long int              unixTime          = extEnv->getCurrentTime()      ;
+        float                 currentLat        = extEnv->getCurrentLat()       ;
+        float                 currentLon        = extEnv->getCurrentLon()       ;
+
+
+	return sunToBalVector;
 }
