@@ -39,6 +39,7 @@ ExternalEnvironState::ExternalEnvironState()
  : _currentTime(                0  ),
    _currentLat(                 0. ),
    _currentLon(                 0. ),
+   _currentHeading(             0. ),
    _outsideTemp(                0. ),
    _outsideAirPressure(    101325. ),        // standard atmospheric pressure
    _forwardSpeedRelToWind(      0. ),
@@ -72,6 +73,12 @@ float
 ExternalEnvironState::getCurrentLon()
 {
   return _currentLon;
+}
+
+float
+ExternalEnvironState::getCurrentHeading()
+{
+  return _currentHeading;
 }
 
 float
@@ -128,6 +135,12 @@ void
 ExternalEnvironState::setCurrentLon(             float    currentLon            )
 {
   _currentLon            = currentLon;
+}
+
+void
+ExternalEnvironState::setCurrentHeading(         float    currentHeading        )
+{
+  _currentHeading        = currentHeading;
 }
 
 void
