@@ -1,4 +1,4 @@
-# AIFCOMSS with CUSF Prediction
+# AIFCOMSS with [CUSF](https://github.com/cuspaceflight) Prediction
 
 &nbsp; &nbsp; &nbsp; &nbsp; Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Mac screenshot (on Safari v. 11 browser)                
 
