@@ -50,12 +50,6 @@
 #include "../state/ExternalEnvironState.hh"
 #include "../state/GondolaAndPropState.hh"
 
-//---------------
-// Definitions --
-//---------------
-#define         mPerInch        0.0254
-
-
 //              ----------------------------------------
 //              -- Public Member Function Definitions --
 //              ----------------------------------------
@@ -67,12 +61,15 @@
 //
 float ThrustCalcMethods::getInterpMethodThrust()
 {
-        float thrustProp[4], propRPS[4];                                                    // calculated for each of the 4 propellers
-        float d    = altairState->getGondAndProp()->getPropellerDiameter();
-        float rho  = altairState->getExtEnv()->getOutsideAirDensity();
+        ExternalEnvironState* extEnv        =  altairState->getExtEnv()                 ;
+        GondolaAndPropState*  gondAndProp   =  altairState->getGondAndProp()            ;
+        float                 thrustProp[4], propRPS[4]                                 ;  // calculated for each of the 4 propellers
+
+        float                 d             = gondAndProp->getPropellerDiameter()       ;
+        float                 rho           = extEnv->getOutsideAirDensity()            ;
         for (int i = 0; i < 4; ++i) {
-                propRPS[i]    = (altairState->getGondAndProp()->getRPMMotor(i+1))/60.;      // rotations per *second*
-                thrustProp[i] = getThrustCoefficientC_T(getAdvanceRatioJ(i+1)) * rho * (propRPS[i] * propRPS[i]) * (d * d * d * d);
+                              propRPS[i]    = (gondAndProp->getRPMMotor(i+1))/60.       ;  // rotations per *second*
+                              thrustProp[i] = getThrustCoefficientC_T(getAdvanceRatioJ(i+1)) * rho * (propRPS[i] * propRPS[i]) * (d * d * d * d);
         }
         return (thrustProp[0] + thrustProp[1] + thrustProp[2] + thrustProp[3]);
 }
@@ -151,6 +148,7 @@ float ThrustCalcMethods::getAdvanceRatioJ(int propNum)
 
 //
 // Thrust coefficient C_T (unitless) ~= 0.0881 - (0.0881*J / 0.7)
+//  (see http://dcrc.org/pdf/Model%20Propellers%20Article.pdf and Aravind's "DeterminingPropellerThrust" Word document)
 //
 float ThrustCalcMethods::getThrustCoefficientC_T(float J)
 {
@@ -162,4 +160,5 @@ float ThrustCalcMethods::getThrustCoefficientC_T(float J)
         }
         return 0.;
 }
+
 

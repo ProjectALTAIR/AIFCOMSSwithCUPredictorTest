@@ -31,17 +31,24 @@ class SolarPowerCalcMethods {
 
     public:
 
-        static float getInstantaneousSolarPower();	// get the instantaneous solar power (in Watts) collected at the present time 
+        // Get the instantaneous solar power (in Watts) being collected at the present time. 
+        static float              getInstantaneousSolarPower();	                   
 	
-        static float getSolarEnergyForNextMinute();	// get the integrated solar energy (in Joules) collected over the next minute
+        // Get the integrated solar energy (in Joules) collected over the next minute.
+        static float              getSolarEnergyForNextMinute();	                   
 
-        // helper functions, used internally by the above static methods
+// Helper functions, used internally by the above static methods
     protected:
 
-        static float getSolarPanelProjectedArea();      // the area of the front faces of the solar panels, projected onto the plane
-                                                        // perpendicular to the present vector from the sun to the balloon 
+        // Return a 2-element vector containing (in element [0]) the zenith angle (i.e. the angle
+        // away from the zenith, in degrees), and (in element [1]) the azimuth angle (i.e. degrees
+        // East of true North), of the centre of the solar disc, as viewed from the balloon.
+        static std::vector<float> getZenithAndAzAnglesOfSunFromBalloon();  
 
-        static std::vector<float> getSunToBalloonVector();
+        // Given the two solar angles as an argument (obtained via getZenithAndAzAnglesOfSunFromBalloon() 
+        // above), return the area of the front faces of the solar panels, when projected onto the plane
+        // perpendicular to the present vector from the centre of the solar disc to the balloon. 
+        static float              getSolarPanelProjectedArea( std::vector<float> solarAngles );            
 
     private:
 

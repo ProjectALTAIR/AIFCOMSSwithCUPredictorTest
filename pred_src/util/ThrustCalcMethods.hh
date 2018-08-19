@@ -51,9 +51,10 @@ class ThrustCalcMethods {
 
 
         // helper functions, used internally by the above static methods
+        static float getAdvanceRatioJ(            int     propNum       );
+
     protected:
 
-        static float getAdvanceRatioJ(            int     propNum       );
         static float getThrustCoefficientC_T(     float   advanceRatioJ );
 
 
