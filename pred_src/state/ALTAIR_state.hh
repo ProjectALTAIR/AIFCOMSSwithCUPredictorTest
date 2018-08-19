@@ -30,6 +30,13 @@
 #ifndef __ALTAIR_STATE_HH__
 #define __ALTAIR_STATE_HH__
 
+
+//---------------
+// Definitions --
+//---------------
+#define    mPerInch                                0.0254
+#define    radiansPerDegree                        0.0174533
+
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------

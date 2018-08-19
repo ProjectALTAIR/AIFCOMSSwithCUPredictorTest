@@ -54,7 +54,12 @@ class   BalloonAndPfoilState {
         virtual float                  getSolarPanelAvgEfficiency()     { return _solarPanelAvgEfficiency;    }
 
         virtual float                  getBalloonRadius()               { return _balloonRadius;              }  // in meters
-
+        virtual float                  getBalloonHeading()              { return _balloonHeading;             }  // Present balloon heading in degrees East of true North.
+                                                                                                                 // The range of _balloonHeading is -infinity to +infinity, 
+                                                                                                                 // rather than 0 to 360, since the string connecting the 
+                                                                                                                 // balloon to the payload can get twisted.  If the difference
+                                                                                                                 // | getBalloonHeading() - getCurrentHeading() | > 360, then
+                                                                                                                 // that implies there is at least one full twist in the string.
 
         virtual void                   setIsCutdown(                  bool  isCutdown                  );
 
@@ -82,6 +87,7 @@ class   BalloonAndPfoilState {
         float                          _solarPanelAvgEfficiency;
 
         float                          _balloonRadius;
+        float                          _balloonHeading;
 };
 
 #endif // __BALLOONANDPFOILSTATE_HH__

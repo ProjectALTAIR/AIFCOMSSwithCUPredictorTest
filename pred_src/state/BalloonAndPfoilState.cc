@@ -45,7 +45,8 @@ BalloonAndPfoilState::BalloonAndPfoilState()
     _solarPanelSetupUpperRadius(  1.0 ),            // in meters
     _solarPanelAvgTemp(           0.  ),            // in Celsius
     _solarPanelAvgEfficiency(     0.1 ),    
-    _balloonRadius(               1.5 )             // in meters
+    _balloonRadius(               1.5 ),            // in meters
+    _balloonHeading(              0.  )             // in degrees
 {
 }
 

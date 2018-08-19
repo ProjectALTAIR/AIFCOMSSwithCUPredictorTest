@@ -37,8 +37,13 @@
 //---------------
 // Constructor --
 //---------------
-GondolaAndPropState::GondolaAndPropState()
+GondolaAndPropState::GondolaAndPropState() :
+  _propAxleRotAngle(0.)
 {
+  for (int i = 0; i < 4; ++i) {
+    _rpmMotor[i]     = 0;
+    _currentMotor[i] = 0;
+  }
 }
 
 //--------------
@@ -52,6 +57,23 @@ GondolaAndPropState::~GondolaAndPropState()
 //-----------
 // Methods --
 //-----------
+int
+GondolaAndPropState::getPropRotDir( int motorNum )
+{
+  switch (motorNum) {
+    case 1:
+      return    1 ;
+    case 2:
+      return   -1 ;
+    case 3:
+      return    1 ;
+    case 4:
+      return   -1 ;
+    default:
+      return -999 ;    // we should turn this into an actual error...
+  }
+}
+
 int
 GondolaAndPropState::getRPMMotor( int motorNum )
 {
@@ -83,6 +105,43 @@ GondolaAndPropState::getRPMMotor4()
   return _rpmMotor[3];
 }
 
+float
+GondolaAndPropState::getCurrentMotor( int motorNum )
+{
+  if (motorNum >= 1 && motorNum <= 4) return _currentMotor[motorNum-1];
+  else                                return -999.;   // we should turn this into an actual error...
+}
+
+float
+GondolaAndPropState::getCurrentMotor1()
+{
+  return _currentMotor[0];
+}
+
+float
+GondolaAndPropState::getCurrentMotor2()
+{
+  return _currentMotor[1];
+}
+
+float
+GondolaAndPropState::getCurrentMotor3()
+{
+  return _currentMotor[2];
+}
+
+float
+GondolaAndPropState::getCurrentMotor4()
+{
+  return _currentMotor[3];
+}
+
+
+void
+GondolaAndPropState::setPropAxleRotAngle( float propAxleRotAngle )
+{
+  _propAxleRotAngle = propAxleRotAngle;
+}
 
 void
 GondolaAndPropState::setRPMMotor(  int motorNum, int rpmMotor )
@@ -113,5 +172,36 @@ void
 GondolaAndPropState::setRPMMotor4( int rpmMotor4 )
 {
   _rpmMotor[3] = rpmMotor4;
+}
+
+void
+GondolaAndPropState::setCurrentMotor(  int motorNum, float currentMotor )
+{
+  if (motorNum >= 1 && motorNum <= 4) _currentMotor[motorNum-1] = currentMotor;
+  else                                {}            // we should turn this into an actual error...
+}
+
+void
+GondolaAndPropState::setCurrentMotor1( float currentMotor1 )
+{
+  _currentMotor[0] = currentMotor1;
+}
+
+void
+GondolaAndPropState::setCurrentMotor2( float currentMotor2 )
+{
+  _currentMotor[1] = currentMotor2;
+}
+
+void
+GondolaAndPropState::setCurrentMotor3( float currentMotor3 )
+{
+  _currentMotor[2] = currentMotor3;
+}
+
+void
+GondolaAndPropState::setCurrentMotor4( float currentMotor4 )
+{
+  _currentMotor[3] = currentMotor4;
 }
 
