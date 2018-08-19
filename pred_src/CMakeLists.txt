@@ -21,12 +21,16 @@ add_executable(pred
         state/GondolaAndPropState.hh
         state/OptSourcePayloadState.cc
         state/OptSourcePayloadState.hh
+        util/TorqueCalcMethods.cc
+        util/TorqueCalcMethods.hh
         util/ThrustCalcMethods.cc
         util/ThrustCalcMethods.hh
         util/DragCalcMethods.cc
         util/DragCalcMethods.hh
         util/SolarPowerCalcMethods.cc
         util/SolarPowerCalcMethods.hh
+        util/UpdateALTAIRState.cc
+        util/UpdateALTAIRState.hh
 	util/gopt.c
 	util/getdelim.c
 	util/random.h
@@ -51,4 +55,47 @@ add_executable(pred
 	ini/dictionary.c
 )
 
+add_executable(pred_ALTAIR
+        state/ALTAIR_state.cc
+        state/ALTAIR_state.hh
+        state/ExternalEnvironState.cc
+        state/ExternalEnvironState.hh
+        state/BalloonAndPfoilState.cc
+        state/BalloonAndPfoilState.hh
+        state/GondolaAndPropState.cc
+        state/GondolaAndPropState.hh
+        state/OptSourcePayloadState.cc
+        state/OptSourcePayloadState.hh
+        util/ThrustCalcMethods.cc
+        util/ThrustCalcMethods.hh
+        util/DragCalcMethods.cc
+        util/DragCalcMethods.hh
+        util/SolarPowerCalcMethods.cc
+        util/SolarPowerCalcMethods.hh
+	util/gopt.c
+	util/getdelim.c
+	util/random.h
+	util/gopt.h
+	util/getline.h
+	util/getline.c
+	util/getdelim.h
+	util/random.c
+	altitude_ALTAIR.hh
+	wind/wind_file_cache.c
+	wind/wind_file_cache.h
+	wind/wind_file.c
+	wind/wind_file.h
+	altitude_ALTAIR.cc
+	pred_ALTAIR.cc
+	run_model_ALTAIR.cc
+	pred_ALTAIR.hh
+	run_model_ALTAIR.hh
+	ini/iniparser.c
+	ini/iniparser.h
+	ini/dictionary.h
+	ini/dictionary.c
+)
+
 target_link_libraries(pred ${GLIB_LIBRARIES} -lm)
+
+target_link_libraries(pred_ALTAIR ${GLIB_LIBRARIES} -lm)
