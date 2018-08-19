@@ -11,11 +11,14 @@
 // PARTICULAR PURPOSE.
 // --------------------------------------------------------------
 
-#ifndef __RUN_MODEL_H__
-#define __RUN_MODEL_H__
+#ifndef __RUN_MODEL_ALTAIR_HH__
+#define __RUN_MODEL_ALTAIR_HH__
 
+extern "C" {
 #include "wind/wind_file_cache.h"
-#include "altitude.h"
+}
+
+#include "altitude_ALTAIR.hh"
 
 // run the model
 int run_model(wind_file_cache_t* cache, altitude_model_t* alt_model,
@@ -29,9 +32,6 @@ int run_model(wind_file_cache_t* cache, altitude_model_t* alt_model,
 #define DEGREES_TO_METRES  111198.92345          // one degree latitude corresponds to this many metres
 #define DEGREES_TO_RADIANS 0.0174532925          // 1 degree is this many radians
 
-FILE* output;
-FILE* kml_file;
-
 // get the wind values in the u and v directions at a point in space and time from the dataset data
 // we interpolate lat, lng, alt and time. The GRIB data only contains pressure levels so we first
 // determine which pressure levels straddle to our desired altitude and then interpolate between them
@@ -42,5 +42,5 @@ int get_wind(wind_file_cache_t* cache, float lat, float lng, float alt, long int
 // write a position entry into the output files
 void write_position(float lat, float lng, float alt, int timestamp);
 
-#endif // __RUN_MODEL_H__
+#endif // __RUN_MODEL_ALTAIR_HH__
 

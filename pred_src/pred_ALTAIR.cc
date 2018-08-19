@@ -18,13 +18,21 @@
 #include <errno.h>
 #include <unistd.h>
 
+extern "C" {
 #include "ini/iniparser.h"
 #include "util/gopt.h"
 #include "wind/wind_file_cache.h"
+}
 
-#include "run_model.h"
-#include "pred.h"
-#include "altitude.h"
+#include "pred_ALTAIR.hh"
+#include "run_model_ALTAIR.hh"
+#include "altitude_ALTAIR.hh"
+
+#include "state/ALTAIR_state.hh"
+#include "state/ExternalEnvironState.hh"
+
+FILE* output;
+FILE* kml_file;
 
 const char* data_dir;
 int verbosity;
@@ -43,6 +51,8 @@ int main(int argc, const char *argv[]) {
     
     wind_file_cache_t* file_cache;
     dictionary*        scenario = NULL;
+    ExternalEnvironState* extEnv      = altairState->getExtEnv()                                    ;
+
     
     // configure command-line options parsing
     void *options = gopt_sort(&argc, argv, gopt_start(

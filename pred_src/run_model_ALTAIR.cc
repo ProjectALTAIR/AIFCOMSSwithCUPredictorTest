@@ -16,10 +16,17 @@
 #include <stdlib.h>
 #include <assert.h>
 
+extern "C" {
 #include "wind/wind_file.h"
 #include "util/random.h"
-#include "run_model.h"
-#include "altitude.h"
+}
+
+#include "run_model_ALTAIR.hh"
+#include "pred_ALTAIR.hh"
+
+#include "util/ThrustCalcMethods.hh"
+#include "util/DragCalcMethods.hh"
+#include "util/SolarPowerCalcMethods.hh"
 
 extern int verbosity;
 
@@ -72,6 +79,7 @@ _advance_one_timestep(wind_file_cache_t* cache,
         float u_samp, v_samp, u_lik, v_lik;
         model_state_t* state = &(states[i]);
 
+// the below both updates and returns the altitude (it does more than just get it -- it updates it!)
         if(!altitude_model_get_altitude(state->alt_model, 
                                         timestamp - initial_timestamp, &state->alt))
             return 0; // alt < 0; finished
