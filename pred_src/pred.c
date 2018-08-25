@@ -18,6 +18,8 @@
 #include <errno.h>
 #include <unistd.h>
 
+#define _BSD_SOURCE
+
 #include "ini/iniparser.h"
 #include "util/gopt.h"
 #include "wind/wind_file_cache.h"

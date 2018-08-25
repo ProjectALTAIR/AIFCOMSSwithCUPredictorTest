@@ -18,6 +18,8 @@
 #include <errno.h>
 #include <unistd.h>
 
+#define _BSD_SOURCE
+
 extern "C" {
 #include "ini/iniparser.h"
 #include "util/gopt.h"
@@ -200,20 +202,25 @@ int main(int argc, const char *argv[]) {
         // The observant amongst you will notice that there are default values for
         // *all* keys. This information should not be spread around too well.
         // Unfortunately, this means we lack some error checking.
+		
+        // It should be noted that casting the below string literals to char*'s is safe in this case, as we are certain
+        // that the iniparser code base does not attempt to modify these strings -- it only reads from them.
+        // Should there be future modification to this code which attempts to modify these strings, it will lead to a crash.
+        // This is because the ability to cast string literals to char* is only left in c++ for backwards compatibility reasons.
 
-        initial_lat = iniparser_getdouble(scenario, "launch-site:latitude", 0.0);
-        initial_lng = iniparser_getdouble(scenario, "launch-site:longitude", 0.0);
-        initial_alt = iniparser_getdouble(scenario, "launch-site:altitude", 0.0);
+        initial_lat = iniparser_getdouble(scenario, (char*)"launch-site:latitude", 0.0);
+        initial_lng = iniparser_getdouble(scenario, (char*)"launch-site:longitude", 0.0);
+        initial_alt = iniparser_getdouble(scenario, (char*)"launch-site:altitude", 0.0);
 
-        ascent_rate = iniparser_getdouble(scenario, "altitude-model:ascent-rate", 1.0);
+        ascent_rate = iniparser_getdouble(scenario, (char*)"altitude-model:ascent-rate", 1.0);
 
         // The 1.1045 comes from a magic constant buried in
         // ~cuspaceflight/public_html/predict/index.php.
-        drag_coeff = iniparser_getdouble(scenario, "altitude-model:descent-rate", 1.0) * 1.1045;
+        drag_coeff = iniparser_getdouble(scenario, (char*)"altitude-model:descent-rate", 1.0) * 1.1045;
 
-        burst_alt = iniparser_getdouble(scenario, "altitude-model:burst-altitude", 1.0);
+        burst_alt = iniparser_getdouble(scenario, (char*)"altitude-model:burst-altitude", 1.0);
 
-        rmswinderror = iniparser_getdouble(scenario, "atmosphere:wind-error", 0.0);
+        rmswinderror = iniparser_getdouble(scenario, (char*)"atmosphere:wind-error", 0.0);
         if(gopt_arg(options, 'e', &argument) && strcmp(argument, "-")) {
             rmswinderror = strtod(argument, &endptr);
             if (endptr == argument) {
@@ -253,7 +260,7 @@ int main(int argc, const char *argv[]) {
 #ifndef _BSD_SOURCE
 #               warning This version of mktime does not allow explicit setting of timezone. 
 #else
-                timeval.tm_zone = "UTC";
+                timeval.tm_zone = (char*) "UTC";
 #endif
 
                 scenario_launch_time = mktime(&timeval);
