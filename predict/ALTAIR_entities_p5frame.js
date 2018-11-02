@@ -1,4 +1,3 @@
-var    testArduinoUnconnected =  true;
 var    fontString             = 'assets/LucidaSansRegular.ttf';
 var    arduinoPortString1     = "tty.usbmodem";
 var    arduinoPortString2     = "COM4";
@@ -103,7 +102,7 @@ function setup() {
    textAlign(LEFT);
 
    socket.onopen = openSocket;
-   socket.onmessage = showData;
+   socket.onmessage = receiveData;
 
    orientGraphics = createGraphics(150, 150, WEBGL);
    accelGraphics = createGraphics(115, 115, WEBGL);
@@ -137,8 +136,112 @@ function getAltairArduinoInfoLine() {
   }
 }
 
-socket.on('message', function(data, flags) {
+function openSocket() {
+//    text.html("Socket open");
+    socket.send("LOG: Loaded+opened AIFCOMSS console");
+}
+ 
+function receiveData(incoming) {
+  testArduinoUnconnected =  false;
+  if (incoming.data != null) {
+    var altairValues = split(incoming.data, ' ').map(val => parseInt(val,16));
+//    var altairValues = split(incoming.data, ' ').map(parseFloat);
+//    var altairValues = data.split(' ').map(parseFloat);
+    altairValues.splice(0, 2);              // remove the "Data (HEX):" bits from the beginning of the array
+    switch (altairValues.length) {
+      case 44:
+        procLongInArr(altairValues);
+        break;
+      case 39:
+        procShortInArr(altairValues);
+        break;
+      default:
+//        'Unparseable serial data received -- check logs!'
+//        if (alarmOn[xy] == 0) alarmOn[xy] = 2;
+    }
+  }
+}
+
+function procLongInArr(altairValues) {
+  socket.send("LOG: Heard a message of length " + 46 + " (43 vals), with 14th value = " + altairValues[13] + " and 15th value = " + altairValues[14]);
+  if (altairValues[13] == regValue) {
+    procGPS(altairValues);
+    if (altairValues[20] == regValue) {
+      procLongMon1(altairValues);
+      if (altairValues[33] == regValue) {
+        procLongEnvMon(altairValues);
+        if (altairValues[42] == regValue) {
+          procLongPropMon(altairValues);
+        }
+      }
+    }
+  }
+}
+
+function procShortInArr(altairValues) {
+  socket.send("LOG: Heard a message of length " + 41 + " (38 vals), with 5th value = " + altairValues[4] + " and 12th value = " + altairValues[11]);
+  if (altairValues[11] == regValue) {     
+    procTimeAndTemps(altairValues);
+    if (altairValues[20] == regValue) {
+      procSpaceAndPower(altairValues);
+      if (altairValues[27] == regValue) {
+        procServoInfo(altairValues);
+        if (altairValues[37] == regValue) {
+          procLightInfo(altairValues);
+        }
+      }
+    }
+  }
+}
+
+function    procGPS(altairValues)   {
+  var gpsHour   =   altairValues[0];
+  var gpsMinute =   altairValues[1];
+  var gpsSecond =   altairValues[2];
+  var gpsLat    = ((altairValues[3]  << 24) + (altairValues[4]  << 16) + (altairValues[5] <<  8) + altairValues[6] ) / 1000000. ;
+  var gpsLon    = ((altairValues[7]  << 24) + (altairValues[8]  << 16) + (altairValues[9] <<  8) + altairValues[10]) / 1000000. ;
+  var gpsEle    =  (altairValues[11] <<  8) +  altairValues[12];
+  if (abs(gpsLat - lat) < maxGPSDelta && abs(gpsLon - long) < maxGPSDelta) {
+    lat  = gpsLat;
+    long = gpsLon;
+    ele  = gpsEle;
+  }
+}
+
+function procLongMon1(altairValues) {
+
+}
+
+function procLongEnvMon(altairValues) {
+
+}
+
+function procLongPropMon(altairValues) {
+
+}
+
+
+function procTimeAndTemps(altairValues) {
+
+}
+
+function procSpaceAndPower(altairValues) {
+
+}
+
+function procServoInfo(altairValues) {
+
+}
+
+function procLightInfo(altairValues) {
+
+}
+
+
 /*
+socket.on('message', function(data, flags) {
+   socket.send("LOG: Heard a message.");
+   testArduinoUnconnected =  false;
   if (data != null && !flags.binary) {
     var altairValues = split(data, ' ').map(parseFloat);    
 //    var altairValues = data.split(' ').map(parseFloat);    
@@ -156,8 +259,8 @@ socket.on('message', function(data, flags) {
         if (alarmOn[xy] == 0) alarmOn[xy] = 2;
     }
   }
-*/
 });
+*/
 
 function displayPropulsionSystemInfo() {
   var upperMotorIsRed = 0, lowerMotorIsRed = 0, upperPropIsGreen = 0, lowerPropIsGreen = 0, upperPropIsRed = 0, lowerPropIsRed = 0;
@@ -1899,18 +2002,6 @@ function setFakeAltairValues() {
 }
 
 
-function openSocket() {
-//    text.html("Socket open");
-    socket.send("LOG: Loaded+opened AIFCOMSS console");
-}
- 
-function showData(result) {
-    // when the server returns, show the result in the div:
-//    text.html("Sensor reading:");
-//    xPos = 5;        // convert result to an integer
-//    text.position(xPos, 10);        // position the text
-}
-
 function mouseReleased() {
   var servoNum, lightNum;
   switch (overButton) {
@@ -1924,7 +2015,7 @@ function mouseReleased() {
       servoNum = overButton/2;     
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 's' + String.fromCharCode(servoNum+("A".charCodeAt(0))));
+        socket.send('C2' + 's' + String.fromCharCode(servoNum+("A".charCodeAt(0))));
 //        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode(servoNum+("A".charCodeAt(0)))); // write 'A' if servo 0, 'B' if servo 1, etc.
 //      }
@@ -1933,7 +2024,7 @@ function mouseReleased() {
     case 14:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 's' + String.fromCharCode("U".charCodeAt(0)));
+        socket.send('C2' + 's' + String.fromCharCode("U".charCodeAt(0)));
 //        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode("U".charCodeAt(0)));            // write 'U' to increase the power of each propulsion motor by 1 unit
 //      }
@@ -1942,7 +2033,7 @@ function mouseReleased() {
     case 16:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 's' + String.fromCharCode("H".charCodeAt(0)));
+        socket.send('C2' + 's' + String.fromCharCode("H".charCodeAt(0)));
 //        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode("H".charCodeAt(0)));            // write 'H' to increase the power of each propulsion motor by 1/2 unit
 //      }
@@ -1951,7 +2042,7 @@ function mouseReleased() {
     case 30:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 'd' + String.fromCharCode("R".charCodeAt(0)));
+        socket.send('C2' + 'd' + String.fromCharCode("R".charCodeAt(0)));
 //        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode("R".charCodeAt(0)));            // write 'R' to change the radio to the 1st alternate radio
 //      }
@@ -1960,7 +2051,7 @@ function mouseReleased() {
     case 32:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 'd' + String.fromCharCode("G".charCodeAt(0)));
+        socket.send('C2' + 'd' + String.fromCharCode("G".charCodeAt(0)));
 //        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode("G".charCodeAt(0)));            // write 'G' to change the GPS to the alternate GPS receiver
 //      }
@@ -1969,7 +2060,7 @@ function mouseReleased() {
     case 34:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 'd' + String.fromCharCode("O".charCodeAt(0)));
+        socket.send('C2' + 'd' + String.fromCharCode("O".charCodeAt(0)));
 //        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode("O".charCodeAt(0)));            // write 'O' to change the orientation sensor to the 1st alternate orientation/acceleration sensor
 //      }
@@ -1981,7 +2072,7 @@ function mouseReleased() {
     case 56:
       lightNum = (overButton-50)/2;
       overButton = -999;
-      socket.send('C\x02' + 'l' + String.fromCharCode(lightNum+("A".charCodeAt(0))));
+      socket.send('C2' + 'l' + String.fromCharCode(lightNum+("A".charCodeAt(0))));
 //      socket.send(0xFC); socket.send(0x02); socket.send('l');           // modify 'l'ight (ensure we avoid modifications due to noise)
 //      socket.send(String.fromCharCode(lightNum+("A".charCodeAt(0))));   // write 'A' if laser diode light source 0, 'B' if laser diode light source 1, etc.
       socket.send("LOG: Gave command to turn ON laser diode light source # " + lightNum);
@@ -1992,7 +2083,7 @@ function mouseReleased() {
     case 66:
       lightNum = (overButton-60)/2;
       overButton = -999;
-      socket.send('C\x02' + 'l' + String.fromCharCode(lightNum+("F".charCodeAt(0))));
+      socket.send('C2' + 'l' + String.fromCharCode(lightNum+("F".charCodeAt(0))));
 //      socket.send(0xFC); socket.send(0x02); socket.send('l');           // modify 'l'ight (ensure we avoid modifications due to noise)
 //      socket.send(String.fromCharCode(lightNum+("F".charCodeAt(0))));   // write 'F' if diffusive light source 0, 'G' if diffusive light source 1, etc.
       socket.send("LOG: Gave command to turn ON diffusive light source # " + lightNum);
@@ -2007,7 +2098,7 @@ function mouseReleased() {
       servoNum = (overButton-1)/2;     
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 's' + String.fromCharCode(servoNum+("a".charCodeAt(0))));
+        socket.send('C2' + 's' + String.fromCharCode(servoNum+("a".charCodeAt(0))));
 //        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode(servoNum+("a".charCodeAt(0)))); // write 'a' if servo 0, 'b' if servo 1, etc.
 //      }
@@ -2016,7 +2107,7 @@ function mouseReleased() {
     case 15:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 's' + String.fromCharCode("u".charCodeAt(0)));
+        socket.send('C2' + 's' + String.fromCharCode("u".charCodeAt(0)));
 //        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode("u".charCodeAt(0)));            // write 'u' to decrease the power of each propulsion motor by 1 unit
 //      }
@@ -2025,7 +2116,7 @@ function mouseReleased() {
     case 17:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 's' + String.fromCharCode("h".charCodeAt(0)));
+        socket.send('C2' + 's' + String.fromCharCode("h".charCodeAt(0)));
 //        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode("h".charCodeAt(0)));            // write 'h' to decrease the power of each propulsion motor by 1/2 unit
 //      }
@@ -2034,7 +2125,7 @@ function mouseReleased() {
     case 31:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 'd' + String.fromCharCode("r".charCodeAt(0)));
+        socket.send('C2' + 'd' + String.fromCharCode("r".charCodeAt(0)));
 //        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode("r".charCodeAt(0)));            // write 'r' to change the radio to the 2nd alternate radio
 //      }
@@ -2043,7 +2134,7 @@ function mouseReleased() {
     case 35:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 'd' + String.fromCharCode("o".charCodeAt(0)));
+        socket.send('C2' + 'd' + String.fromCharCode("o".charCodeAt(0)));
 //        socket.send(0xFC); socket.send(0x02); socket.send('d');         // modify 'd'evice (ensure we avoid modifications due to noise)
 //        socket.send(String.fromCharCode("o".charCodeAt(0)));            // write 'o' to change the orientation sensor to the 2nd alternate orientation/acceleration sensor
 //      }
@@ -2055,7 +2146,7 @@ function mouseReleased() {
     case 57:
       lightNum = (overButton-51)/2;
       overButton = -999;
-      socket.send('C\x02' + 'l' + String.fromCharCode(lightNum+("a".charCodeAt(0))));
+      socket.send('C2' + 'l' + String.fromCharCode(lightNum+("a".charCodeAt(0))));
 //      socket.send(0xFC); socket.send(0x02); socket.send('l');           // modify 'l'ight (ensure we avoid modifications due to noise)
 //      socket.send(String.fromCharCode(lightNum+("a".charCodeAt(0))));   // write 'a' if laser diode light source 0, 'b' if laser diode light source 1, etc.
       socket.send("LOG: Gave command to turn OFF laser diode light source # " + lightNum);
@@ -2066,7 +2157,7 @@ function mouseReleased() {
     case 67:
       lightNum = (overButton-61)/2;
       overButton = -999;
-      socket.send('C\x02' + 'l' + String.fromCharCode(lightNum+("f".charCodeAt(0))));
+      socket.send('C2' + 'l' + String.fromCharCode(lightNum+("f".charCodeAt(0))));
 //      socket.send(0xFC); socket.send(0x02); socket.send('l');           // modify 'l'ight (ensure we avoid modifications due to noise)
 //      socket.send(String.fromCharCode(lightNum+("f".charCodeAt(0))));   // write 'f' if diffusive light source 0, 'g' if diffusive light source 1, etc.
       socket.send("LOG: Gave command to turn OFF diffusive light source # " + lightNum);
@@ -2081,7 +2172,7 @@ function mouseReleased() {
     case 99:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 'sC');
+        socket.send('C2' + 'sC');
 //        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
 //        socket.send('C');                                               // 'C' = cut down the gondola
 //      }
@@ -2090,7 +2181,7 @@ function mouseReleased() {
     case 100:
       overButton = -999;
 //      if (!testArduinoUnconnected) {
-        socket.send('C\x02' + 'sx');
+        socket.send('C2' + 'sx');
 //        socket.send(0xFC); socket.send(0x02); socket.send('s');         // modify 's'ervo (ensure we avoid modifications due to noise)
 //        socket.send('x');                                               // 'x' = shut em all down
 //      }

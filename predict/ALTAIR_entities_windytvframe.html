@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"></script>
     <script src="https://cdn.rawgit.com/Leaflet/Leaflet.label/0.8/dist/leaflet.label.js"></script>
+    <script src="https://api4.windy.com/assets/libBoot.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <style type="text/css">
-      #windyty {
+      #windy {
                  width: 100%;
-                 height: 314px;
+                 height: 308px;
                }
       .labeltext { width: 400px; }
 	  
@@ -28,7 +29,7 @@
     </style>
   </head>
   <body>
-    <div id="windyty"></div>
+    <div id="windy"></div>
 
     <script type="text/javascript">
 
@@ -38,314 +39,151 @@
     var latLonsALTAIRPath = [];
     var latLonsALTAIRPred = [];
 
-    var windytyInit = {
-          // Required: API key
-          key: 'fJAcjkGrbADMg2t',
+    const options = {
 
-          // Optional: Initial state of the map
-//          lat: 50.4,
-//          lon: 14.3,
-//          lat: ALTAIRLat,
-//          lon: ALTAIRLon,
+                // Required: API key
+                key: 'OznecmCq1hd17S4F3e5rtotajmkUBw2D',
+
+                // Put additional console output
+                verbose: true,
+
+                // Optional: Initial state of the map
           lat:   48.46,
           lon: -123.31,
           zoom: 14,
-          minZoom: 0,
-          maxZoom: 18
-/*
           layers: [
-            L.tileLayer('http://{s}.tile.cloudmade.com/{key}/997/256/{z}/{x}/{y}.png', {
-              maxZoom: 13,
-              minZoom: 0,
-              attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
-              key: 'BC9A493B41014CAABB98F0471D759707'
-            }),
-            L.tileLayer('http://server.arcgisonline.com/ArcGIS/' + 'rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-              minZoom: 14,
-              maxZoom: 18,
-              attribution: 'Tiles ?? Esri - '
-                           + 'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, '
-                           + 'Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'})
-          ]
-*/
-      };
+            L.tileLayer('http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              minZoom: 12,
+              maxZoom: 17,
+              attribution: 'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, '
+            })
+          ],
+          minZoom: 4,
+          maxZoom: 17
+    }
 
-    // Required: Windyty main function is called after
-    // initialization of API
-    //
-    // @map is instance of Leaflet maps
-    //
-    function windytyMain(map) {
+    // Initialize Windy API
+    windyInit( options, windyAPI => {
+        // windyAPI is ready, and contains 'map', 'store',
+        // 'picker' and other useful stuff
+
       var aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
       var aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
-     // var aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
-     // var aLTAIRTerInput = window.parent.cesiumframe.document.getElementById('terrHeight');
       var ALTAIRLat      = parseFloat(aLTAIRLatInput.value);
       var ALTAIRLon      = parseFloat(aLTAIRLonInput.value);
-     // var ALTAIRTer      = parseFloat(aLTAIRTerInput.value);
-     // var ALTAIRAlt      = aLTAIRAltInput.value;
-     // var roundALTAIRAlt = Math.round(ALTAIRAlt);
-     // var roundALTAIRTer = Math.round(ALTAIRTer);
-        
-	  //create a custom control element for height
-	  var HeightSlider = L.Control.extend({
-		options: {
-			position: 'bottomleft'
-		},
 
-		onAdd: function (map) {
-			// create the control container with a particular class name
-			var container = L.DomUtil.create('div', 'height-control');
-	
-			var valMap = ['surface', '100m','975h','950h','925h','900h','850h','800h', '700h','600h','500h','400h','300h', '250h', '200h', '150h' ];
-			var realHeight = ['surface', '100m','300m','600m','750m','900m','1.5km','2.0km','3.0km','4.2km','5.5km','7.0km','9.0km','10km','11.7km','13.5km'];
-			setTimeout(function () {
-				
-				$(".height-control").slider({
-					max: valMap.length - 1,
-					orientation: "horizontal",
-					slide: function(event, ui){
-					   W.setLevel(valMap[ui.value])
-					   $('.height-control').find(".ui-slider-handle").text(realHeight[ui.value]);
-					   
-					   
-					}
-				});
-				
-				$('.height-control').find(".ui-slider-handle").text(realHeight[0]);
-			}, 1000);
-			return container;
-		}
-	  });	  
-	  
+        const { map, picker, utils, overlays, broadcast } = windyAPI;
+//        var { map } = windyAPI
+        // .map is instance of Leaflet map
 
-	  
-	  //create a custom control element for height
-	  var TimeSlider = L.Control.extend({
-		options: {
-			position: 'bottomright'
-		},
+        overlays.wind.setMetric('m/s');
 
-		onAdd: function (map) {
-			// create the control container with a particular class name
-			var container = L.DomUtil.create('div', 'time-slider');
-			setTimeout(function () {
-				$(".time-slider").slider({
-					min: -24,
-					max: 24,
-					value: 0,
-					orientation: "horizontal",
-					slide: function(event, ui){
-						var time = jQuery.now() + (ui.value * 60 * 60 * 1000);
-						W.setTimestamp(time);
-						if(ui.value == 0)
-						{
-							$('.time-slider').find(".ui-slider-handle").text("Now");
-						} else {
-							$('.time-slider').find(".ui-slider-handle").text(ui.value);
-						}
-						
-						
-					}
-				});
-				$('.time-slider').find(".ui-slider-handle").text("Now");
-			}, 1000);
-			return container;
-		}
-	  });	  
-	  
-	  
-	  
-	  //add the slider control element to the page
-	  if(!($(".time-slider").length) || !($(".heightslider").length)) {
-		  map.addControl( new HeightSlider());
-		  map.addControl( new TimeSlider());
-		  window.setTimeout(addSliderTitles ,5000);
-	  }
-	  
-	  
-	  	  
-	var locationValue = function(values) {
-		 var html, param, value, metric;
-		 var overlays = {
-			 wind: {
-				 metric: 'm/s'
-			 },
-			 gust: {
-				 metric: 'm/s'
-			 },
-			 rain: {
-				 metric: 'mm'
-			 },
-			 temp: {
-				 metric: '??C',
-				 conversion: function(v) { return v - 273.15 }
-			 },
-			 clouds: {
-				 metric: 'mm/h',
-				 conversion: function(v) { return (v - 200) / 60 }
-			 }
-		 };
+        picker.on('pickerOpened', latLon => {
+            // picker has been opened at latLon coords
 
-// 		 var format = function (p, v, m) {
-//			 return p +' : ' + Math.round(v) + m + '</br>';
-//		 };
-		 var format = function (p, v, d, m) {
-			 return p + Math.round(v * Math.pow(10,d))/Math.pow(10,d) + m + '</br>';
-		 };
+            let { lat, lon, values, overlay } = picker.getParams();
 
-		 html = '';
-//		 html += format('wind speed', values.wind, 'm/s');
-//		 html += format('wind angle', values.wind, '??');
-		 html += format('Wind speed: ',       values.wind, 1, ' m/s');
-		 html += format('Wind angle:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ', values.angle, 0, '&deg;');
+            let windObject = utils.wind2obj( values );
 
-		 if (values.overlayName == 'wind') {
-			 return html;
-		 }
+            console.log( windObject );
 
-		 param = values.overlayName;
-		 value = values.overlayValue;
-		 metric = overlays[param].metric;
+        });
 
-		 if (overlays[param].conversion && overlays[param].conversion != undefined) {
-			 value = overlays[param].conversion(value);
-		 }
+        picker.on('pickerMoved', latLon => {
+            // picker was dragged by user to latLon coords
+        });
 
-		 html += format(param, value, metric);
+        picker.on('pickerClosed', () => {
+            // picker was closed
+        });
 
-		 return html;
-	 }  
+        broadcast.once('redrawFinished', () => {
+             picker.open({ lat: ALTAIRLat, lon: ALTAIRLon });
+             // Opening of a picker (async)
+        });
 
+        map.options.minZoom = 4;
+        map.options.maxZoom = 17;
 
-	setInterval(function () {
-		var aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
-		var aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
-		var aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
-		var aLTAIRTerInput = window.parent.cesiumframe.document.getElementById('terrHeight');
-		var aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
-		var aLTAIRTerInput = window.parent.cesiumframe.document.getElementById('terrHeight');
-		
+        var topLayer = L.tileLayer('http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, ',
+            minZoom: 12,
+            maxZoom: 17
+        }).addTo(map);
+        topLayer.setOpacity('0');
+
+        map.on('zoomend', function() { 
+            if (map.getZoom() >= 12) {
+                topLayer.setOpacity('1');
+            } else {
+                topLayer.setOpacity('0');   
+            }
+        });
+        map.setZoom(14);
+
+        setInterval(function () {
+                aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
+                aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
+                var aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
+                var aLTAIRTerInput = window.parent.cesiumframe.document.getElementById('terrHeight');
+
         var ALTAIRTer      = parseFloat(aLTAIRTerInput.value);
         var ALTAIRAlt      = aLTAIRAltInput.value;
-		
-		var roundALTAIRAlt = Math.round(ALTAIRAlt);
-		var roundALTAIRTer = Math.round(ALTAIRTer);
-		
-		var lat = parseFloat(aLTAIRLatInput.value);
-		var lon = parseFloat(aLTAIRLonInput.value);
-		
-//                window.setTimeout(makePred , 5000);
+
+                var roundALTAIRAlt = Math.round(ALTAIRAlt);
+                var roundALTAIRTer = Math.round(ALTAIRTer);
+
+                var lat = parseFloat(aLTAIRLatInput.value);
+                var lon = parseFloat(aLTAIRLonInput.value);
                 makePred(map);
                 latLonsALTAIRPath.push([lat,lon]);
 
-		var values = W.interpolation.interpolateValues(lat, lon, roundALTAIRAlt);
-		
-		if (lastMarker != 0) {
-//			lastMarker.remove();
-			map.removeLayer(lastMarker);
-		}
-		if (lastPolyline != 0) {
-//			lastPolyline.remove();
-			map.removeLayer(lastPolyline);
-		}
-		if($(".location_marker").length) {
-//			$(".location_marker").remove();
-			map.removeLayer($(".location_marker"));
-		}
-		
-//		var ALTAIRAltText = 'ALTAIR = ' + roundALTAIRAlt + ' ASL<br/>Terrain =    ' + roundALTAIRTer +'  ASL<br/>';
-		var ALTAIRAltText = '   ALTAIR = ' + roundALTAIRAlt + ' m ASL<br/>    Terrain&nbsp; =  &nbsp;  ' + roundALTAIRTer +'  m ASL<br/>';
-		ALTAIRAltText += locationValue(values);
-		
+//                broadcast.once('redrawFinished', () => {
+                broadcast.on('redrawFinished', () => {
+//                    picker.open({ lat: 48.49, lon: -123.312 });
+                    picker.open({ lat: lat, lon: lon });
+                    // Opening of a picker (async)
+                });
+
+// W and W.interpolation.interpolateValues are not available in Windy API v4.0 (or 3.0) -- only in v2.3
+//                var values = W.interpolation.interpolateValues(lat, lon, roundALTAIRAlt);
+
+                if (lastMarker != 0) {
+//                      lastMarker.remove();
+                        map.removeLayer(lastMarker);
+                }
+                if (lastPolyline != 0) {
+//                      lastPolyline.remove();
+                        map.removeLayer(lastPolyline);
+                }
+                if($(".location_marker").length) {
+//                      $(".location_marker").remove();
+                        map.removeLayer($(".location_marker"));
+                }
+
+                var ALTAIRAltText = '   ALTAIR = ' + roundALTAIRAlt + ' m ASL<br/>    Terrain&nbsp; =  &nbsp;  ' + roundALTAIRTer +'  m ASL<br/>';
+// Need some other method for getting wind speed and angle at ALTAIR's location within Windy API v4.0
+//                ALTAIRAltText += locationValue(values);
+
                 var thePolyline = L.polyline(latLonsALTAIRPath, {color: 'red'}).addTo( map );
                 lastPolyline = thePolyline;
 
-		var marker = L.marker([lat, lon])
-//			.bindLabel(ALTAIRAltText, { noHide: true, offset: [20,-40], className: "location_marker" })
-			.bindLabel(ALTAIRAltText, { noHide: true, offset: [30,-50], className: "location_marker" })
-	//      .setOpacity( 0.65 )
-	//      .bindTooltip("hi")
-			.addTo( map );
-		marker.setOpacity( 0.65 );
-		lastMarker = marker;
-		
-		$(".location_marker").html(ALTAIRAltText);
-		removeZoomPosition();
-		
-		//
-		
-	}, 10000);	
-	  
-	  //map.panTo([lat, lon]);
-	  
-	  //var ALTAIRAltText = '<p>ALTAIR = ' + roundALTAIRAlt + ' ASL</p><p>Terrain =    ' + roundALTAIRTer +'  ASL</p>';
-	  //ALTAIRAltText += locationValue(values);
-/*
-      L.tileLayer('http://tiles.mapc.org/basemap/{z}/{x}/{y}.png', {
-        attribution: 'Tiles by <a href="http://mapc.org">MAPC</a>, Data by <a href="http://mass.gov/mgis">MassGIS</a>',
-        maxZoom: 17,
-        minZoom: 9
-      }).addTo(map);
-      L.tileLayer('http://server.arcgisonline.com/ArcGIS/' + 'rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, ',
-        maxZoom: 17,
-        minZoom: 11
-      }).addTo(map);
-*/
-      L.tileLayer('http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, ',
-        maxZoom: 17,
-        minZoom: 12
-      }).addTo(map);
-		
-		
-		
-		new L.Control.Zoom({ position: 'topleft' }).addTo(map);
-//      
-//      
-//      map.remove();
-//      var tooltip = L.tooltip("hi");
-//      map.zoomControl.setPosition('topleft');
-      /*var marker = L.marker([ALTAIRLat, ALTAIRLon])
-        .bindLabel(ALTAIRAltText, { noHide: true, offset: [20,-40], className: "location_marker" })
-//        .setOpacity( 0.65 )
-//        .bindTooltip("hi")
-        .addTo( map );
-      marker.setOpacity( 0.65 );*/
+                var marker = L.marker([lat, lon])
+                    .bindLabel(ALTAIRAltText, { noHide: true, offset: [20,-40], className: "location_marker" })
+                    .addTo( map );
+                marker.setOpacity( 0.65 );
+                lastMarker = marker;
+
+               $(".location_marker").html(ALTAIRAltText);
+
+
+        }, 10000);
 
       map.panTo([ALTAIRLat, ALTAIRLon]);
 
-      /*window.setTimeout(function() {
-		//marker.remove();
-		$(".leaflet-control-container").children().each( function() {
-			$(this).children().each( function() {
-				$(this).remove();
-			});
-		});
-        windytyMain(map);
+    })
 
-      }, 10000);*/
-    }
-	
-	//Since we dont have access to all the leaflet setup commands, we need to switch after it has loaded.
-	//There isn't a well defined event that we can listen for, but 2 seconds after the ready of that element seems to work
-	$('document').ready( function() {
-		setTimeout(removeZoomPosition, 4000);
-		//setTimeout(addSliderTitles, 4000);
-	});
 
-	// Takes the content from the top left corner div and places it in the top right corner
-	function removeZoomPosition() {
-		//$('.leaflet-top.leaflet-left').html($('.leaflet-top.leaflet-right').html());
-		$('.leaflet-top.leaflet-right').html('');
-	}
-	
-	function addSliderTitles() {
-		$('.leaflet-bottom.leaflet-left').prepend("<div>Wind altitude</div>");
-		$('.leaflet-bottom.leaflet-right').prepend("<div>Wind forecast/history (hours)</div>");
-	}
-	
         function makePred(map) {
                 $.ajax({
                     url:      'flight_path.csv',
@@ -353,7 +191,7 @@
                     success:  function(result) {
                          if (lastPredline != 0) {
 //                            lastPredline.remove();
-			      map.removeLayer(lastPredline);
+                              map.removeLayer(lastPredline);
                          }
                          var allRows = result.split(/\r?\n|\r/);
                          latLonsALTAIRPred = [];
@@ -373,6 +211,5 @@
 
     </script>
 
-    <script async defer src="https://api.windytv.com/v2.3/boot.js"></script>
   </body>
 </html>

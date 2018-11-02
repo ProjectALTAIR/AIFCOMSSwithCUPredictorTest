@@ -30,6 +30,7 @@
     var arduinoPortName        = "";
     var genericPortNamesList   = "Connected serial port names: ";
     var myPort                 = null;
+    var myConnection           = null;
 
     serialport.list(function (err, ports) {
         var isFirstPort = true;
@@ -54,9 +55,9 @@
  
     // This function broadcasts messages to all webSocket clients
     function broadcast(data) {
-        for (myConnection in connections) {   // iterate over the array of connections
-           connections[myConnection].send(data); // send the data to each connection
-        }
+       for (myConnection in connections) {   // iterate over the array of connections
+          connections[myConnection].send(data); // send the data to each connection
+       }
     }
 
     function sendToSerial(data) {
@@ -180,9 +181,9 @@
     app.use(compression());
     app.use(express.static(__dirname));
 
-    function sendSerialData(data) {
-       console.log(data);
-    }
+//    function sendSerialData(data) {
+//       console.log(data);
+//    }
 
     function getRemoteUrlFromParam(req) {
         var remoteUrl = req.params[0];
