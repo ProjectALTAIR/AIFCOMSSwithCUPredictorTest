@@ -10,12 +10,12 @@
     <style type="text/css">
       #windy {
                  width: 100%;
-                 height: 308px;
+                 height: 345px;
                }
       .labeltext { width: 400px; }
 	  
-	  .height-control, .time-slider {
-			width: 200px;
+	  .height-control {
+			width: 100px;
 	  }
 	  
 	  .height-control .ui-slider-handle {
@@ -67,21 +67,88 @@
         // windyAPI is ready, and contains 'map', 'store',
         // 'picker' and other useful stuff
 
-      var aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
-      var aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
-      var ALTAIRLat      = parseFloat(aLTAIRLatInput.value);
-      var ALTAIRLon      = parseFloat(aLTAIRLonInput.value);
+        var aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
+        var aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
+        var aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
+        var ALTAIRLat      = parseFloat(aLTAIRLatInput.value);
+        var ALTAIRLon      = parseFloat(aLTAIRLonInput.value);
+        var ALTAIRAlt      = aLTAIRAltInput.value;
+        var roundALTAIRAlt = Math.round(ALTAIRAlt);
 
-        const { map, picker, utils, overlays, broadcast } = windyAPI;
+        const { map, store, picker, utils, overlays, broadcast } = windyAPI;
+//        var { map, store, picker, utils, overlays, broadcast } = windyAPI;
 //        var { map } = windyAPI
         // .map is instance of Leaflet map
+
+        const levels = store.getAllowed('availLevels');
+        //create a custom control element for height
+        // This slider is not really necessary in api v4, since wind altitude can be changed
+        // by selecting on "Wind" in the upper right, and changing the altitude in the slider
+        // at the bottom of the selector panel that opens.  So I have commented out its 
+        // addition to the map below (which never worked in api v4 anyway).
+        var HeightSlider = L.Control.extend({
+                options: {
+                        position: 'topleft'
+                },
+
+                onAdd: function (map) {
+                        // create the control container with a particular class name
+                        var container = L.DomUtil.create('div', 'height-control');
+
+                        // var valMap = ['surface', '100m','975h','950h','925h','900h','850h','800h', '700h','600h','500h','400h','300h', '250h', '200h', '150h' ];
+                        var realHeight = ['surface', '100m','300m','600m','750m','900m','1.5km','2.0km','3.0km','4.2km','5.5km','7.0km','9.0km','10km','11.7km','13.5km'];
+                        console.log("arrived here1");
+                        setTimeout(function () {
+
+                                $(".height-control").slider({
+                                        max: levels.length - 1,
+                                        orientation: "vertical",
+                                        slide: function(event, ui){
+                                           // W.setLevel(valMap[ui.value])
+                                           store.set('level', levels[ ui.value ]);
+                                           $('.height-control').find(".ui-slider-handle").text(realHeight[ui.value]);
+                                        }
+                                });
+                                console.log("arrived here2");
+                                $('.height-control').find(".ui-slider-handle").text(realHeight[0]);
+                        }, 1000);
+                        return container;
+                }
+        });
+
+        //add the slider control element to the page
+        // Commented out -- unnecessary in api v4 -- see comment above var HeightSlider.
+//        if(!($(".height-control").length)) {
+//                map.addControl( new HeightSlider() );
+//                window.setTimeout(addSliderTitle, 5000);
+//        }
+
+
+        var                         theLevel =  0;
+        if (roundALTAIRAlt >    50) theLevel =  1;        
+        if (roundALTAIRAlt >   200) theLevel =  2;
+        if (roundALTAIRAlt >   450) theLevel =  3;
+        if (roundALTAIRAlt >   675) theLevel =  4;
+        if (roundALTAIRAlt >   825) theLevel =  5;
+        if (roundALTAIRAlt >  1200) theLevel =  6;
+        if (roundALTAIRAlt >  1750) theLevel =  7;
+        if (roundALTAIRAlt >  2500) theLevel =  8;
+        if (roundALTAIRAlt >  3600) theLevel =  9;
+        if (roundALTAIRAlt >  4850) theLevel = 10;
+        if (roundALTAIRAlt >  6250) theLevel = 11;
+        if (roundALTAIRAlt >  8000) theLevel = 12;
+        if (roundALTAIRAlt >  9500) theLevel = 13;
+        if (roundALTAIRAlt > 10850) theLevel = 14;
+        if (roundALTAIRAlt > 12600) theLevel = 15;
+
+        store.set('level', levels[ theLevel ]);
 
         overlays.wind.setMetric('m/s');
 
         picker.on('pickerOpened', latLon => {
             // picker has been opened at latLon coords
 
-            let { lat, lon, values, overlay } = picker.getParams();
+            let { pickerLat, pickerLon, values, overlay } = picker.getParams();
 
             let windObject = utils.wind2obj( values );
 
@@ -98,6 +165,7 @@
         });
 
         broadcast.once('redrawFinished', () => {
+//             map.addControl( new HeightSlider() );
              picker.open({ lat: ALTAIRLat, lon: ALTAIRLon });
              // Opening of a picker (async)
         });
@@ -120,17 +188,19 @@
             }
         });
         map.setZoom(14);
+//                map.addControl( new HeightSlider() );
+//                window.setTimeout(addSliderTitle, 5000);
 
         setInterval(function () {
                 aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
                 aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
-                var aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
+                aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
                 var aLTAIRTerInput = window.parent.cesiumframe.document.getElementById('terrHeight');
 
         var ALTAIRTer      = parseFloat(aLTAIRTerInput.value);
-        var ALTAIRAlt      = aLTAIRAltInput.value;
+            ALTAIRAlt      = aLTAIRAltInput.value;
 
-                var roundALTAIRAlt = Math.round(ALTAIRAlt);
+                    roundALTAIRAlt = Math.round(ALTAIRAlt);
                 var roundALTAIRTer = Math.round(ALTAIRTer);
 
                 var lat = parseFloat(aLTAIRLatInput.value);
@@ -140,6 +210,7 @@
 
 //                broadcast.once('redrawFinished', () => {
                 broadcast.on('redrawFinished', () => {
+//                    map.addControl( new HeightSlider() );
 //                    picker.open({ lat: 48.49, lon: -123.312 });
                     picker.open({ lat: lat, lon: lon });
                     // Opening of a picker (async)
@@ -162,6 +233,7 @@
                 }
 
                 var ALTAIRAltText = '   ALTAIR = ' + roundALTAIRAlt + ' m ASL<br/>    Terrain&nbsp; =  &nbsp;  ' + roundALTAIRTer +'  m ASL<br/>';
+//                var ALTAIRAltText = '   ALTAIR = ' + roundALTAIRAlt + ' m ASL<br/>    Terrain&nbsp; =  &nbsp;  ' + roundALTAIRTer +'  m ASL<br/>    level&nbsp; =  &nbsp;  ' + theLevel;
 // Need some other method for getting wind speed and angle at ALTAIR's location within Windy API v4.0
 //                ALTAIRAltText += locationValue(values);
 
@@ -183,6 +255,9 @@
 
     })
 
+        function addSliderTitle() {
+                $('.leaflet-top.leaflet-left').prepend("<div>Wind altitude</div>");
+        }
 
         function makePred(map) {
                 $.ajax({
