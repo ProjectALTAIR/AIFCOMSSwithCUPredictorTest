@@ -54,7 +54,7 @@ var    voltage           = [];
 var    pressure          = [];
 var    humidity          = [];
 var    photodiodeReadout = [];
-var    lat, long, ele, horizSigma, vertSigma;
+var    lat, long, ele, gpsAge, horzSigma, vertSigma;
 var    gLTAIRLat, gLTAIRLon, gLTAIRAlt;
 var    groundLat, groundLong, groundEle;
 var    GPSInUse;                                    // 0 = mast u-blox NEO-M8N, 1 = DFRobot u-blox G6010
@@ -195,46 +195,94 @@ function procShortInArr(altairValues) {
 }
 
 function    procGPS(altairValues)   {
-  var gpsHour   =   altairValues[0];
-  var gpsMinute =   altairValues[1];
-  var gpsSecond =   altairValues[2];
-  var gpsLat    = ((altairValues[3]  << 24) + (altairValues[4]  << 16) + (altairValues[5] <<  8) + altairValues[6] ) / 1000000. ;
-  var gpsLon    = ((altairValues[7]  << 24) + (altairValues[8]  << 16) + (altairValues[9] <<  8) + altairValues[10]) / 1000000. ;
-  var gpsEle    =  (altairValues[11] <<  8) +  altairValues[12];
+  var gpsHour    =   altairValues[0];
+  var gpsMinute  =   altairValues[1];
+  var gpsSecond  =   altairValues[2];
+  var gpsLat     = ((altairValues[3]  << 24) + (altairValues[4]  << 16) + (altairValues[5] <<  8) + altairValues[6] ) / 1000000. ;
+  var gpsLon     = ((altairValues[7]  << 24) + (altairValues[8]  << 16) + (altairValues[9] <<  8) + altairValues[10]) / 1000000. ;
+  var gpsEle     =  (altairValues[11] <<  8) +  altairValues[12];
   if (abs(gpsLat - lat) < maxGPSDelta && abs(gpsLon - long) < maxGPSDelta) {
-    lat  = gpsLat;
-    long = gpsLon;
-    ele  = gpsEle;
+      lat        =   gpsLat;
+      long       =   gpsLon;
+      ele        =   gpsEle;
   }
 }
 
 function procLongMon1(altairValues) {
-
+      gpsAge     =  (altairValues[14] <<  8) +  altairValues[15];
+      horzSigma  =   altairValues[16];        // fix
+      vertSigma  =   altairValues[16];        // fix
+      altairRSSI =   altairValues[17];        // fix
+      voltage[0] =   altairValues[18] / 20.;  // this is reading low (around 10.5 volts, should be 11.3)
+      voltage[1] =   altairValues[19] / 20.;  // this is reading CRAZY-low (around 1.6 volts, should be 12.3)
 }
 
 function procLongEnvMon(altairValues) {
-
+  var outPres    =  (altairValues[21] <<  8) +  altairValues[22];  // in units of 2 Pa
+  pressure[1]    =   outPres  /  500.;                             // in units of  kPa
+      temp[9]    =   altairValues[23];                             // in degrees C
+  humidity[1]    =   altairValues[24];                             // in %
+  var  inPres    =  (altairValues[25] <<  8) +  altairValues[26];  // in units of 2 Pa
+  pressure[0]    =    inPres  /  500.;                             // in units of  kPa
+      temp[8]    =   altairValues[27];                             // in degrees C
+  humidity[0]    =   altairValues[28];                             // in %
+  var balPres    =  (altairValues[29] <<  8) +  altairValues[30];  // in units of 2 Pa
+  pressure[2]    =   balPres  /  500.;                             // in units of  kPa
+      temp[10]   =   altairValues[31];                             // in degrees C
+  humidity[2]    =   altairValues[32];                             // in %
 }
 
 function procLongPropMon(altairValues) {
-
+  var packCurr   = [];
+  for (var   i   = 0; i < 4; ++i) {
+         rpm[i]  =   altairValues[34+i] *   60 ;
+    packCurr[i]  =   altairValues[38+i]        ;
+    if (packCurr[i] > 127)  packCurr[i] -= 256 ;
+     current[i]  =   0.25 * packCurr[i]        ;
+  }
 }
 
 
 function procTimeAndTemps(altairValues) {
-
+  for (var   i   = 0; i < 8; ++i) {
+        temp[i]  =   altairValues[3+i];     // add time later (if necessary)
+  }
 }
 
 function procSpaceAndPower(altairValues) {
-
+  var  setProp     = [];
+  microSDSpaceOccupied  = (altairValues[12] <<  8) +  altairValues[13];  // in MB
+  microSDSpaceRemaining = (altairValues[14] <<  8) +  altairValues[15];  // in MB
+  for (var     i   = 0; i < 4; ++i) {
+       setProp[i]  =       altairValues[16+i];
+       setting[i]  = 0.1       *   setProp[i];
+  }
 }
 
 function procServoInfo(altairValues) {
-
+  var  setServ = [];
+  var  angServ = [];
+  for (var     i   = 0; i < 3; ++i) {
+       setServ[i]  = altairValues[21+(2*i)];
+       angServ[i]  = altairValues[22+(2*i)];
+  }
+  setting[5]       = 0.1     *   setServ[0];
+  setting[6]       = 0.1     *   setServ[1];
+  setting[4]       = 0.1     *   setServ[2];
+  rotAng           = 0.02    *   angServ[0];       // In volts for now, will change units to degrees later (when we measure the conversion factor).
+  heliumBleedValveRotAng     = 0.02 * angServ[1];  // In volts for now, will change units to degrees later (when we measure the conversion factor).
+  cutdownSteeringServoRotAng = 0.02 * angServ[2];  // In volts for now, will change units to degrees later (when we measure the conversion factor).
 }
 
 function procLightInfo(altairValues) {
-
+      lightSourceStatus    =  altairValues[28];
+  var pd1ADRead            = (altairValues[29] <<  8) +  altairValues[30];  // in ADC units of 188uV/bit
+  var pd2ADRead            = (altairValues[31] <<  8) +  altairValues[32];  // in ADC units of 188uV/bit
+  var pd3ADRead            = (altairValues[33] <<  8) +  altairValues[34];  // in ADC units of 188uV/bit
+  var diffPD12             = (altairValues[35] <<  8) +  altairValues[36];  // in ADC units of 188uV/bit
+      photodiodeReadout[0] = 0.000188 * pd1ADRead;
+      photodiodeReadout[1] = 0.000188 * pd2ADRead;
+      photodiodeReadout[2] = 0.000188 * pd3ADRead;
 }
 
 
@@ -1063,7 +1111,7 @@ function displayGPSInfo() {
   drawType(nf(lat,2,5),              400.,  47., 0.,                        0.7,                           0.);
   drawType(nf(abs(long),3,5),        400.,  69., 0.,                        0.7,                           0.);
   drawType(nf(int(ele)),             400.,  91., 0.,                        0.7,                           0.);
-  drawType(nf(int(horizSigma)),      357., 113., 0.,                        0.7,                           0.);
+  drawType(nf(int(horzSigma)),       357., 113., 0.,                        0.7,                           0.);
   drawType(nf(int(vertSigma)),       476., 113., 0.,                        0.7,                           0.);
   textAlign(LEFT);
 
@@ -1967,7 +2015,7 @@ function setFakeAltairValues() {
 //  gLTAIRLat.setAttribute("value", "48.49");
 //  gLTAIRLon.setAttribute("value", "-123.3117");
 //  gLTAIRAlt.setAttribute("value", "500.");
-  horizSigma =   12.;                   // meters
+  horzSigma  =   12.;                   // meters
   vertSigma  =   29.;                   // meters
   groundLat  =   48.48;                 // degrees (north = +, south = -)
   groundLong = -123.37;                 // degrees (east = +, west = -)

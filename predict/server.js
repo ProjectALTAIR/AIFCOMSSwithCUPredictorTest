@@ -282,7 +282,8 @@
         } else {
            console.warn('Now also *connected* to ALTAIR Arduino DNT900P transceiver on serial port: %s .',  arduinoPortName);
            myPort = new serialport(arduinoPortName, {
-               baudRate: 9600,
+//               baudRate: 9600,
+               baudRate: 38400,
                // look for return and newline at the end of each data packet:
                parser: serialport.parsers.readline("\n")
            });
