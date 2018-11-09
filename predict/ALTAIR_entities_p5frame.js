@@ -209,12 +209,12 @@ function    procGPS(altairValues)   {
 }
 
 function procLongMon1(altairValues) {
-      gpsAge     =  (altairValues[14] <<  8) +  altairValues[15];
-      horzSigma  =   altairValues[16];        // fix
-      vertSigma  =   altairValues[16];        // fix
-      altairRSSI =   altairValues[17];        // fix
-      voltage[0] =   altairValues[18] / 20.;  // this is reading low (around 10.5 volts, should be 11.3)
-      voltage[1] =   altairValues[19] / 20.;  // this is reading CRAZY-low (around 1.6 volts, should be 12.3)
+      gpsAge     =        (altairValues[14] <<  8) +  altairValues[15];
+      horzSigma  =         altairValues[16];  // fix
+      vertSigma  =         altairValues[16];  // fix
+      altairRSSI =         altairValues[17];  // fix
+      voltage[0] = 0.055 * altairValues[18];  // 
+      voltage[1] = 0.055 * altairValues[19];  // 
 }
 
 function procLongEnvMon(altairValues) {
@@ -280,9 +280,9 @@ function procLightInfo(altairValues) {
   var pd2ADRead            = (altairValues[31] <<  8) +  altairValues[32];  // in ADC units of 188uV/bit
   var pd3ADRead            = (altairValues[33] <<  8) +  altairValues[34];  // in ADC units of 188uV/bit
   var diffPD12             = (altairValues[35] <<  8) +  altairValues[36];  // in ADC units of 188uV/bit
-      photodiodeReadout[0] = 0.000188 * pd1ADRead;
-      photodiodeReadout[1] = 0.000188 * pd2ADRead;
-      photodiodeReadout[2] = 0.000188 * pd3ADRead;
+      photodiodeReadout[0] = 0.000188 * pd1ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
+      photodiodeReadout[1] = 0.000188 * pd2ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
+      photodiodeReadout[2] = 0.000188 * pd3ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
 }
 
 
