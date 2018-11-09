@@ -244,9 +244,9 @@ function procLongPropMon(altairValues) {
 
 
 function procTimeAndTemps(altairValues) {
-  for (var   i   = 0; i < 8; ++i) {
-        temp[i]  =   altairValues[3+i];     // add time later (if necessary)
-  }
+  for (var   i   = 0; i < 8; ++i) {           // Add time later (if necessary).
+        temp[i]  = 0.5 * altairValues[3+i];   // These temps are sent down in units of 0.5 degrees C
+  }                                           //  (see ALTAIR_GenTelInt.cpp and ALTAIRArduinoMicroRPMCurrentTempMon.ino).
 }
 
 function procSpaceAndPower(altairValues) {
