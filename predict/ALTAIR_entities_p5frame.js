@@ -7,6 +7,7 @@ var    numAlarms              =    30;
 var    timeBtwALTAIRPosComms  =    59;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
 var    timeBetweenAlarmSounds =    20;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
 var    timeBtwScopeTrkComms   =   150;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
+var    totalMicroSDSpace      =  8000.;   // in MB (approximate)
 var    gravAcc                =     9.81; // m/s^2
 
 var    maxSetting             =    10.0;  // max power setting for each motor: setting ranges from 0 - 10
@@ -54,7 +55,7 @@ var    voltage           = [];
 var    pressure          = [];
 var    humidity          = [];
 var    photodiodeReadout = [];
-var    lat, long, ele, gpsAge, horzSigma, vertSigma;
+var    lat, long, ele, age, horzSigma, vertSigma;
 var    gLTAIRLat, gLTAIRLon, gLTAIRAlt;
 var    groundLat, groundLong, groundEle;
 var    GPSInUse;                                    // 0 = mast u-blox NEO-M8N, 1 = DFRobot u-blox G6010
@@ -149,11 +150,14 @@ function receiveData(incoming) {
 //    var altairValues = data.split(' ').map(parseFloat);
     altairValues.splice(0, 2);              // remove the "Data (HEX):" bits from the beginning of the array
     switch (altairValues.length) {
-      case 44:
+      case 40:
         procLongInArr(altairValues);
         break;
-      case 39:
+      case 36:
         procShortInArr(altairValues);
+        break;
+      case 16:
+        procOrientInArr(altairValues);
         break;
       default:
 //        'Unparseable serial data received -- check logs!'
@@ -163,34 +167,35 @@ function receiveData(incoming) {
 }
 
 function procLongInArr(altairValues) {
-  socket.send("LOG: Heard a message of length " + 46 + " (43 vals), with 14th value = " + altairValues[13] + " and 15th value = " + altairValues[14]);
-  if (altairValues[13] == regValue) {
+  socket.send("LOG: Heard a message of length " + 42 + " (39 vals), with 17th value = " + altairValues[16] + " and 18th value = " + altairValues[17]);
+  if (altairValues[16] == regValue) {
     procGPS(altairValues);
-    if (altairValues[20] == regValue) {
-      procLongMon1(altairValues);
-      if (altairValues[33] == regValue) {
-        procLongEnvMon(altairValues);
-        if (altairValues[42] == regValue) {
-          procLongPropMon(altairValues);
-        }
+    if (altairValues[29] == regValue) {
+      procLongEnvMon(altairValues);
+      if (altairValues[38] == regValue) {
+        procLongPropMon(altairValues);
       }
     }
   }
 }
 
 function procShortInArr(altairValues) {
-  socket.send("LOG: Heard a message of length " + 41 + " (38 vals), with 5th value = " + altairValues[4] + " and 12th value = " + altairValues[11]);
+  socket.send("LOG: Heard a message of length " + 38 + " (35 vals), with 12th value = " + altairValues[11] + " and 13th value = " + altairValues[12]);
   if (altairValues[11] == regValue) {     
-    procTimeAndTemps(altairValues);
-    if (altairValues[20] == regValue) {
-      procSpaceAndPower(altairValues);
-      if (altairValues[27] == regValue) {
-        procServoInfo(altairValues);
-        if (altairValues[37] == regValue) {
-          procLightInfo(altairValues);
-        }
+    procTempsAndMon(altairValues);
+    if (altairValues[24] == regValue) {
+      procSpacePowServInfo(altairValues);
+      if (altairValues[34] == regValue) {
+        procLightInfo(altairValues);
       }
     }
+  }
+}
+
+function procOrientInArr(altairValues) {
+  socket.send("LOG: Heard a message of length " + 18 + " (15 vals), with 15th value = " + altairValues[14] + " and 14th value = " + altairValues[13]);
+  if (altairValues[14] == regValue) {
+    procOrientInfo(altairValues);
   }
 }
 
@@ -201,88 +206,100 @@ function    procGPS(altairValues)   {
   var gpsLat     = ((altairValues[3]  << 24) + (altairValues[4]  << 16) + (altairValues[5] <<  8) + altairValues[6] ) / 1000000. ;
   var gpsLon     = ((altairValues[7]  << 24) + (altairValues[8]  << 16) + (altairValues[9] <<  8) + altairValues[10]) / 1000000. ;
   var gpsEle     =  (altairValues[11] <<  8) +  altairValues[12];
+  var gpsAge     =  (altairValues[13] <<  8) +  altairValues[14];
+  var hdop       =   altairValues[15];
   if (abs(gpsLat - lat) < maxGPSDelta && abs(gpsLon - long) < maxGPSDelta) {
       lat        =   gpsLat;
       long       =   gpsLon;
       ele        =   gpsEle;
+      age        =   gpsAge;
+      horzSigma  =   hdop;   // fix
+      vertSigma  =   hdop;   // fix
   }
 }
 
-function procLongMon1(altairValues) {
-      gpsAge     =        (altairValues[14] <<  8) +  altairValues[15];
-      horzSigma  =         altairValues[16];  // fix
-      vertSigma  =         altairValues[16];  // fix
-      altairRSSI =         altairValues[17];  // fix
-      voltage[0] = 0.055 * altairValues[18];  // 
-      voltage[1] = 0.055 * altairValues[19];  // 
-}
-
 function procLongEnvMon(altairValues) {
-  var outPres    =  (altairValues[21] <<  8) +  altairValues[22];  // in units of 2 Pa
+  var outPres    =  (altairValues[17] <<  8) +  altairValues[18];  // in units of 2 Pa
   pressure[1]    =   outPres  /  500.;                             // in units of  kPa
-      temp[9]    =   altairValues[23];                             // in degrees C
-  humidity[1]    =   altairValues[24];                             // in %
-  var  inPres    =  (altairValues[25] <<  8) +  altairValues[26];  // in units of 2 Pa
+      temp[9]    =   altairValues[19];                             // in degrees C
+  humidity[1]    =   altairValues[20];                             // in %
+  var  inPres    =  (altairValues[21] <<  8) +  altairValues[22];  // in units of 2 Pa
   pressure[0]    =    inPres  /  500.;                             // in units of  kPa
-      temp[8]    =   altairValues[27];                             // in degrees C
-  humidity[0]    =   altairValues[28];                             // in %
-  var balPres    =  (altairValues[29] <<  8) +  altairValues[30];  // in units of 2 Pa
+      temp[8]    =   altairValues[23];                             // in degrees C
+  humidity[0]    =   altairValues[24];                             // in %
+  var balPres    =  (altairValues[25] <<  8) +  altairValues[26];  // in units of 2 Pa
   pressure[2]    =   balPres  /  500.;                             // in units of  kPa
-      temp[10]   =   altairValues[31];                             // in degrees C
-  humidity[2]    =   altairValues[32];                             // in %
+      temp[10]   =   altairValues[27];                             // in degrees C
+  humidity[2]    =   altairValues[28];                             // in %
 }
 
 function procLongPropMon(altairValues) {
   var packCurr   = [];
   for (var   i   = 0; i < 4; ++i) {
-         rpm[i]  =   altairValues[34+i] *   60 ;
-    packCurr[i]  =   altairValues[38+i]        ;
+         rpm[i]  =   altairValues[30+i] *   60 ;
+    packCurr[i]  =   altairValues[34+i]        ;
     if (packCurr[i] > 127)  packCurr[i] -= 256 ;
      current[i]  =   0.25 * packCurr[i]        ;
   }
 }
 
-
-function procTimeAndTemps(altairValues) {
-  for (var   i   = 0; i < 8; ++i) {           // Add time later (if necessary).
-        temp[i]  = 0.5 * altairValues[3+i];   // These temps are sent down in units of 0.5 degrees C
-  }                                           //  (see ALTAIR_GenTelInt.cpp and ALTAIRArduinoMicroRPMCurrentTempMon.ino).
+function procTempsAndMon(altairValues) {
+  for (var i  = 0; i < 8; ++i) {      
+      temp[i] = 0.5 *   altairValues[i];   // These temps are sent down in units of 0.5 degrees C
+  }                                        //  (see ALTAIR_GenTelInt.cpp and ALTAIRArduinoMicroRPMCurrentTempMon.ino).
+  altairRSSI  =         altairValues[8];   // fix this
+  voltage[0]  = 0.055 * altairValues[9];   // 
+  voltage[1]  = 0.055 * altairValues[10];  // 
 }
 
-function procSpaceAndPower(altairValues) {
-  var  setProp     = [];
-  microSDSpaceOccupied  = (altairValues[12] <<  8) +  altairValues[13];  // in MB
-  microSDSpaceRemaining = (altairValues[14] <<  8) +  altairValues[15];  // in MB
-  for (var     i   = 0; i < 4; ++i) {
-       setProp[i]  =       altairValues[16+i];
-       setting[i]  = 0.1       *   setProp[i];
-  }
-}
-
-function procServoInfo(altairValues) {
+function procSpacePowServInfo(altairValues) {
+  var  setProp = [];
   var  setServ = [];
   var  angServ = [];
-  for (var     i   = 0; i < 3; ++i) {
-       setServ[i]  = altairValues[21+(2*i)];
-       angServ[i]  = altairValues[22+(2*i)];
+  microSDSpaceOccupied  = (altairValues[12] << 8) + altairValues[13]    ;  // in MB
+  microSDSpaceRemaining =  totalMicroSDSpace      - microSDSpaceOccupied;  // in MB
+  for (var     i   = 0; i < 4; ++i) {
+       setProp[i]  =       altairValues[14+i];
+       setting[i]  = 0.1       *   setProp[i];
   }
-  setting[5]       = 0.1     *   setServ[0];
-  setting[6]       = 0.1     *   setServ[1];
-  setting[4]       = 0.1     *   setServ[2];
-  rotAng           = 0.02    *   angServ[0];       // In volts for now, will change units to degrees later (when we measure the conversion factor).
-  heliumBleedValveRotAng     = 0.02 * angServ[1];  // In volts for now, will change units to degrees later (when we measure the conversion factor).
-  cutdownSteeringServoRotAng = 0.02 * angServ[2];  // In volts for now, will change units to degrees later (when we measure the conversion factor).
+  for (var     j   = 0; j < 3; ++j) {
+       setServ[j]  = altairValues[18+(2*j)];
+       angServ[j]  = altairValues[19+(2*j)];
+  }
+  setting[5]                 =  0.1  * setServ[0];
+  setting[6]                 =  0.1  * setServ[1];
+  setting[4]                 =  0.1  * setServ[2];
+  rotAng                     =  0.02 * angServ[0];  // In volts for now, will change units to degrees later (when we measure the conversion factor).
+  heliumBleedValveRotAng     =  0.02 * angServ[1];  // In volts for now, will change units to degrees later (when we measure the conversion factor).
+  cutdownSteeringServoRotAng =  0.02 * angServ[2];  // In volts for now, will change units to degrees later (when we measure the conversion factor).
 }
 
 function procLightInfo(altairValues) {
-      lightSourceStatus    =  altairValues[28];
-  var pd1ADRead            = (altairValues[29] <<  8) +  altairValues[30];  // in ADC units of 188uV/bit
-  var pd2ADRead            = (altairValues[31] <<  8) +  altairValues[32];  // in ADC units of 188uV/bit
-  var pd3ADRead            = (altairValues[33] <<  8) +  altairValues[34];  // in ADC units of 188uV/bit
-  var diffPD12             = (altairValues[35] <<  8) +  altairValues[36];  // in ADC units of 188uV/bit
-      photodiodeReadout[0] = 0.000188 * pd1ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
-      photodiodeReadout[1] = 0.000188 * pd2ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
-      photodiodeReadout[2] = 0.000188 * pd3ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
+      lightSourceStatus      =  altairValues[25];
+  var pd1ADRead              = (altairValues[26] <<  8) +  altairValues[27];  // in ADC units of 188uV/bit
+  var pd2ADRead              = (altairValues[28] <<  8) +  altairValues[29];  // in ADC units of 188uV/bit
+  var pd3ADRead              = (altairValues[30] <<  8) +  altairValues[31];  // in ADC units of 188uV/bit
+  var diffPD12               = (altairValues[32] <<  8) +  altairValues[33];  // in ADC units of 188uV/bit
+      photodiodeReadout[0]   = 0.000188 * pd1ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
+      photodiodeReadout[1]   = 0.000188 * pd2ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
+      photodiodeReadout[2]   = 0.000188 * pd3ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
+}
+
+function procOrientInfo(altairValues) {
+  var rawAccelZ              = (altairValues[0]  <<  8) +  altairValues[1];
+  var rawAccelX              = (altairValues[2]  <<  8) +  altairValues[3];
+  var rawAccelY              = (altairValues[4]  <<  8) +  altairValues[5];
+  var rawYaw                 = (altairValues[6]  <<  8) +  altairValues[7];
+  var rawPitch               = (altairValues[8]  <<  8) +  altairValues[9];
+  var rawRoll                = (altairValues[10] <<  8) +  altairValues[11];
+      UM7temp                =  altairValues[12];
+      UM7health              =  altairValues[13];                             // fix
+      accel[0]               =  0.0109863               *  rawAccelX;         // 0.0109863  =  360. / 2^15
+      accel[1]               =  0.0109863               *  rawAccelY;
+      accel[2]               =  0.0109863               *  rawAccelZ;
+      yaw                    =  0.0109863               *  rawYaw;
+      pitch                  =  0.0109863               *  rawPitch;
+      roll                   =  0.0109863               *  rawRoll;
 }
 
 
