@@ -3,7 +3,7 @@ var    arduinoPortString1     = "tty.usbmodem";
 var    arduinoPortString2     = "COM4";
 var    portSpeed              =  9600;
 var    audibleAlarms          =  true;
-var    numAlarms              =    30;
+var    numAlarms              =    33;
 var    timeBtwALTAIRPosComms  =    59;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
 var    timeBetweenAlarmSounds =    20;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
 var    timeBtwScopeTrkComms   =   150;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
@@ -24,6 +24,8 @@ var    fiveBarRSSI            =   -11.0;  // in dBm -- very strong signal streng
 var    maxDroppedMessageFrac  =     0.2;  // alarm if more than 20% of messages are dropped
 var    minVoltage             =    11.1;  // volts
 var    maxVoltage             =    12.9;  // volts
+var    minInfoAge             =     0.0;  // seconds
+var    maxInfoAge             =    15.0;  // seconds
 
 var    lightSources           =     3;    // 1 = integrating sphere light source installed, 2 = diffusive light source installed, 3 = both installed, 0 = neither installed
 
@@ -55,7 +57,10 @@ var    voltage           = [];
 var    pressure          = [];
 var    humidity          = [];
 var    photodiodeReadout = [];
-var    lat, long, ele, age, horzSigma, vertSigma;
+var    age               = [];
+var    previousTime      = new Date();
+var    gpsInfoReceivedTime, orientInfoReceivedTime, mon2InfoReceivedTime;
+var    lat, long, ele, horzSigma, vertSigma;
 var    gLTAIRLat, gLTAIRLon, gLTAIRAlt;
 var    groundLat, groundLong, groundEle;
 var    GPSInUse;                                    // 0 = mast u-blox NEO-M8N, 1 = DFRobot u-blox G6010
@@ -92,7 +97,8 @@ function setup() {
    strokeWeight(0.5);
    smooth(5);
 
-   for (var i = 0; i < numAlarms; ++i) alarmOn[i] = 0;
+   for (var i = 0; i < numAlarms; ++i) alarmOn[i] =   0;
+   for (var j = 0; j < 3        ; ++j)     age[j] = -99;
 
 //    textAlign(CENTER);
 //    textSize(32);
@@ -150,14 +156,11 @@ function receiveData(incoming) {
 //    var altairValues = data.split(' ').map(parseFloat);
     altairValues.splice(0, 2);              // remove the "Data (HEX):" bits from the beginning of the array
     switch (altairValues.length) {
-      case 40:
+      case 44:
         procLongInArr(altairValues);
         break;
-      case 36:
+      case 34:
         procShortInArr(altairValues);
-        break;
-      case 16:
-        procOrientInArr(altairValues);
         break;
       default:
 //        'Unparseable serial data received -- check logs!'
@@ -167,79 +170,86 @@ function receiveData(incoming) {
 }
 
 function procLongInArr(altairValues) {
-  socket.send("LOG: Heard a message of length " + 42 + " (39 vals), with 17th value = " + altairValues[16] + " and 18th value = " + altairValues[17]);
-  if (altairValues[16] == regValue) {
+  socket.send("LOG: Heard a message of length " + 46 + " (43 vals), with 13th value = " + altairValues[12] + " and 14th value = " + altairValues[13]);
+  if (altairValues[12] == regValue) {
     procGPS(altairValues);
-    if (altairValues[29] == regValue) {
+    if (altairValues[28] == regValue) {
       procLongEnvMon(altairValues);
-      if (altairValues[38] == regValue) {
-        procLongPropMon(altairValues);
+      if (altairValues[42] == regValue) {
+        procLongOrientPropMon(altairValues);
       }
     }
   }
 }
 
 function procShortInArr(altairValues) {
-  socket.send("LOG: Heard a message of length " + 38 + " (35 vals), with 12th value = " + altairValues[11] + " and 13th value = " + altairValues[12]);
+  socket.send("LOG: Heard a message of length " + 36 + " (33 vals), with 12th value = " + altairValues[11] + " and 13th value = " + altairValues[12]);
   if (altairValues[11] == regValue) {     
     procTempsAndMon(altairValues);
     if (altairValues[24] == regValue) {
       procSpacePowServInfo(altairValues);
-      if (altairValues[34] == regValue) {
+      if (altairValues[32] == regValue) {
         procLightInfo(altairValues);
       }
     }
   }
 }
 
-function procOrientInArr(altairValues) {
-  socket.send("LOG: Heard a message of length " + 18 + " (15 vals), with 15th value = " + altairValues[14] + " and 14th value = " + altairValues[13]);
-  if (altairValues[14] == regValue) {
-    procOrientInfo(altairValues);
-  }
-}
-
 function    procGPS(altairValues)   {
-  var gpsHour    =   altairValues[0];
-  var gpsMinute  =   altairValues[1];
-  var gpsSecond  =   altairValues[2];
-  var gpsLat     = ((altairValues[3]  << 24) + (altairValues[4]  << 16) + (altairValues[5] <<  8) + altairValues[6] ) / 1000000. ;
-  var gpsLon     = ((altairValues[7]  << 24) + (altairValues[8]  << 16) + (altairValues[9] <<  8) + altairValues[10]) / 1000000. ;
-  var gpsEle     =  (altairValues[11] <<  8) +  altairValues[12];
-  var gpsAge     =  (altairValues[13] <<  8) +  altairValues[14];
-  var hdop       =   altairValues[15];
+  gpsInfoReceivedTime = Date();
+  var gpsLat     = ((altairValues[0] << 24) + (altairValues[1] << 16) + (altairValues[2] <<  8) + altairValues[3]) / 1000000. ;
+  var gpsLon     = ((altairValues[4] << 24) + (altairValues[5] << 16) + (altairValues[6] <<  8) + altairValues[7]) / 1000000. ;
+  var gpsEle     =  (altairValues[8] <<  8) +  altairValues[9];
+  var gpsAge     =   altairValues[10];
+  var hdop       =   altairValues[11];
   if (abs(gpsLat - lat) < maxGPSDelta && abs(gpsLon - long) < maxGPSDelta) {
       lat        =   gpsLat;
       long       =   gpsLon;
       ele        =   gpsEle;
-      age        =   gpsAge;
-      horzSigma  =   hdop;   // fix
-      vertSigma  =   hdop;   // fix
+      age[0]     =  0.256 * gpsAge; // in seconds
+      horzSigma  =   hdop;          // fix
+      vertSigma  =   hdop;          // fix
   }
 }
 
 function procLongEnvMon(altairValues) {
-  var outPres    =  (altairValues[17] <<  8) +  altairValues[18];  // in units of 2 Pa
-  pressure[1]    =   outPres  /  500.;                             // in units of  kPa
-      temp[9]    =   altairValues[19];                             // in degrees C
-  humidity[1]    =   altairValues[20];                             // in %
-  var  inPres    =  (altairValues[21] <<  8) +  altairValues[22];  // in units of 2 Pa
-  pressure[0]    =    inPres  /  500.;                             // in units of  kPa
-      temp[8]    =   altairValues[23];                             // in degrees C
-  humidity[0]    =   altairValues[24];                             // in %
-  var balPres    =  (altairValues[25] <<  8) +  altairValues[26];  // in units of 2 Pa
-  pressure[2]    =   balPres  /  500.;                             // in units of  kPa
-      temp[10]   =   altairValues[27];                             // in degrees C
-  humidity[2]    =   altairValues[28];                             // in %
+  var outPres    =  (altairValues[13] << 8) + altairValues[14];  // in units of 2 Pa
+  pressure[1]    = 0.002 * outPres;                              // in units of  kPa
+      temp[9]    =   altairValues[15];                           // in degrees C
+  humidity[1]    =   altairValues[16];                           // in %
+  var  inPres    =  (altairValues[17] << 8) + altairValues[18];  // in units of 2 Pa
+  pressure[0]    = 0.002 * inPres;                               // in units of  kPa
+      temp[8]    =   altairValues[19];                           // in degrees C
+  humidity[0]    =   altairValues[20];                           // in %
+  var balPres    =  (altairValues[21] << 8) + altairValues[22];  // in units of 2 Pa
+  pressure[2]    = 0.002 * balPres;                              // in units of  kPa
+      temp[10]   =   altairValues[23];                           // in degrees C
+  humidity[2]    =   altairValues[24];                           // in %
+  var rawAccelZ  =   altairValues[25];
+  var rawAccelX  =   altairValues[26];
+  var rawAccelY  =   altairValues[27];
+      accel[0]   =  0.3333 * (rawAccelX - 120.); // In m/s^2.
+      accel[1]   =  0.3333 * (rawAccelY - 120.); // In m/s^2.
+      accel[2]   =  0.3333 * (rawAccelZ - 120.); // In m/s^2.
 }
 
-function procLongPropMon(altairValues) {
+function procLongOrientPropMon(altairValues) {
+      orientInfoReceivedTime = Date();
+      age[1]     = 0.;
   var packCurr   = [];
+  var rawYaw     = altairValues[29];
+  var rawPitch   = altairValues[30];
+  var rawRoll    = altairValues[31];
+      UM7temp    = altairValues[32];
+      UM7health  = altairValues[33];                             // fix
+      yaw        = 1.5   *  rawYaw;
+      pitch      = 0.5   * (rawPitch - 120.);
+      roll       = 0.5   * (rawRoll  - 120.);
   for (var   i   = 0; i < 4; ++i) {
-         rpm[i]  =   altairValues[30+i] *   60 ;
-    packCurr[i]  =   altairValues[34+i]        ;
+         rpm[i]  =   altairValues[34+i] *   60 ;
+    packCurr[i]  =   altairValues[38+i]        ;
     if (packCurr[i] > 127)  packCurr[i] -= 256 ;
-     current[i]  =   0.25 * packCurr[i]        ;
+     current[i]  = 0.25 *   packCurr[i]        ;
   }
 }
 
@@ -275,57 +285,21 @@ function procSpacePowServInfo(altairValues) {
 }
 
 function procLightInfo(altairValues) {
+      mon2InfoReceivedTime   =  Date();
+      age[2]                 =  0.;
       lightSourceStatus      =  altairValues[25];
   var pd1ADRead              = (altairValues[26] <<  8) +  altairValues[27];  // in ADC units of 188uV/bit
   var pd2ADRead              = (altairValues[28] <<  8) +  altairValues[29];  // in ADC units of 188uV/bit
   var pd3ADRead              = (altairValues[30] <<  8) +  altairValues[31];  // in ADC units of 188uV/bit
-  var diffPD12               = (altairValues[32] <<  8) +  altairValues[33];  // in ADC units of 188uV/bit
       photodiodeReadout[0]   = 0.000188 * pd1ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
       photodiodeReadout[1]   = 0.000188 * pd2ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
       photodiodeReadout[2]   = 0.000188 * pd3ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
 }
 
 function procOrientInfo(altairValues) {
-  var rawAccelZ              = (altairValues[0]  <<  8) +  altairValues[1];
-  var rawAccelX              = (altairValues[2]  <<  8) +  altairValues[3];
-  var rawAccelY              = (altairValues[4]  <<  8) +  altairValues[5];
-  var rawYaw                 = (altairValues[6]  <<  8) +  altairValues[7];
-  var rawPitch               = (altairValues[8]  <<  8) +  altairValues[9];
-  var rawRoll                = (altairValues[10] <<  8) +  altairValues[11];
-      UM7temp                =  altairValues[12];
-      UM7health              =  altairValues[13];                             // fix
-      accel[0]               =  0.0109863               *  rawAccelX;         // 0.0109863  =  360. / 2^15
-      accel[1]               =  0.0109863               *  rawAccelY;
-      accel[2]               =  0.0109863               *  rawAccelZ;
-      yaw                    =  0.0109863               *  rawYaw;
-      pitch                  =  0.0109863               *  rawPitch;
-      roll                   =  0.0109863               *  rawRoll;
 }
 
 
-/*
-socket.on('message', function(data, flags) {
-   socket.send("LOG: Heard a message.");
-   testArduinoUnconnected =  false;
-  if (data != null && !flags.binary) {
-    var altairValues = split(data, ' ').map(parseFloat);    
-//    var altairValues = data.split(' ').map(parseFloat);    
-    
-    switch (altairValues.length) {
-      case 88:
-
-      case 32:
-
-      case 10:
-
-        break;
-      default:
-        'Unparseable serial data received -- check logs!'
-        if (alarmOn[xy] == 0) alarmOn[xy] = 2;
-    }
-  }
-});
-*/
 
 function displayPropulsionSystemInfo() {
   var upperMotorIsRed = 0, lowerMotorIsRed = 0, upperPropIsGreen = 0, lowerPropIsGreen = 0, upperPropIsRed = 0, lowerPropIsRed = 0;
@@ -823,6 +797,7 @@ function displayGlobalStatusInfo() {
   displayCutdownSteeringAndEnvInfo();
   displayGPSInfo();
   displayConnectionInfo();
+  displayTimeInfo();
   makeAutomationButtons();
 
 }
@@ -1282,6 +1257,38 @@ function displayConnectionInfo() {
   line( 25, 29,  72, 29);
   line(200, 47, 225, 47);
   line(230, 47, 255, 47);
+}
+
+function displayTimeInfo() {
+  var presentTime = new Date();
+  noStroke();
+  drawType("Current UTC time:",                60., 218., 0.,                           0. ,                            0.);
+  drawType(":",                               222., 218., 0.,                           0. ,                            0.);
+  drawType(":",                               245., 218., 0.,                           0. ,                            0.);
+  drawType(nf(presentTime.getUTCHours()  ,2), 204., 218., 0.,                           0.7,                            0.);
+  drawType(nf(presentTime.getUTCMinutes(),2), 227., 218., 0.,                           0.7,                            0.);
+  drawType(nf(presentTime.getUTCSeconds(),2), 250., 218., 0.,                           0.7,                            0.);
+
+  textSize(14);
+  drawType("Age of:  GPS info:",               10., 234., 0.,                           0. ,                            0.);
+  drawType("s",                               155., 234., 0.,                           0. ,                            0.);
+  drawType("Orient info:",                     54., 250., 0.,                           0. ,                            0.);
+  drawType("s",                               155., 250., 0.,                           0. ,                            0.);
+  drawType("Mon2 info:",                       57., 266., 0.,                           0. ,                            0.);
+  drawType("s",                               155., 266., 0.,                           0. ,                            0.);
+
+  for (var i = 0; i < 3; ++i) {
+    if (age[i] >= 0.) { age[i] += 0.001 * (presentTime.getTime() - previousTime.getTime()); }
+    if (age[i] > maxInfoAge || age[i] < minInfoAge) { if (alarmOn[30+i] == 0) alarmOn[30+i] = 2; }
+    else                                            { alarmOn[30+i] = 0; }
+  }
+  textAlign(RIGHT);
+  drawType(nf(int(age[0])),                   152., 234., 1.*(alarmOn[30] > 0 ? 1 : 0), 0.6*(alarmOn[30] > 0 ? 0 : 1),  0.);
+  drawType(nf(int(age[1])),                   152., 250., 1.*(alarmOn[31] > 0 ? 1 : 0), 0.6*(alarmOn[31] > 0 ? 0 : 1),  0.);
+  drawType(nf(int(age[2])),                   152., 266., 1.*(alarmOn[32] > 0 ? 1 : 0), 0.6*(alarmOn[32] > 0 ? 0 : 1),  0.);
+  textAlign(LEFT);
+
+  previousTime = presentTime;
 }
 
 function makeChangeGPSButton() {
