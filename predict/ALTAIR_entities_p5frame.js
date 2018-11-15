@@ -225,6 +225,7 @@ function procLongEnvMon(altairValues) {
   pressure[2]    = 0.002 * balPres;                              // in units of  kPa
       temp[10]   =   altairValues[23];                           // in degrees C
   humidity[2]    =   altairValues[24];                           // in %
+  if (pressure[2] == 0. && temp[10] == 0. && humidity[2] == 0.) isCutdown = true;   // no data from sensor => must assume balloon has separated
   var rawAccelZ  =   altairValues[25];
   var rawAccelX  =   altairValues[26];
   var rawAccelY  =   altairValues[27];
@@ -241,7 +242,13 @@ function procLongOrientPropMon(altairValues) {
   var rawPitch   = altairValues[30];
   var rawRoll    = altairValues[31];
       UM7temp    = altairValues[32];
-      UM7health  = altairValues[33];                             // fix
+  var rawTypHeal = altairValues[33];
+  if (rawTypHeal < 4) { UM7health = 0; }                     // healthy
+  else                { UM7health = 1; }                     // unhealthy
+  if (rawTypHeal == 0 || rawTypHeal == 4) orientInUse = 0;   // BNO055
+  if (rawTypHeal == 1 || rawTypHeal == 5) orientInUse = 1;   // UM7
+  if (rawTypHeal == 2 || rawTypHeal == 6) orientInUse = 2;   // HMC6343
+  if (rawTypHeal == 3 || rawTypHeal == 7) orientInUse = 3;   // HMC5883L
       yaw        = 1.5   *  rawYaw;
       pitch      = 0.5   * (rawPitch - 120.);
       roll       = 0.5   * (rawRoll  - 120.);
@@ -295,10 +302,6 @@ function procLightInfo(altairValues) {
       photodiodeReadout[1]   = 0.000188 * pd2ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
       photodiodeReadout[2]   = 0.000188 * pd3ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
 }
-
-function procOrientInfo(altairValues) {
-}
-
 
 
 function displayPropulsionSystemInfo() {
@@ -893,8 +896,8 @@ function displayCutdownSteeringAndEnvInfo() {
     drawType(nfp(int(heliumBleedValveRotAng)),     474.,  59., 0.,                        0.7,                           0.);
     drawType(nf(setting[6],1,1),                   485.,  45., 0.,                        0.7,                           0.);
     textAlign(LEFT);
-    drawType("Servo:",                             427.,  45., 0.,                        0.,                            0.);
-    drawType("/10",                                486.,  45., 0.,                        0.,                            0.);
+    drawType("Servo:",                             423.,  45., 0.,                        0.,                            0.);
+    drawType("/16",                                486.,  45., 0.,                        0.,                            0.);
     makeButtons(                   437.,  47., 1);
     noStroke();
   }
@@ -1287,6 +1290,7 @@ function displayTimeInfo() {
   drawType(nf(int(age[1])),                   152., 250., 1.*(alarmOn[31] > 0 ? 1 : 0), 0.6*(alarmOn[31] > 0 ? 0 : 1),  0.);
   drawType(nf(int(age[2])),                   152., 266., 1.*(alarmOn[32] > 0 ? 1 : 0), 0.6*(alarmOn[32] > 0 ? 0 : 1),  0.);
   textAlign(LEFT);
+  textSize(17);
 
   previousTime = presentTime;
 }
@@ -1837,8 +1841,8 @@ function makeLightSourceButtons() {
 
     fill(1, 1, 1);
     ellipse(565, 378, 45, 45);
-    drawType(nfp(photodiodeReadout[0],1,3),    503.,  387., 0.,                        0.,                           0.);
-    drawType(nfp(photodiodeReadout[1],1,3),    594.,  387., 0.,                        0.,                           0.);
+    drawType(nfp(photodiodeReadout[0],1,2),    503.,  387., 0.,                        0.,                           0.);
+    drawType(nfp(photodiodeReadout[1],1,2),    594.,  387., 0.,                        0.,                           0.);
     drawType("V", 530, 387, 0, 0, 0);
     drawType("V", 621, 387, 0, 0, 0);
 
@@ -1884,7 +1888,7 @@ function makeLightSourceButtons() {
     rect(504, 391, 3, 3);
     fill(1., 1., 1.);
     rect(496, 395, 37, 5);
-    drawType(nfp(photodiodeReadout[2],1,3),    452.,  407., 0.,                        0.,                           0.);
+    drawType(nfp(photodiodeReadout[2],1,2),    452.,  407., 0.,                        0.,                           0.);
     drawType("V", 479, 407, 0, 0, 0);
 
     for (var i = 4; i < 8; ++i) {
