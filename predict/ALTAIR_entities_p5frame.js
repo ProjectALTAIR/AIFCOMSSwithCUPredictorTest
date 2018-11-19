@@ -8,7 +8,7 @@ var    timeBtwALTAIRPosComms  =    59;    // in approximately 20's of millisecon
 var    timeBetweenAlarmSounds =    20;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
 var    timeBtwScopeTrkComms   =   150;    // in approximately 20's of milliseconds (so e.g. a value of 30 ~= 0.6 seconds)
 var    totalMicroSDSpace      =  8000.;   // in MB (approximate)
-var    gravAcc                =     9.81; // m/s^2
+var    gravAcc                =     9.80665; // m/s^2
 
 var    maxSetting             =    10.0;  // max power setting for each motor: setting ranges from 0 - 10
 var    maxRPM                 =  5000.0;
@@ -229,9 +229,9 @@ function procLongEnvMon(altairValues) {
   var rawAccelZ  =   altairValues[25];
   var rawAccelX  =   altairValues[26];
   var rawAccelY  =   altairValues[27];
-      accel[0]   =  0.3333 * (rawAccelX - 120.); // In m/s^2.
-      accel[1]   =  0.3333 * (rawAccelY - 120.); // In m/s^2.
-      accel[2]   =  0.3333 * (rawAccelZ - 120.); // In m/s^2.
+      accel[0]   =  0.3333 * (rawAccelX - 120.); // In m/s^2.  These will be modified to subtract off Earth's gravitational acceleration in procLongOrientPropMon below.
+      accel[1]   =  0.3333 * (rawAccelY - 120.); // In m/s^2.  These will be modified to subtract off Earth's gravitational acceleration in procLongOrientPropMon below.
+      accel[2]   =  0.3333 * (rawAccelZ - 120.); // In m/s^2.  These will be modified to subtract off Earth's gravitational acceleration in procLongOrientPropMon below.
 }
 
 function procLongOrientPropMon(altairValues) {
@@ -243,15 +243,27 @@ function procLongOrientPropMon(altairValues) {
   var rawRoll    = altairValues[31];
       UM7temp    = altairValues[32];
   var rawTypHeal = altairValues[33];
-  if (rawTypHeal < 4) { UM7health = 0; }                     // healthy
-  else                { UM7health = 1; }                     // unhealthy
-  if (rawTypHeal == 0 || rawTypHeal == 4) orientInUse = 0;   // BNO055
-  if (rawTypHeal == 1 || rawTypHeal == 5) orientInUse = 1;   // UM7
-  if (rawTypHeal == 2 || rawTypHeal == 6) orientInUse = 2;   // HMC6343
-  if (rawTypHeal == 3 || rawTypHeal == 7) orientInUse = 3;   // HMC5883L
+  if ((rawTypHeal &  7)  <  4)  { UM7health  =  0; }                         // healthy
+  else                          { UM7health  =  1; }                         // unhealthy
+  if ((rawTypHeal &  7) ==  0 || (rawTypHeal &  7) ==  4) orientInUse = 0;   // BNO055
+  if ((rawTypHeal &  7) ==  1 || (rawTypHeal &  7) ==  5) orientInUse = 1;   // UM7
+  if ((rawTypHeal &  7) ==  2 || (rawTypHeal &  7) ==  6) orientInUse = 2;   // HMC6343
+  if ((rawTypHeal &  7) ==  3 || (rawTypHeal &  7) ==  7) orientInUse = 3;   // HMC5883L
+
+  if ((rawTypHeal & 24) ==  0 || (rawTypHeal & 24) == 16) GPSInUse    = 0;   // NEO-M8N
+  if ((rawTypHeal & 24) ==  8 || (rawTypHeal & 24) == 24) GPSInUse    = 1;   // DFRobot G6
+  
+  if ((rawTypHeal & 96) ==  0)                            radioInUse  = 0;   // DNT900
+  if ((rawTypHeal & 96) == 32)                            radioInUse  = 1;   // SHX144
+  if ((rawTypHeal & 96) == 64)                            radioInUse  = 2;   // RFM23BP
+
       yaw        = 1.5   *  rawYaw;
       pitch      = 0.5   * (rawPitch - 120.);
       roll       = 0.5   * (rawRoll  - 120.);
+// "Subtract off" Earth's gravitational acceleration
+  accel[2] += gravAcc * Math.cos(radians(pitch)) * Math.cos(radians(roll));
+  accel[1] += gravAcc * Math.sin(radians(pitch));
+  accel[0] += gravAcc * Math.cos(radians(pitch)) * Math.sin(radians(roll));
   for (var   i   = 0; i < 4; ++i) {
          rpm[i]  =   altairValues[34+i] *   60 ;
     packCurr[i]  =   altairValues[38+i]        ;
@@ -1342,7 +1354,7 @@ function makeChangeOrientButtons() {
   if (orientInUse == 1) {
       alt1OrientName   = "Adafruit BNO055";
       alt2OrientName   = "Sparkfun HMC6343";
-  } else if (radioInUse == 2) {
+  } else if (orientInUse == 2) {
       alt1OrientName   = "Adafruit BNO055";
       alt2OrientName   = "CHRobotics UM7";
   }
