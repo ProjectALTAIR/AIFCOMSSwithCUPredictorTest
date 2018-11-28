@@ -29,7 +29,7 @@ This will terminate unimportant Windows processes using port 80.  (Mind that Sky
 unless you change your Skype settings.)
 
 Now, navigate to the directory from which your HTML and PHP files are being served (in Linux for example, 
-this would be `/var/www/` or `/var/www/html/`; for AMPPS on Windows, this would be `C:\path\to\Ampps\www\`, i.e. the installation path of AMPPS; and for Mac OS, this would likely be `/Users/<your user name>/Sites/`) and install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/)). Then install version 1.29 (not the most recent version, but version 1.29) of Cesium.js ([http://cesiumjs.org/downloads.html](http://cesiumjs.org/downloads.html)) to an **entirely** new subdirectory here (i.e. create a new subdirectory before installing Cesium.js v1.29 into that subdirectory) - you'll need it later. For Ubuntu, and Linux in general, Node-v6.11.2 is required. It is very easy to install through the following commands :
+this would be `/var/www/` or `/var/www/html/`; for AMPPS on Windows, this would be `C:\path\to\Ampps\www\`, i.e. the installation path of AMPPS; and for Mac OS, this would likely be `/Users/<your user name>/Sites/`) and install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/)). Then install version 1.51 (not the most recent version, but version 1.51) of Cesium.js ([http://cesiumjs.org/downloads.html](http://cesiumjs.org/downloads.html)) to an **entirely** new subdirectory here (i.e. create a new subdirectory before installing Cesium.js v1.51 into that subdirectory) - you'll need it later. For Ubuntu, and Linux in general, Node-v6.11.2 is required. It is very easy to install through the following commands :
 
         $ sudo apt-get install curl
         $ curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
@@ -118,7 +118,15 @@ directories must be given full (rwx) access by the PHP interpreter and both `pre
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
 
 Navigate back to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_macos.txt` to install some of the 
-Python requirements. Change directories to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/` and run `npm update` to install the remaining requirements.
+Python requirements. Change directories to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/` and run 
+
+    npm install
+
+then
+
+    npm update
+ 
+to install the remaining requirements.
 
 In this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
