@@ -606,7 +606,8 @@ function displayUM7SystemInfo() {
 //  accelGraphics.rotateZ(0.5);
 //  accelGraphics.camera(30.*accel[0], -30.*accel[2], 0.);
 //  accelGraphics.translate(0.,0.,-150.);
-  accelGraphics.translate(-75.,-75.,-150.);
+//  accelGraphics.translate(-75.,-75.,-150.);
+//  accelGraphics.translate(-20.,-20.,-70.);
   accelGraphics.rotateY(radians(yaw));
   accelGraphics.rotateZ(-radians(pitch));
   accelGraphics.rotateX(radians(roll));
@@ -631,7 +632,8 @@ function displayUM7SystemInfo() {
   accelGraphics.rotateX(-radians(roll));
   accelGraphics.rotateZ(radians(pitch));
   accelGraphics.rotateY(-radians(yaw));
-  accelGraphics.translate(75.,75.,150.);
+//  accelGraphics.translate(75.,75.,150.);
+//  accelGraphics.translate(20.,20.,70.);
 //  accelGraphics.translate(0.,0.,150.);
 //  accelGraphics.camera(-30.*accel[0], 30.*accel[2], 0.);
 
@@ -640,7 +642,8 @@ function displayUM7SystemInfo() {
 
 //  orientGraphics.camera(30., -30., 0.);
 //  orientGraphics.translate(0.,0.,-150.);
-  orientGraphics.translate(-110.,-65.,-150.);
+//  orientGraphics.translate(-110.,-65.,-150.);
+  orientGraphics.translate(-30.,20.,0.);
   orientGraphics.rotateY(radians(yaw));
   orientGraphics.rotateZ(-radians(pitch));
   orientGraphics.rotateX(radians(roll));
@@ -674,7 +677,8 @@ function displayUM7SystemInfo() {
   orientGraphics.rotateX(-radians(roll));
   orientGraphics.rotateZ(radians(pitch));
   orientGraphics.rotateY(-radians(yaw));
-  orientGraphics.translate(110.,65.,150.);
+//  orientGraphics.translate(110.,65.,150.);
+  orientGraphics.translate(30.,-20.,0.);
 //  orientGraphics.translate(0.,0.,150.);
 //  orientGraphics.camera(-30., 30., 0.);
 

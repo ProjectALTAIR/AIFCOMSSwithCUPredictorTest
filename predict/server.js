@@ -1,9 +1,9 @@
+/*eslint-env node*/
+'use strict';
 (function() {
-    'use strict';
-    /*jshint node:true*/
-
     var express = require('express');
     var compression = require('compression');
+    var fs = require('fs');
     var url = require('url');
     var request = require('request');
 
@@ -24,7 +24,8 @@
     var wss = new WebSocketServer({port: SERVER_PORT}); // the webSocket server
     var connections = new Array;          // list of connections to the server
 
-    var arduinoPortString1     = "cu.usbmodem";
+    var arduinoPortString1     = "tty.usbmodem";
+    var arduinoPortString1corr = "cu.usbmodem";
     var arduinoPortString2     = "COM4";
     var arduinoPortString2a    = process.argv[2];
     var arduinoPortName        = "";
@@ -42,17 +43,18 @@
            } else {
               if (port.comName.indexOf(arduinoPortString2a) != -1) arduinoPortName = port.comName;
            }
-           if (port.comName.indexOf(arduinoPortString1) != -1) arduinoPortName = port.comName;
+           if (port.comName.indexOf(arduinoPortString1) != -1) arduinoPortName = port.comName.replace(arduinoPortString1, arduinoPortString1corr);
            isFirstPort = false;
         });
         console.log(genericPortNamesList);
     });
 
     function showPortOpen() {
-        console.log('Serial port open.  Data rate: ' + myPort.options.baudRate);
+//        console.log('Serial port open.  Data rate: ' + myPort.options.baudRate);
+        console.log('Serial port open.  Data rate: ' + myPort.baudRate);
         console.log("");
     }
- 
+
     // This function broadcasts messages to all webSocket clients
     function broadcast(data) {
        for (myConnection in connections) {   // iterate over the array of connections
@@ -61,7 +63,7 @@
     }
 
     function sendToSerial(data) {
-        var date = new Date(); 
+        var date = new Date();
         if (data.substring(0, 4) == "LOG:") {
            console.log(data + "   " + date + " + " + date.getMilliseconds() + " milliseconds");
         } else if (data.substring(0, 11) == "MOVESCOPE: ") {
@@ -100,7 +102,7 @@
            broadcast(data);
        }
     }
- 
+
     function saveLatestData(data) {
        console.log(data);
        // if there are webSocket connections, send the serial data to all of them:
@@ -113,20 +115,20 @@
        var date = new Date();
        console.log('Serial port closed at: ' + date + '!  You must completely restart   node server.js   if you want to communicate with ALTAIR.');
     }
- 
+
     function showError(error) {
        console.log('Serial port error: ' + error);
     }
 
     wss.on('connection', handleConnection);
- 
+
     function handleConnection(client) {
        var date = new Date();
        console.log("New websocket connection at: " + date); // you have a new client
        connections.push(client); // add this client to the connections array
- 
+
        client.on('message', sendToSerial); // when a client sends a message,
- 
+
        client.on('close', function() { // when a client closes its connection
           date = new Date();
           console.log("Websocket connection closed at: " + date); // print it out
@@ -138,6 +140,8 @@
 // JA Serial port connection code END
 
 
+
+    var gzipHeader = Buffer.from('1F8B08', 'hex');
 
     var yargs = require('yargs').options({
         'port' : {
@@ -172,18 +176,44 @@
     var mime = express.static.mime;
     mime.define({
         'application/json' : ['czml', 'json', 'geojson', 'topojson'],
-        'model/vnd.gltf+json' : ['gltf'],
-        'model/vnd.gltf.binary' : ['bgltf', 'glb'],
+        'application/wasm' : ['wasm'],
+        'image/crn' : ['crn'],
+        'image/ktx' : ['ktx'],
+        'model/gltf+json' : ['gltf'],
+        'model/gltf-binary' : ['bgltf', 'glb'],
+        'application/octet-stream' : ['b3dm', 'pnts', 'i3dm', 'cmpt', 'geom', 'vctr'],
         'text/plain' : ['glsl']
-    });
+    }, true);
 
     var app = express();
     app.use(compression());
-    app.use(express.static(__dirname));
+    app.use(function(req, res, next) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+        next();
+    });
 
-//    function sendSerialData(data) {
-//       console.log(data);
-//    }
+    function checkGzipAndNext(req, res, next) {
+        var reqUrl = url.parse(req.url, true);
+        var filePath = reqUrl.pathname.substring(1);
+
+        var readStream = fs.createReadStream(filePath, { start: 0, end: 2 });
+        readStream.on('error', function(err) {
+            next();
+        });
+
+        readStream.on('data', function(chunk) {
+            if (chunk.equals(gzipHeader)) {
+                res.header('Content-Encoding', 'gzip');
+            }
+            next();
+        });
+    }
+
+    var knownTilesetFormats = [/\.b3dm/, /\.pnts/, /\.i3dm/, /\.cmpt/, /\.glb/, /\.geom/, /\.vctr/, /tileset.*\.json$/];
+    app.get(knownTilesetFormats, checkGzipAndNext);
+
+    app.use(express.static(__dirname));
 
     function getRemoteUrlFromParam(req) {
         var remoteUrl = req.params[0];
@@ -282,25 +312,28 @@
         } else {
            console.warn('Now also *connected* to ALTAIR Arduino DNT900P transceiver on serial port: %s .',  arduinoPortName);
            myPort = new serialport(arduinoPortName, {
+               lock: false,
 //               baudRate: 9600,
-               baudRate: 38400,
+               baudRate: 38400
                // look for return and newline at the end of each data packet:
-               parser: serialport.parsers.readline("\n")
+//                parser: serialport.parsers.readline("\n")
+//                parser: new serialport.parsers.Readline('\r\n')
+//                parser: new serialport.parsers.Readline('\n')
            });
+           var readline = serialport.parsers.Readline;
+           var parser = myPort.pipe(new readline('/r/n'));
            myPort.on('open', showPortOpen);
-           myPort.on('data', sendSerialData);
+           parser.on('data', sendSerialData);
            myPort.on('close', showPortClose);
            myPort.on('error', showError);
         }
 
 // JA Serial port connection code part 2 END
 
-
     });
 
 
 
-//    server.on('data', sendSerialData);
 
     server.on('error', function (e) {
         if (e.code === 'EADDRINUSE') {
@@ -317,21 +350,19 @@
     });
 
     server.on('close', function() {
-        var date = new Date();
-        console.log('ALTAIR AIFCOMSS Cesium development server stopped at: ' + date);
+        console.log('Cesium development server stopped.');
     });
 
     var isFirstSig = true;
     process.on('SIGINT', function() {
-        var date = new Date();
         if (isFirstSig) {
-            console.log('ALTAIR AIFCOMSS Cesium development server shutting down at: ' + date);
+            console.log('Cesium development server shutting down.');
             server.close(function() {
               process.exit(0);
             });
             isFirstSig = false;
         } else {
-            console.log('ALTAIR AIFCOMSS Cesium development server force kill at: ' + date);
+            console.log('Cesium development server force kill.');
             process.exit(1);
         }
     });

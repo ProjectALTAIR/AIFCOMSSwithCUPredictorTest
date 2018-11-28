@@ -31,15 +31,15 @@
   </div>
   <div id="cesiumContainer"></div>
   <script>
-    Cesium.BingMapsApi.defaultKey = 'Av1e_tU47MpctkXtV8iHe0NcnYUu-ditxZrofMwmqx-2EbRuotZh-P7QYRzt_uis';
-    var viewer = new Cesium.Viewer('cesiumContainer');
-    var terrainProvider = new Cesium.CesiumTerrainProvider({
-        url : '//assets.agi.com/stk-terrain/world',
-        requestVertexNormals: true,
-        requestWaterMask: true,
-        credit : ''
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjN2ZmZmNiOC0yNWYzLTQ2NTItOWYwYi1lM2UxN2YwZWNjMWIiLCJpZCI6NTQxOSwic2NvcGVzIjpbImFzciIsImdjIl0sImlhdCI6MTU0MzI5Mzc2OX0.iK0qz6cVGhplj9tIBTEjIHIvPqEwP9tXlhELYuo2fSM';
+    var viewer = new Cesium.Viewer('cesiumContainer',{
+        terrainProvider : new Cesium.CesiumTerrainProvider({
+            url: Cesium.IonResource.fromAssetId(1)
+        })
     });
-    viewer.terrainProvider = terrainProvider;
+    var imageryLayer = viewer.imageryLayers.addImageryProvider(
+        new Cesium.IonImageryProvider({ assetId: 2 })
+    );
 //    viewer.scene.globe.enableLighting = true;
 //    viewer.cesiumWidget.creditContainer.parentElement.style.bottom = '0px';
     viewer.cesiumWidget.creditContainer = '';
@@ -70,7 +70,7 @@ var ALTAIRAlt      = parseFloat(aLTAIRAltInput.value);
 
 var dummyRectangle      = Cesium.Rectangle.fromDegrees(ALTAIRLon - epsilonDegs, ALTAIRLat - epsilonDegs, ALTAIRLon + epsilonDegs, ALTAIRLat + epsilonDegs);
 var ALTAIRGroundPos     = [ Cesium.Cartographic.fromDegrees(ALTAIRLon, ALTAIRLat) ];
-var terrainPromise      = Cesium.sampleTerrain(terrainProvider, 12, ALTAIRGroundPos);
+var terrainPromise      = Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos);
 var ALTAIRTerrainHeight = window.document.getElementById('terrHeight');
 Cesium.when(terrainPromise, function(updatedPositions) {
   ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
@@ -128,6 +128,7 @@ var ALTAIRParachute = viewer.entities.add({
     }
 });
 
+
 var isUnusualWindowsMachine = false;
 var updatePosition = true;
 // var propCheckboxChecked = true;
@@ -147,10 +148,13 @@ var positionPropRight    = [];
 var orientationPropLeft  = [];
 var orientationPropRight = [];
 var positionMotor        = [];
+var hprLeft              = [];
+var hprRight             = [];
 var heading = 0;
 var pitch = Cesium.Math.toRadians(90);
 var rollPropLeft  = [];
 var rollPropRight = [];
+
 for (var i = 0; i < 4; ++i) {
     propLat[i]    = ALTAIRLat + motorLatDelta[i];
     propLon[i]    = ALTAIRLon + motorLonDelta[i];
@@ -165,8 +169,10 @@ for (var i = 0; i < 4; ++i) {
     positionMotor[i]     = Cesium.Cartesian3.fromDegrees(propLon[i],                                  propLat[i],                                   motorAlt[i]);
     rollPropLeft[i]      = propAngle[i];
     rollPropRight[i]     = propAngle[i] + 3.14159;
-    orientationPropLeft[i]  = Cesium.Transforms.headingPitchRollQuaternion(positionPropLeft[i],  heading, pitch, rollPropLeft[i]);
-    orientationPropRight[i] = Cesium.Transforms.headingPitchRollQuaternion(positionPropRight[i], heading, pitch, rollPropRight[i]);
+    hprLeft[i]           = new Cesium.HeadingPitchRoll(heading, pitch, rollPropLeft[i]);
+    hprRight[i]          = new Cesium.HeadingPitchRoll(heading, pitch, rollPropRight[i]);
+    orientationPropLeft[i]  = Cesium.Transforms.headingPitchRollQuaternion(positionPropLeft[i],  hprLeft[i]);
+    orientationPropRight[i] = Cesium.Transforms.headingPitchRollQuaternion(positionPropRight[i], hprRight[i]);
 }
 
 var ALTAIRPropLeft  = [];
@@ -215,6 +221,7 @@ if (window.navigator.userAgent.indexOf("Win") != -1 || window.navigator.userAgen
 
 viewer.clock.onTick.addEventListener(function () {
     eventCounter++;
+
     if (!(isUnusualWindowsMachine && eventCounter <= 300) && eventCounter % 5 == 0) {
       
         if (updatePosition) {
@@ -223,6 +230,7 @@ viewer.clock.onTick.addEventListener(function () {
             });
         }
           
+
         aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
         aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
         aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
@@ -232,7 +240,7 @@ viewer.clock.onTick.addEventListener(function () {
 
         dummyRectangle      = Cesium.Rectangle.fromDegrees(ALTAIRLon - epsilonDegs, ALTAIRLat - epsilonDegs, ALTAIRLon + epsilonDegs, ALTAIRLat + epsilonDegs);
         ALTAIRGroundPos     = [ Cesium.Cartographic.fromDegrees(ALTAIRLon, ALTAIRLat) ];
-        terrainPromise      = Cesium.sampleTerrain(terrainProvider, 12, ALTAIRGroundPos);
+        terrainPromise      = Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos);
         Cesium.when(terrainPromise, function(updatedPositions) {
           ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
         });
@@ -256,8 +264,10 @@ viewer.clock.onTick.addEventListener(function () {
             positionPropRight[i] = Cesium.Cartesian3.fromDegrees(propLon[i] + 0.00001*Math.cos(propAngle[i]), propLat[i] + 0.000007*Math.sin(propAngle[i]), propAlt[i]);
             rollPropLeft[i]  = propAngle[i];
             rollPropRight[i] = propAngle[i] + 3.14159;
-            orientationPropLeft[i]  = Cesium.Transforms.headingPitchRollQuaternion(positionPropLeft[i],  heading, pitch, rollPropLeft[i]);
-            orientationPropRight[i] = Cesium.Transforms.headingPitchRollQuaternion(positionPropRight[i], heading, pitch, rollPropRight[i]);
+            hprLeft[i]       = new Cesium.HeadingPitchRoll(heading, pitch, rollPropLeft[i]);
+            hprRight[i]      = new Cesium.HeadingPitchRoll(heading, pitch, rollPropRight[i]);
+            orientationPropLeft[i]  = Cesium.Transforms.headingPitchRollQuaternion(positionPropLeft[i],  hprLeft[i]);
+            orientationPropRight[i] = Cesium.Transforms.headingPitchRollQuaternion(positionPropRight[i], hprRight[i]);
             (ALTAIRPropLeft[i]).position     = positionPropLeft[i];
             (ALTAIRPropRight[i]).position    = positionPropRight[i];
             (ALTAIRMotor[i]).position        = Cesium.Cartesian3.fromDegrees(propLon[i], propLat[i], motorAlt[i]);
@@ -266,6 +276,7 @@ viewer.clock.onTick.addEventListener(function () {
         }
     }
 });
+
 
 viewer.zoomTo(viewer.entities);
 
