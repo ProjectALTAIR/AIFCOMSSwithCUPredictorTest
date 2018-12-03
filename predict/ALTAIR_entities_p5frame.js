@@ -253,9 +253,9 @@ function procLongOrientPropMon(altairValues) {
   if ((rawTypHeal & 24) ==  0 || (rawTypHeal & 24) == 16) GPSInUse    = 0;   // NEO-M8N
   if ((rawTypHeal & 24) ==  8 || (rawTypHeal & 24) == 24) GPSInUse    = 1;   // DFRobot G6
   
-  if ((rawTypHeal & 96) ==  0)                            radioInUse  = 0;   // DNT900
-  if ((rawTypHeal & 96) == 32)                            radioInUse  = 1;   // SHX144
-  if ((rawTypHeal & 96) == 64)                            radioInUse  = 2;   // RFM23BP
+  if ((rawTypHeal & 96) ==  0)  { socket.send('R0');      radioInUse  = 0; } // DNT900
+  if ((rawTypHeal & 96) == 32)  { socket.send('R1');      radioInUse  = 1; } // SHX144
+  if ((rawTypHeal & 96) == 64)  { socket.send('R2');      radioInUse  = 2; } // RFM23BP
 
       yaw        = 1.5   *  rawYaw;
       pitch      = 0.5   * (rawPitch - 120.);
@@ -1297,9 +1297,10 @@ function displayTimeInfo() {
   drawType("s",                               155., 266., 0.,                           0. ,                            0.);
 
   for (var i = 0; i < 3; ++i) {
-    if (age[i] >= 0.) { age[i] += 0.001 * (presentTime.getTime() - previousTime.getTime()); }
-    if (age[i] > maxInfoAge || age[i] < minInfoAge) { if (alarmOn[30+i] == 0) alarmOn[30+i] = 2; }
-    else                                            { alarmOn[30+i] = 0; }
+    if ( age[i] >= 0.)                                   { age[i] += 0.001 * (presentTime.getTime() - previousTime.getTime()); }
+    if ((age[i] >  maxInfoAge) || (age[i] < minInfoAge)) { if (alarmOn[30+i] == 0) alarmOn[30+i] = 2; }
+    else                                                                         { alarmOn[30+i] = 0; }
+    if ((age[i] >  maxInfoAge) && (alarmCounter % timeBetweenAlarmSounds == 0))  { socket.send('RH'); }
   }
   textAlign(RIGHT);
   drawType(nf(int(age[0])),                   152., 234., 1.*(alarmOn[30] > 0 ? 1 : 0), 0.6*(alarmOn[30] > 0 ? 0 : 1),  0.);
