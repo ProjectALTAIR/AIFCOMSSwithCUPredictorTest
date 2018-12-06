@@ -162,6 +162,9 @@ function receiveData(incoming) {
       case 34:
         procShortInArr(altairValues);
         break;
+      case 16:
+        procGSInArr(altairValues);
+        break;
       default:
 //        'Unparseable serial data received -- check logs!'
 //        if (alarmOn[xy] == 0) alarmOn[xy] = 2;
@@ -194,6 +197,14 @@ function procShortInArr(altairValues) {
     }
   }
 }
+
+function procGSInArr(altairValues) {
+  socket.send("LOG: Heard a message of length " + 18 + " (15 vals), with 15th value = " + altairValues[14] + " and 14th value = " + altairValues[13]);
+  if (altairValues[14] == regValue) {
+    procGSInfo(altairValues);
+  }
+}
+
 
 function    procGPS(altairValues)   {
   gpsInfoReceivedTime = Date();
@@ -315,6 +326,21 @@ function procLightInfo(altairValues) {
       photodiodeReadout[2]   = 0.000188 * pd3ADRead;  // 188 uV is the volts per ADU on an ADS1115 ADC board
 }
 
+function procGSInfo(altairValues) {
+  groundLat              = ((altairValues[0] << 24) + (altairValues[1] << 16) + (altairValues[2] <<  8) + altairValues[3]) / 1000000. ;
+  groundLong             = ((altairValues[4] << 24) + (altairValues[5] << 16) + (altairValues[6] <<  8) + altairValues[7]) / 1000000. ;
+  groundRSSI             =   altairValues[8] ;
+  groundAlt1RSSI         =   altairValues[9] ;
+  groundAlt2RSSI         =   altairValues[10];
+  rawGroundDropMessFrac  =   altairValues[11];
+  if ((rawGroundDropMessFrac & 192) ==  0) controlGroundStationName = groundStation0Name;
+  if ((rawGroundDropMessFrac & 192) == 64) controlGroundStationName = groundStation1Name;
+  rawAlt1DropMessFrac    =   altairValues[12];
+  rawAlt2DropMessFrac    =   altairValues[13];
+  groundDropMessFrac     = 1./63. * (rawGroundDropMessFrac & 63);
+  groundAlt1DropMessFrac = 1./63. * (  rawAlt1DropMessFrac & 63);
+  groundAlt2DropMessFrac = 1./63. * (  rawAlt2DropMessFrac & 63);
+}
 
 function displayPropulsionSystemInfo() {
   var upperMotorIsRed = 0, lowerMotorIsRed = 0, upperPropIsGreen = 0, lowerPropIsGreen = 0, upperPropIsRed = 0, lowerPropIsRed = 0;
@@ -1184,14 +1210,14 @@ function displayConnectionInfo() {
       shortAlt2RadioName  = "SHX";
   }
 
-  if (altairRSSI < threeBarRSSI)                  if (alarmOn[23] == 0) alarmOn[23] = 2;
-  else                                            alarmOn[23] = 0;
-  if (groundRSSI < threeBarRSSI)                  if (alarmOn[24] == 0) alarmOn[24] = 2;
-  else                                            alarmOn[24] = 0;
-  if (altairDropMessFrac > maxDroppedMessageFrac) if (alarmOn[28] == 0) alarmOn[28] = 2;
-  else                                            alarmOn[28] = 0;
-  if (groundDropMessFrac > maxDroppedMessageFrac) if (alarmOn[29] == 0) alarmOn[29] = 2;
-  else                                            alarmOn[29] = 0;
+  if (altairRSSI < threeBarRSSI)                  { if (alarmOn[23] == 0) alarmOn[23] = 2; }
+  else                                            { alarmOn[23] = 0; }
+  if (groundRSSI < threeBarRSSI)                  { if (alarmOn[24] == 0) alarmOn[24] = 2; }
+  else                                            { alarmOn[24] = 0; }
+  if (altairDropMessFrac > maxDroppedMessageFrac) { if (alarmOn[28] == 0) alarmOn[28] = 2; }
+  else                                            { alarmOn[28] = 0; }
+  if (groundDropMessFrac > maxDroppedMessageFrac) { if (alarmOn[29] == 0) alarmOn[29] = 2; }
+  else                                            { alarmOn[29] = 0; }
 
   textSize(15);
   drawType("Connection Strength",    4.,  13., 0.,                        0.,                            0.);
@@ -1235,25 +1261,49 @@ function displayConnectionInfo() {
   textSize(12);
   drawType(nfp(altairRSSI,2,1),    129.,  60., (alarmOn[23] > 0 ? 1 : 0), 0.7*(alarmOn[23] > 0 ? 0 : 1), 0.);
   drawType(nfp(groundRSSI,2,1),    129., 106., (alarmOn[24] > 0 ? 1 : 0), 0.7*(alarmOn[24] > 0 ? 0 : 1), 0.);
-  drawType(nf(int(altairDropMessFrac*100)),    
+  if ((altairDropMessFrac >= 0.) && (altairDropMessFrac < 1.)) {
+    drawType(nf(int(altairDropMessFrac*100)),    
                                    181.,  72., (alarmOn[28] > 0 ? 1 : 0), 0.7*(alarmOn[28] > 0 ? 0 : 1), 0.);
-  drawType(nf(int(groundDropMessFrac*100)),    
+  } else {
+    drawType("N/A",                181.,  72., (alarmOn[28] > 0 ? 1 : 0), 0.7*(alarmOn[28] > 0 ? 0 : 1), 0.);
+  }
+  if ((groundDropMessFrac >= 0.) && (groundDropMessFrac < 1.)) {
+    drawType(nf(int(groundDropMessFrac*100)),    
                                    181., 118., (alarmOn[29] > 0 ? 1 : 0), 0.7*(alarmOn[29] > 0 ? 0 : 1), 0.);
+  } else {
+    drawType("N/A",                181., 118., (alarmOn[29] > 0 ? 1 : 0), 0.7*(alarmOn[29] > 0 ? 0 : 1), 0.);
+  }
   textSize(10);
   drawType(nfp(altairAlt1RSSI,2,1), 225.,  60., 0.,                       0.7,                           0.);
   drawType(nfp(groundAlt1RSSI,2,1), 225., 106., 0.,                       0.7,                           0.);
-  drawType(nf(int(altairAlt1DropMessFrac*100)),
-                                   217.,  72.,  0.,                       0.7,                           0.);
-  drawType(nf(int(groundAlt1DropMessFrac*100)),
-                                   217., 118.,  0.,                       0.7,                           0.);
+  if ((altairAlt1DropMessFrac >= 0.) && (altairAlt1DropMessFrac < 1.)) {
+    drawType(nf(int(altairAlt1DropMessFrac*100.)),
+                                    217.,  72., 0.,                       0.7,                           0.);
+  } else {
+    drawType("N/A",                 217.,  72., 0.,                       0.7,                           0.);
+  }
+  if ((groundAlt1DropMessFrac >= 0.) && (groundAlt1DropMessFrac < 1.)) {
+    drawType(nf(int(groundAlt1DropMessFrac*100.)),
+                                    217., 118., 0.,                       0.7,                           0.);
+  } else {
+    drawType("N/A",                 217., 118., 0.,                       0.7,                           0.);
+  }
   drawType(nfp(altairAlt2RSSI,2,1), 255.,  60., 0.,                       0.7,                           0.);
   drawType(nfp(groundAlt2RSSI,2,1), 255., 106., 0.,                       0.7,                           0.);
-  drawType(nf(int(altairAlt2DropMessFrac*100)),
-                                   247.,  72.,  0.,                       0.7,                           0.);
-  drawType(nf(int(groundAlt2DropMessFrac*100)),
-                                   247., 118.,  0.,                       0.7,                           0.);
+  if ((altairAlt2DropMessFrac >= 0.) && (altairAlt2DropMessFrac < 1.)) {
+    drawType(nf(int(altairAlt2DropMessFrac*100.)),
+                                    247.,  72., 0.,                       0.7,                           0.);
+  } else {
+    drawType("N/A",                 247.,  72., 0.,                       0.7,                           0.);
+  }
+  if ((groundAlt2DropMessFrac >= 0.) && (groundAlt2DropMessFrac < 1.)) {
+    drawType(nf(int(groundAlt2DropMessFrac*100.)),
+                                    247., 118., 0.,                       0.7,                           0.);
+  } else {
+    drawType("N/A",                 247., 118., 0.,                       0.7,                           0.);
+  }
   textSize(17);
-  drawType(nf(int(getRange())),    126., 146., 0.                       , 0.7                          , 0.);
+  drawType(nf(int(getRange())),     126., 146., 0.                      , 0.7                          , 0.);
   textAlign(LEFT);
 
   fill(color(1.*(alarmOn[23] > 0 ? 1 : 0), 0., 0.));
@@ -2074,12 +2124,12 @@ function setFakeAltairValues() {
   groundDropMessFrac =  0.10;           // ALTAIR -> ground
   altairAlt1RSSI =  -18.4;              // alternate radio 1 dBm, ALTAIR -> ground
   groundAlt1RSSI =  -17.6;              // alternate radio 1 dBm, ground -> ALTAIR
-  altairAlt1DropMessFrac =  0.19;       // alternate radio 1 ground -> ALTAIR
-  groundAlt1DropMessFrac =  0.18;       // alternate radio 1 ALTAIR -> ground
+  altairAlt1DropMessFrac =  -1;         // alternate radio 1 ground -> ALTAIR
+  groundAlt1DropMessFrac =  -1;         // alternate radio 1 ALTAIR -> ground
   altairAlt2RSSI =  -21.2;              // alternate radio 2 dBm, ALTAIR -> ground
   groundAlt2RSSI =  -18.8;              // alternate radio 2 dBm, ground -> ALTAIR
-  altairAlt2DropMessFrac =  0.20;       // alternate radio 2 ground -> ALTAIR
-  groundAlt2DropMessFrac =  0.17;       // alternate radio 2 ALTAIR -> ground
+  altairAlt2DropMessFrac =  -1;         // alternate radio 2 ground -> ALTAIR
+  groundAlt2DropMessFrac =  -1;         // alternate radio 2 ALTAIR -> ground
   microSDSpaceOccupied        =  920.;  // in MB
   microSDSpaceRemaining       = 7040.;  // in MB
   lightSourceStatus           =    0 ;  // binary packed status integer -- 8 bits: 4 lsb for integrative sphere lasers, 4 msb for diffusive source LEDs
@@ -2088,9 +2138,10 @@ function setFakeAltairValues() {
   setting[6]                  =   0.0;  //  out of 10
   cutdownSteeringServoRotAng  =   0.0;  // measured rotation angle
   heliumBleedValveRotAng      =   4.1;  // measured rotation angle
-  controlGroundStationName    = "CAPELLA";
+  controlGroundStationName    = groundStationXName;
   numMonGroundStations        =    1 ;  // number of monitoring (i.e. non-controlling) ground stations in operation
-  for (i = 0; i < 1; ++i) monGroundStationName[i]    = "DENEB";
+//  for (i = 0; i < 1; ++i) monGroundStationName[i]    = "DENEB";
+  for (i = 0; i < 1; ++i) monGroundStationName[i]    = "N/A";
 
 }
 
