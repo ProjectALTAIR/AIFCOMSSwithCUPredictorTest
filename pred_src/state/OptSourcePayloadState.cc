@@ -80,25 +80,47 @@ OptSourcePayloadState::getGreenLEDsAreOn()
 
 
 void
-OptSourcePayloadState::setRedLEDsAreOn(    bool redLEDsAreOn    )
+OptSourcePayloadState::setVariable(        size_t variableID   ,
+                                           float  dataVariable    )
+{
+  switch (variableID) {
+    case OPTSOURCEPAYLOADSTATE_redLEDsAreOn    :
+      setRedLEDsAreOn(    (bool) dataVariable );
+      break;
+    case OPTSOURCEPAYLOADSTATE_yellowLEDsAreOn :
+      setYellowLEDsAreOn( (bool) dataVariable );
+      break;
+    case OPTSOURCEPAYLOADSTATE_blueLEDsAreOn   :
+      setBlueLEDsAreOn(   (bool) dataVariable );
+      break;
+    case OPTSOURCEPAYLOADSTATE_greenLEDsAreOn  :
+      setGreenLEDsAreOn(  (bool) dataVariable );
+      break;
+    default:
+      break;                                          // should really be an error here ...
+  }
+}
+
+void
+OptSourcePayloadState::setRedLEDsAreOn(    bool   redLEDsAreOn    )
 {
   _redLEDsAreOn    = redLEDsAreOn;
 }
 
 void
-OptSourcePayloadState::setYellowLEDsAreOn( bool yellowLEDsAreOn )
+OptSourcePayloadState::setYellowLEDsAreOn( bool   yellowLEDsAreOn )
 {
   _yellowLEDsAreOn = yellowLEDsAreOn;
 }
 
 void
-OptSourcePayloadState::setBlueLEDsAreOn(   bool blueLEDsAreOn   )
+OptSourcePayloadState::setBlueLEDsAreOn(   bool   blueLEDsAreOn   )
 {
   _blueLEDsAreOn   = blueLEDsAreOn;
 }
 
 void
-OptSourcePayloadState::setGreenLEDsAreOn(  bool greenLEDsAreOn  )
+OptSourcePayloadState::setGreenLEDsAreOn(  bool   greenLEDsAreOn  )
 {
   _greenLEDsAreOn  = greenLEDsAreOn;
 }

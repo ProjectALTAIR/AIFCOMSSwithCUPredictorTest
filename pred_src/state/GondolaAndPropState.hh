@@ -39,6 +39,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include <stdlib.h>
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -73,6 +75,9 @@ class   GondolaAndPropState {
         virtual float                  getCurrentMotor3(                                        ) ;
         virtual float                  getCurrentMotor4(                                        ) ;
 
+        static  const size_t           numDataElements             = 9                            ;
+        virtual void                   setVariable(         size_t variableID ,
+                                                            float  dataVariable                 ) ;
 
         virtual void                   setPropAxleRotAngle( float propAxleRotAngle              ) ;     // in degrees, ranging from (-180,180]
 
@@ -91,9 +96,12 @@ class   GondolaAndPropState {
 
     private:
 
+#define             GONDOLAANDPROPSTATE_propAxleRotAngle          0
         float                          _propAxleRotAngle                                          ;   
 
+#define             GONDOLAANDPROPSTATE_rpmMotor                  1
         int                            _rpmMotor[4]                                               ;
+#define             GONDOLAANDPROPSTATE_currentMotor              5
         float                          _currentMotor[4]                                           ;     // current flowing into each motor + ESC combination, in Amps
 
 };

@@ -24,13 +24,14 @@
 */
 /**************************************************************************/
 
-
 #ifndef __OPTSOURCEPAYLOADSTATE_HH__
 #define __OPTSOURCEPAYLOADSTATE_HH__
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+
+#include <stdlib.h>
 
 //              ---------------------
 //              -- Class Interface --
@@ -48,21 +49,27 @@ class   OptSourcePayloadState {
         virtual bool                   getBlueLEDsAreOn();
         virtual bool                   getGreenLEDsAreOn();
 
-        virtual void                   setRedLEDsAreOn(     bool  redLEDsAreOn    );
-        virtual void                   setYellowLEDsAreOn(  bool  yellowLEDsAreOn );
-        virtual void                   setBlueLEDsAreOn(    bool  blueLEDsAreOn   );
-        virtual void                   setGreenLEDsAreOn(   bool  greenLEDsAreOn  );
+        static  const size_t           numDataElements             = 4              ;
+        virtual void                   setVariable(         size_t variableID ,
+                                                            float  dataVariable    );
+
+        virtual void                   setRedLEDsAreOn(     bool   redLEDsAreOn    );
+        virtual void                   setYellowLEDsAreOn(  bool   yellowLEDsAreOn );
+        virtual void                   setBlueLEDsAreOn(    bool   blueLEDsAreOn   );
+        virtual void                   setGreenLEDsAreOn(   bool   greenLEDsAreOn  );
 
 
     private:
 
+#define           OPTSOURCEPAYLOADSTATE_redLEDsAreOn          0
         bool                           _redLEDsAreOn;
+#define           OPTSOURCEPAYLOADSTATE_yellowLEDsAreOn       1
         bool                           _yellowLEDsAreOn;
+#define           OPTSOURCEPAYLOADSTATE_blueLEDsAreOn         2
         bool                           _blueLEDsAreOn;
+#define           OPTSOURCEPAYLOADSTATE_greenLEDsAreOn        3
         bool                           _greenLEDsAreOn;
 
 };
-
-
 
 #endif // __OPTSOURCEPAYLOADSTATE_HH__

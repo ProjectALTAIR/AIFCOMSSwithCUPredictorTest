@@ -39,6 +39,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include <stdlib.h>
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -50,15 +52,21 @@ class   ExternalEnvironState {
 
         virtual ~ExternalEnvironState();
 
-        virtual long int               getCurrentTime();                 // Standard Unix timestamp (i.e., seconds since midnight Jan. 1, 1970)
-        virtual float                  getCurrentLat();                  // Present ALTAIR latitude in degrees North of the Equator (negative for South)
-        virtual float                  getCurrentLon();                  // Present ALTAIR longitude in degrees East of the prime meridian (negative for West)
-        virtual float                  getCurrentHeading();              // Present ALTAIR heading in degrees East of true North (range is [0.,360.) )
-        virtual float                  getOutsideTemp();                 // In Celsius
-        virtual float                  getOutsideAirPressure();          // In Pascals
-        virtual float                  getOutsideAirDensity();           // Related to pressure and temp by the equation of state for air 
-        virtual float                  getForwardSpeedRelToWind();
-        virtual float                  getElevationASL();                // Elevation (in meters) above mean sea level
+        virtual long  int              getCurrentTime(           ); // Standard Unix timestamp (i.e., seconds since midnight Jan. 1, 1970)
+        virtual float                  getCurrentLat(            ); // Present ALTAIR latitude in degrees North of the Equator (negative for South)
+        virtual float                  getCurrentLon(            ); // Present ALTAIR longitude in degrees East of the prime meridian (negative for West)
+        virtual float                  getCurrentHeading(        ); // Present ALTAIR heading in degrees East of true North (range is [0.,360.) )
+        virtual float                  getOutsideTemp(           ); // In Celsius
+        virtual float                  getOutsideAirPressure(    ); // In Pascals
+        virtual float                  getOutsideAirDensity(     ); // Related to pressure and temp by the equation of state for air 
+        virtual float                  getForwardSpeedRelToWind( );
+        virtual float                  getElevationASL(          ); // Present ALTAIR elevation (in meters) above mean sea level
+        virtual float                  getAscentRate(            ); // In m/s
+        virtual float                  getTerrainHeight(         ); // Height of ground (or sea) terrain, in meters above mean sea level, at present ALTAIR lat and lon
+        
+        static  const size_t           numDataElements             = 10                           ;
+        virtual void                   setVariable(              size_t   variableID ,
+                                                                 float    dataVariable           );
 
         virtual void                   setCurrentTime(           long int currentTime            );
         virtual void                   setCurrentLat(            float    currentLat             );
@@ -68,18 +76,31 @@ class   ExternalEnvironState {
         virtual void                   setOutsideAirPressure(    float    outsideAirPressure     );
         virtual void                   setForwardSpeedRelToWind( float    forwardSpeedRelToWind  );
         virtual void                   setElevationASL(          float    elevationASL           );
-
+        virtual void                   setAscentRate(            float    ascentRate             );
+        virtual void                   setTerrainHeight(         float    terrainHeight          );
 
     private:
 
-        long int                       _currentTime;
+#define            EXTERNALENVIRONSTATE_currentLat               0
         float                          _currentLat;
+#define            EXTERNALENVIRONSTATE_currentLon               1
         float                          _currentLon;
-        float                          _currentHeading;
-        float                          _outsideTemp;
-        float                          _outsideAirPressure;
-        float                          _forwardSpeedRelToWind;
+#define            EXTERNALENVIRONSTATE_elevationASL             2
         float                          _elevationASL;
+#define            EXTERNALENVIRONSTATE_terrainHeight            3
+        float                          _terrainHeight;
+#define            EXTERNALENVIRONSTATE_ascentRate               4
+        float                          _ascentRate;
+#define            EXTERNALENVIRONSTATE_currentHeading           5
+        float                          _currentHeading;
+#define            EXTERNALENVIRONSTATE_currentTime              6
+        long int                       _currentTime;
+#define            EXTERNALENVIRONSTATE_outsideTemp              7
+        float                          _outsideTemp;
+#define            EXTERNALENVIRONSTATE_outsideAirPressure       8
+        float                          _outsideAirPressure;
+#define            EXTERNALENVIRONSTATE_forwardSpeedRelToWind    9
+        float                          _forwardSpeedRelToWind;
 
 };
 

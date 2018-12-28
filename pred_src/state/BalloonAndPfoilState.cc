@@ -62,6 +62,47 @@ BalloonAndPfoilState::~BalloonAndPfoilState()
 // Methods --
 //-----------
 void
+BalloonAndPfoilState::setVariable(                  size_t variableID   ,
+                                                    float  dataVariable               )
+{
+  switch (variableID) {
+    case BALLOONANDPFOILSTATE_isCutdown:
+      setIsCutdown((bool) dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_areSolarPanelsInstalled:
+      setAreSolarPanelsInstalled((bool) dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_numOfSolarPanels:
+      setNumOfSolarPanels((int) dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_indivSolarPanelWidth:
+      setIndivSolarPanelWidth(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_indivSolarPanelLength:
+      setIndivSolarPanelLength(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_solarPanelSetupUpperRadius:
+      setSolarPanelSetupUpperRadius(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_solarPanelAvgTemp:
+      setSolarPanelAvgTemp(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_solarPanelAvgEfficiency:
+      setSolarPanelAvgEfficiency(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonRadius:
+      setBalloonRadius(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonHeading:
+      setBalloonHeading(dataVariable);
+      break;
+    default:
+      break;                                          // should really be an error here ...
+  }
+}
+
+
+void
 BalloonAndPfoilState::setIsCutdown(                  bool  isCutdown                  )
 {
   _isCutdown                  = isCutdown                  ;
@@ -116,4 +157,10 @@ void
 BalloonAndPfoilState::setBalloonRadius(              float balloonRadius              )
 {
   _balloonRadius              = balloonRadius              ;
+}
+
+void
+BalloonAndPfoilState::setBalloonHeading(             float balloonHeading             )
+{
+  _balloonHeading             = balloonHeading             ;
 }

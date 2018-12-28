@@ -27,7 +27,6 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-
 //              ----------------------------------------
 //              -- Public Function Member Definitions --
 //              ----------------------------------------
@@ -36,14 +35,17 @@
 // Constructor --
 //---------------
 ExternalEnvironState::ExternalEnvironState()
- : _currentTime(                0  ),
+ : 
    _currentLat(                 0. ),
    _currentLon(                 0. ),
+   _elevationASL(               5. ),
+   _terrainHeight(              5. ),
+   _ascentRate(                 0. ),
    _currentHeading(             0. ),
+   _currentTime(                0  ),
    _outsideTemp(                0. ),
    _outsideAirPressure(    101325. ),        // standard atmospheric pressure
-   _forwardSpeedRelToWind(      0. ),
-   _elevationASL(               5. )
+   _forwardSpeedRelToWind(      0. )
 {
 }
 
@@ -117,7 +119,58 @@ ExternalEnvironState::getElevationASL()
   return _elevationASL;
 }
 
+float
+ExternalEnvironState::getAscentRate()
+{
+  return _ascentRate;
+}
 
+float
+ExternalEnvironState::getTerrainHeight()
+{
+  return _terrainHeight;
+}
+
+
+void                   
+ExternalEnvironState::setVariable(               size_t   variableID ,
+                                                 float    dataVariable          )
+{
+  switch (variableID) {
+    case EXTERNALENVIRONSTATE_currentLat:
+      setCurrentLat(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_currentLon:
+      setCurrentLon(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_elevationASL:
+      setElevationASL(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_terrainHeight:
+      setTerrainHeight(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_ascentRate:
+      setAscentRate(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_currentHeading:
+      setCurrentHeading(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_currentTime:
+      setCurrentTime(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_outsideTemp:
+      setOutsideTemp(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_outsideAirPressure:
+      setOutsideAirPressure(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_forwardSpeedRelToWind:
+      setForwardSpeedRelToWind(dataVariable);
+      break;
+    default:                                      
+      break;                                          // should really be an error here ...
+  }
+}
 
 void
 ExternalEnvironState::setCurrentTime(            long int currentTime           )
@@ -165,6 +218,18 @@ void
 ExternalEnvironState::setElevationASL(           float    elevationASL          )
 {
   _elevationASL          = elevationASL;
+}
+
+void
+ExternalEnvironState::setAscentRate(             float    ascentRate            )
+{
+  _ascentRate            = ascentRate;
+}
+
+void
+ExternalEnvironState::setTerrainHeight(          float    terrainHeight         )
+{
+  _terrainHeight         = terrainHeight;
 }
 
 

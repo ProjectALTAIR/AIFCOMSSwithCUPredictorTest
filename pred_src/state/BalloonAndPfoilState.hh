@@ -33,6 +33,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include <stdlib.h>
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -60,33 +62,46 @@ class   BalloonAndPfoilState {
                                                                                                                  // balloon to the payload can get twisted.  If the difference
                                                                                                                  // | getBalloonHeading() - getCurrentHeading() | > 360, then
                                                                                                                  // that implies there is at least one full twist in the string.
+        static  const size_t           numDataElements                = 10                               ;
+        virtual void                   setVariable(                   size_t variableID ,
+                                                                      float  dataVariable               );
 
-        virtual void                   setIsCutdown(                  bool  isCutdown                  );
+        virtual void                   setIsCutdown(                  bool   isCutdown                  );
 
-        virtual void                   setAreSolarPanelsInstalled(    bool  areSolarPanelsInstalled    );
-        virtual void                   setNumOfSolarPanels(           int   numOfSolarPanels           );
-        virtual void                   setIndivSolarPanelWidth(       float indivSolarPanelWidth       );
-        virtual void                   setIndivSolarPanelLength(      float indivSolarPanelLength      );
-        virtual void                   setSolarPanelSetupUpperRadius( float solarPanelSetupUpperRadius );
-        virtual void                   setSolarPanelAvgTemp(          float solarPanelAvgTemp          );
-        virtual void                   setSolarPanelAvgEfficiency(    float solarPanelAvgEfficiency    );
+        virtual void                   setAreSolarPanelsInstalled(    bool   areSolarPanelsInstalled    );
+        virtual void                   setNumOfSolarPanels(           int    numOfSolarPanels           );
+        virtual void                   setIndivSolarPanelWidth(       float  indivSolarPanelWidth       );
+        virtual void                   setIndivSolarPanelLength(      float  indivSolarPanelLength      );
+        virtual void                   setSolarPanelSetupUpperRadius( float  solarPanelSetupUpperRadius );
+        virtual void                   setSolarPanelAvgTemp(          float  solarPanelAvgTemp          );
+        virtual void                   setSolarPanelAvgEfficiency(    float  solarPanelAvgEfficiency    );
 
-        virtual void                   setBalloonRadius(              float balloonRadius              );
-
+        virtual void                   setBalloonRadius(              float  balloonRadius              );
+        virtual void                   setBalloonHeading(             float  balloonHeading             );
 
     private:
 
+#define            BALLOONANDPFOILSTATE_isCutdown                       0
         bool                           _isCutdown;
 
+#define            BALLOONANDPFOILSTATE_areSolarPanelsInstalled         1
         bool                           _areSolarPanelsInstalled;
+#define            BALLOONANDPFOILSTATE_numOfSolarPanels                2
         int                            _numOfSolarPanels;
+#define            BALLOONANDPFOILSTATE_indivSolarPanelWidth            3
         float                          _indivSolarPanelWidth;
+#define            BALLOONANDPFOILSTATE_indivSolarPanelLength           4
         float                          _indivSolarPanelLength;
+#define            BALLOONANDPFOILSTATE_solarPanelSetupUpperRadius      5
         float                          _solarPanelSetupUpperRadius;
+#define            BALLOONANDPFOILSTATE_solarPanelAvgTemp               6
         float                          _solarPanelAvgTemp;
+#define            BALLOONANDPFOILSTATE_solarPanelAvgEfficiency         7
         float                          _solarPanelAvgEfficiency;
 
+#define            BALLOONANDPFOILSTATE_balloonRadius                   8
         float                          _balloonRadius;
+#define            BALLOONANDPFOILSTATE_balloonHeading                  9
         float                          _balloonHeading;
 };
 

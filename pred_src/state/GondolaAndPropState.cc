@@ -138,6 +138,31 @@ GondolaAndPropState::getCurrentMotor4()
 
 
 void
+GondolaAndPropState::setVariable(         size_t variableID   ,
+                                          float  dataVariable    )
+{
+  switch (variableID) {
+    case GONDOLAANDPROPSTATE_propAxleRotAngle:
+      setPropAxleRotAngle(dataVariable);
+      break;
+    case  GONDOLAANDPROPSTATE_rpmMotor         :
+    case (GONDOLAANDPROPSTATE_rpmMotor     + 1):
+    case (GONDOLAANDPROPSTATE_rpmMotor     + 2):
+    case (GONDOLAANDPROPSTATE_rpmMotor     + 3):
+      setRPMMotor(     variableID + 1 - GONDOLAANDPROPSTATE_rpmMotor     , (int) dataVariable);
+      break;
+    case  GONDOLAANDPROPSTATE_currentMotor     :
+    case (GONDOLAANDPROPSTATE_currentMotor + 1):
+    case (GONDOLAANDPROPSTATE_currentMotor + 2):
+    case (GONDOLAANDPROPSTATE_currentMotor + 3):
+      setCurrentMotor( variableID + 1 - GONDOLAANDPROPSTATE_currentMotor , (int) dataVariable);
+      break;
+    default:
+      break;                                          // should really be an error here ...
+  }
+}
+
+void
 GondolaAndPropState::setPropAxleRotAngle( float propAxleRotAngle )
 {
   _propAxleRotAngle = propAxleRotAngle;
