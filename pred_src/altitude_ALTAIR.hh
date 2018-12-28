@@ -33,7 +33,8 @@ void                 altitude_model_free   (altitude_model_t   *model);
 // will be taken as the starting altitude returns 1 normally and 0 when the
 // flight has terminated
 int                  altitude_model_get_altitude
-                                           (altitude_model_t   *model,
+//                                           (altitude_model_t   *model,
+                                           (
                                             int                 time_into_flight, 
                                             float              *alt);
 

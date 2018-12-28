@@ -27,6 +27,7 @@ extern "C" {
 #include "util/ThrustCalcMethods.hh"
 #include "util/DragCalcMethods.hh"
 #include "util/SolarPowerCalcMethods.hh"
+#include "util/UpdateALTAIRState.hh"
 
 extern int verbosity;
 
@@ -38,7 +39,7 @@ struct model_state_s
     float               lat;
     float               lng;
     float               alt;
-    altitude_model_t   *alt_model;
+//    altitude_model_t   *alt_model;
     double              loglik;
 };
 
@@ -80,7 +81,8 @@ _advance_one_timestep(wind_file_cache_t* cache,
         model_state_t* state = &(states[i]);
 
 // the below both updates and returns the altitude (it does more than just get it -- it updates it!)
-        if(!altitude_model_get_altitude(state->alt_model, 
+//        if(!altitude_model_get_altitude(state->alt_model, 
+        if(!altitude_model_get_altitude( 
                                         timestamp - initial_timestamp, &state->alt))
             return 0; // alt < 0; finished
 
@@ -110,6 +112,8 @@ _advance_one_timestep(wind_file_cache_t* cache,
         state->lat += v_samp * delta_t / ddlat;
         state->lng += u_samp * delta_t / ddlng;
 
+        UpdateALTAIRState::doUpdate(state->lat, state->lng, state->alt);
+
         state->loglik += (double)(u_lik + v_lik);
     }
 
@@ -126,7 +130,8 @@ static int _state_compare_rev(const void* a, const void *b)
     return sb->loglik - sa->loglik;
 }
 
-int run_model(wind_file_cache_t* cache, altitude_model_t* alt_model,
+int run_model(wind_file_cache_t* cache, 
+//            altitude_model_t* alt_model,
               float initial_lat, float initial_lng, float initial_alt,
               long int initial_timestamp, float rmswinderror) 
 {
@@ -143,7 +148,7 @@ int run_model(wind_file_cache_t* cache, altitude_model_t* alt_model,
         state->alt = initial_alt;
         state->lat = initial_lat;
         state->lng = initial_lng;
-        state->alt_model = alt_model;
+//        state->alt_model = alt_model;
         state->loglik = 0.f;
     }
 

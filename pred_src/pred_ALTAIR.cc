@@ -34,6 +34,7 @@ extern "C" {
 #include "state/ExternalEnvironState.hh"
 
 FILE* output;
+// FILE* myoutput;
 FILE* kml_file;
 
 const char* data_dir;
@@ -55,6 +56,10 @@ int main(int argc, const char *argv[]) {
     dictionary*        scenario = NULL;
     ExternalEnvironState* extEnv      = altairState->getExtEnv()                                    ;
 
+
+//    myoutput = fopen("/tmp/mypredoutput.txt", "a");
+//    fprintf(myoutput, "made it here1!\n");
+//    fclose(myoutput);
     
     // configure command-line options parsing
     void *options = gopt_sort(&argc, argv, gopt_start(
@@ -289,21 +294,24 @@ int main(int argc, const char *argv[]) {
         
         {
             // do the actual stuff!!
+/*
             altitude_model_t* alt_model = altitude_model_new(descent_mode, burst_alt, 
                                                              ascent_rate, drag_coeff);
             if(!alt_model) {
                     fprintf(stderr, "ERROR: error initialising altitude profile\n");
                     exit(1);
             }
+*/
 
-            if (!run_model(file_cache, alt_model, 
+            if (!run_model(file_cache, 
+//                         alt_model, 
                            initial_lat, initial_lng, initial_alt, initial_timestamp,
                            rmswinderror)) {
                     fprintf(stderr, "ERROR: error during model run!\n");
                     exit(1);
             }
 
-            altitude_model_free(alt_model);
+//            altitude_model_free(alt_model);
         }
 
         // release the scenario

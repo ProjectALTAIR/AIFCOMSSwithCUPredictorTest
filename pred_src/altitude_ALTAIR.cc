@@ -19,6 +19,11 @@
 #include "run_model_ALTAIR.hh"
 #include "pred_ALTAIR.hh"
 
+#include "state/ALTAIR_state.hh"
+#include "state/ExternalEnvironState.hh"
+#include "util/UpdateALTAIRState.hh"
+#include "util/AscentAndBurstCalcMethods.hh"
+
 // get density of atmosphere at a given altitude
 // uses NASA model from http://www.grc.nasa.gov/WWW/K-12/airplane/atmosmet.html
 // units of degrees celcius, metres, KPa and Kg/metre cubed
@@ -63,15 +68,23 @@ altitude_model_free(altitude_model_t* self)
 }
 
 int 
-altitude_model_get_altitude(altitude_model_t* self, int time_into_flight, float* alt) {
+// altitude_model_get_altitude(altitude_model_t* self, int time_into_flight, float* alt) {
+altitude_model_get_altitude(int time_into_flight, float* alt) {
     // TODO: this section needs some work to make it more flexible
     
     // time == 0 so setup initial altitude stuff
     if (time_into_flight == 0) {
-        self->initial_alt = *alt;
-        self->burst_time = (self->burst_altitude - self->initial_alt) / self->ascent_rate;
+       UpdateALTAIRState::initializeState();
+//        self->initial_alt = *alt;
+//        self->burst_time = (self->burst_altitude - self->initial_alt) / self->ascent_rate;
     }
     
+//    *alt += TIMESTEP * altairState->getExtEnv()->getAscentRate();
+    *alt += TIMESTEP * AscentAndBurstCalcMethods::getEquilibAscentRate();    // We want predicted, _not_ measured, ascent rate, so this is right.
+                                                                             // But ultimately we should account for accel and decel here,
+                                                                             // _not_ just have ascent rate of 5 and drag coeff of 5.5225,
+                                                                             // have an accurate rather than estimated air density model, etc etc.
+/*
     // If we are not doing a descending mode sim then start going up
     // at out ascent rate. The ascent rate is constant to a good approximation.
     if (self->descent_mode == DESCENT_MODE_NORMAL) 
@@ -85,6 +98,7 @@ altitude_model_get_altitude(altitude_model_t* self, int time_into_flight, float*
     // still converges to T.V. quickly (i.e. less than a minute) for low drag.
     // terminal velocity = -drag_coeff/sqrt(get_density(*alt));
     *alt += TIMESTEP * -self->drag_coeff/sqrt(get_density(*alt));
+*/
     
     /*
     // Rob's method - is this just freefall until we reach terminal velocity?
@@ -97,8 +111,10 @@ altitude_model_get_altitude(altitude_model_t* self, int time_into_flight, float*
 	previous_vertical_speed = vertical_speed;
 	*alt += TIMESTEP * vertical_speed;
 	*/
+
     
-    if (*alt <= 0)
+//    if (*alt <= 0)
+    if (*alt <= altairState->getExtEnv()->getTerrainHeight())
         return 0;
 
     return 1;

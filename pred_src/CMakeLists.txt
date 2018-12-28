@@ -11,26 +11,6 @@ include_directories(${GLIB_INCLUDE_DIRS})
 link_directories(${GLIB_LIBRARY_DIRS})
 
 add_executable(pred
-        state/ALTAIR_state.cc
-        state/ALTAIR_state.hh
-        state/ExternalEnvironState.cc
-        state/ExternalEnvironState.hh
-        state/BalloonAndPfoilState.cc
-        state/BalloonAndPfoilState.hh
-        state/GondolaAndPropState.cc
-        state/GondolaAndPropState.hh
-        state/OptSourcePayloadState.cc
-        state/OptSourcePayloadState.hh
-        util/TorqueCalcMethods.cc
-        util/TorqueCalcMethods.hh
-        util/ThrustCalcMethods.cc
-        util/ThrustCalcMethods.hh
-        util/DragCalcMethods.cc
-        util/DragCalcMethods.hh
-        util/SolarPowerCalcMethods.cc
-        util/SolarPowerCalcMethods.hh
-        util/UpdateALTAIRState.cc
-        util/UpdateALTAIRState.hh
 	util/gopt.c
 	util/getdelim.c
 	util/random.h
@@ -72,6 +52,12 @@ add_executable(pred_ALTAIR
         util/DragCalcMethods.hh
         util/SolarPowerCalcMethods.cc
         util/SolarPowerCalcMethods.hh
+        util/AscentAndBurstCalcMethods.cc
+        util/AscentAndBurstCalcMethods.hh
+        util/HeliumLossCalcMethods.cc
+        util/HeliumLossCalcMethods.hh
+        util/UpdateALTAIRState.cc
+        util/UpdateALTAIRState.hh
 	util/gopt.c
 	util/getdelim.c
 	util/random.h

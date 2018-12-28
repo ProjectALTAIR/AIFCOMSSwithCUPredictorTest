@@ -21,7 +21,9 @@ extern "C" {
 #include "altitude_ALTAIR.hh"
 
 // run the model
-int run_model(wind_file_cache_t* cache, altitude_model_t* alt_model,
+int run_model(wind_file_cache_t* cache, 
+// altitude_model_t is not needed for ALTAIR since we have altairState
+//            altitude_model_t* alt_model,
               float initial_lat, float initial_lng, float initial_alt, 
 	      long int initial_timestamp, float rmswinderror);
 

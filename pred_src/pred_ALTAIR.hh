@@ -18,6 +18,7 @@
 #define VERSION "0.0.1"
 
 extern FILE* output;
+// extern FILE* myoutput;
 extern FILE* kml_file;
 
 // start and finish KML files, basically just write header and footer in
