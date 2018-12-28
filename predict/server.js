@@ -14,7 +14,7 @@
 
     console.log("Thinking for a moment...");
 
-    var fs = require('fs');                     // For 1) writing out to cu.usbserial, in order to move the telescope;
+    var fs = require('fs');                     // For 1) writing out to tty.usbserial, in order to move the telescope;
                                                 // and 2) for writing out ALTAIR's position to /tmp/altairpos.txt
                                                 // (so that the predictor can read it).
     var serialport = require('serialport');
@@ -25,7 +25,6 @@
     var connections = new Array;          // list of connections to the server
 
     var arduinoPortString1     = "tty.usbmodem";
-    var arduinoPortString1corr = "cu.usbmodem";
     var arduinoPortString2     = "COM4";
     var arduinoPortString2a    = process.argv[2];
     var arduinoPortName        = "";
@@ -43,7 +42,7 @@
            } else {
               if (port.comName.indexOf(arduinoPortString2a) != -1) arduinoPortName = port.comName;
            }
-           if (port.comName.indexOf(arduinoPortString1) != -1) arduinoPortName = port.comName.replace(arduinoPortString1, arduinoPortString1corr);
+           if (port.comName.indexOf(arduinoPortString1) != -1) arduinoPortName = port.comName;
            isFirstPort = false;
         });
         console.log(genericPortNamesList);
@@ -69,18 +68,29 @@
         } else if (data.substring(0, 11) == "MOVESCOPE: ") {
            var pureData = data.replace("MOVESCOPE: ", "");
            console.log(data + "   " + date + " + " + date.getMilliseconds() + " milliseconds");
-           fs.appendFile("/dev/cu.usbserial", pureData, function(err) {
+           fs.appendFile("/dev/tty.usbserial", pureData, function(err) {
               if (err) {
                 return console.log(err);
               }
            });
         } else if (data.substring(0, 11) == "ALTAIRPOS: ") {
-           var pureData = data.replace("ALTAIRPOS: ", "");
+           var purePos = data.replace("ALTAIRPOS: ", "");
            var pos_path = "/tmp/altairpos.txt";
            if(process.platform.toLowerCase().includes("win")){
                pos_path = ROOT_DIR + "altairpos.txt";
            }
-           fs.writeFile(pos_path, pureData, function(err) {
+           fs.writeFile(pos_path, purePos, function(err) {
+              if (err) {
+                return console.log(err);
+              }
+           });
+        } else if (data.substring(0, 12) == "ALTAIRDATA: ") {
+           var pureData = data.replace("ALTAIRDATA: ", "");
+           var data_path = "/tmp/altairdata.txt";
+           if(process.platform.toLowerCase().includes("win")){
+               data_path = ROOT_DIR + "altairdata.txt";
+           }
+           fs.writeFile(data_path, pureData, function(err) {
               if (err) {
                 return console.log(err);
               }

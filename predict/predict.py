@@ -37,10 +37,10 @@ if 'darwin' in sys.platform.lower():
 # Path to predictor binary
 if OS_IS_WINDOWS:
     # Windows
-    pred_binary = './pred_src/pred.exe'
+    pred_binary = './pred_src/pred_ALTAIR.exe'
 else:
     # probably Linux or Mac
-    pred_binary = './pred_src/pred'
+    pred_binary = './pred_src/pred_ALTAIR'
 
 statsd.init_statsd({'STATSD_BUCKET_PREFIX': 'habhub.predictor'})
 

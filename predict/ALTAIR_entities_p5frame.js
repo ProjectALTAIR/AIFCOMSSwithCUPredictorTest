@@ -139,7 +139,8 @@ function getAltairArduinoInfoLine() {
   }
   ++altairPosCounter;
   if (altairPosCounter % timeBtwALTAIRPosComms == 0) {
-    socket.send("ALTAIRPOS: " + lat.toString() + " " + long.toString() + " " + ele.toString());
+    socket.send("ALTAIRPOS: "  + lat.toString() + " " + long.toString() + " " + ele.toString());
+    socket.send("ALTAIRDATA: " + lat.toString() + " " + long.toString() + " " + ele.toString());
   }
 }
 
