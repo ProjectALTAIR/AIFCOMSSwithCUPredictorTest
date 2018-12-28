@@ -37,10 +37,10 @@ if 'darwin' in sys.platform.lower():
 # Path to predictor binary
 if OS_IS_WINDOWS:
     # Windows
-    pred_binary = './pred_src/pred.exe'
+    pred_binary = './pred_src/pred_ALTAIR.exe'
 else:
     # probably Linux or Mac
-    pred_binary = './pred_src/pred'
+    pred_binary = './pred_src/pred_ALTAIR'
 
 statsd.init_statsd({'STATSD_BUCKET_PREFIX': 'habhub.predictor'})
 
@@ -333,8 +333,8 @@ def main():
     if OS_IS_WINDOWS:
         copy_path = os.path.join(ROOT_DIR, "predict")
     else:
-        copy_path = '/tmp'
-    
+        copy_path = '/tmp'            
+            
     if exit_code == 1:
         # Hard error from the predictor. Tell the javascript it completed, so that it will show the trace,
         # but pop up a 'warnings' window with the error messages
@@ -349,8 +349,8 @@ def main():
         log.info('The predictor pred.exe executable exit_code = %s' % exit_code )
         assert exit_code == 0
         update_progress(pred_running=False, pred_complete=True)
-        statsd.increment('success')
-    
+        statsd.increment('success')  
+ 
     copy_path = os.path.join(copy_path, 'flight_path.csv')
 
     log.info('Copying file:')
