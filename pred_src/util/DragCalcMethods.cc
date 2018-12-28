@@ -74,21 +74,40 @@ float DragCalcMethods::getBalloonDrag()
 }
 
 
+// Returns drag in Newtons due to the ALTAIR parafoil. 
+// Note that this function returns a dummy value that is likely way off, depending on the current wind speed,
+// density, and other external variables at ALTAIR's current position. 
+//
+float DragCalcMethods::getParafoilDrag()
+{
+	ExternalEnvironState* extEnv 	  = altairState->getExtEnv()			   ;
+	BalloonAndPfoilState* balAndPfoil = altairState->getBalAndPfoil()		   ;
+
+	float payloadSpeed     = extEnv->getForwardSpeedRelToWind()      		   ;
+	float airDensity       = extEnv->getOutsideAirDensity()          		   ;
+//	float crossSecArea     = balAndPfoil->getParafoilArea() 			   ; // reinstate this when this is calculated properly
+        float dragCoef         = 5.5225                                                    ;
+	
+        return dragCoef;
+//	return ( dragCoef * crossSecArea * airDensity * payloadSpeed * payloadSpeed / 2. ) ;
+}
+
+
 // Returns drag in Newtons affecting the ALTAIR gondola. 
 // Note that this function returns a dummy value that is likely way off, depending on the current wind speed,
 // density, and other external variables at ALTAIR's current position. 
 //
 float DragCalcMethods::getGondolaDrag()
 {
-	ExternalEnvironState* extEnv 	  = altairState->getExtEnv()					;
-	GondolaAndPropState*  gondAndProp = altairState->getGondAndProp()				;
+	ExternalEnvironState* extEnv 	  = altairState->getExtEnv()			   ;
+	GondolaAndPropState*  gondAndProp = altairState->getGondAndProp()		   ;
 
-	float payloadSpeed     = extEnv->getForwardSpeedRelToWind()      				;
-	float airDensity       = extEnv->getOutsideAirDensity()          				;
-	float crossSecArea     = gondAndProp->getGondolaXSecArea() 			   		;
-	float dragCoef         = 2.05			 	                           		;
+	float payloadSpeed     = extEnv->getForwardSpeedRelToWind()      		   ;
+	float airDensity       = extEnv->getOutsideAirDensity()          		   ;
+	float crossSecArea     = gondAndProp->getGondolaXSecArea() 			   ;
+	float dragCoef         = 2.05			 	                           ;
 	
-	return ( dragCoef * crossSecArea * airDensity * payloadSpeed * payloadSpeed / 2. ) 		;
+	return ( dragCoef * crossSecArea * airDensity * payloadSpeed * payloadSpeed / 2. ) ;
 }
 
 

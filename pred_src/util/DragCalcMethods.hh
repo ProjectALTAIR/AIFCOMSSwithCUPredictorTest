@@ -32,6 +32,8 @@ class DragCalcMethods {
 
         static float getBalloonDrag();		// get the present drag due to the balloon
 	
+        static float getParafoilDrag();		// get the present drag due to the parafoil
+
         static float getGondolaDrag();		// currently only returns a dummy value for drag on the ALTAIR gondola
 
     private:
