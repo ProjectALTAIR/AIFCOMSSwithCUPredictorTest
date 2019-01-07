@@ -7,10 +7,10 @@
     @author4  Hannah Swan   (hannah.swan.3.14@gmail.com)
     @license  GPL
 
-    This is the class containing methods to 1) calculate the equilibrium 
-    ascent rate (with respect to stationary winds, i.e. this ascent rate 
-    should be added to any updrafting winds to get the resulting predicted 
-    equilibrium ascent rate) of the balloon and gondola; and to 2) calculate
+    This is the class containing methods to 1) calculate the vertical 
+    acceleration rate (with respect to stationary winds, i.e. the resulting 
+    ascent rate should be added to any updrafting winds to get the true
+    predicted ascent rate) of the balloon and gondola; and to 2) calculate
     the estimated burst altitude of the balloon.
 
     @section  HISTORY
@@ -30,13 +30,16 @@ class AscentAndBurstCalcMethods {
 
     public:
 
-        static float getEquilibAscentRate();		// get the equilibrium ascent rate (with respect to stationary winds), in m/s
-	
-        static float getBurstAltitude();		// get the estimated burst altitude of the balloon, in meters
+        static float getPresentAscentTerminalVelocity();
+        static float getPresentDescentTerminalVelocity();
+
+        static float getVerticalAcceleration();		// Calculate the present vertical acceleration, in m/s^2. 
+	                                                // Negative values will be returned when acceleration is downward. 
+        static float getBurstAltitude();		// Get the estimated burst altitude of the balloon, in meters above mean sea level.
 
     private:
 
-        AscentAndBurstCalcMethods() {} 			// constructor should never be used
+        AscentAndBurstCalcMethods() {} 			// Constructor should never be used.
 };
 
 

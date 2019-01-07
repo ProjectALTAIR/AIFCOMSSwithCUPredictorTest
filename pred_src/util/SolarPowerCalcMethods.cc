@@ -36,7 +36,7 @@
 #include "../state/ExternalEnvironState.hh"
 #include "../state/BalloonAndPfoilState.hh"
 #include "../state/GondolaAndPropState.hh"
-
+#include "BalloonPropertiesCalcMethods.hh"
 
 
 #define    solarIntensityExternalToAtmosphere   1353.                                                                                       // in W/m^2
@@ -120,7 +120,7 @@ float SolarPowerCalcMethods::getSolarPanelProjectedArea( std::vector<float> sola
         float                 balloonHeading       =       balAndPfoilState->getBalloonHeading()                            ;
         float                 angleBetweenPanels   =       360. / numSolarPanels                                            ;
         float                 setupUpperRadius     =       balAndPfoilState->getSolarPanelSetupUpperRadius()                ;
-        float                 balloonRadius        =       balAndPfoilState->getBalloonRadius()                             ;
+        float                 balloonRadius        =       BalloonPropertiesCalcMethods::getBalloonRadius()                 ;
 
         float                 verticalDistFromBalEquatorToPanelTop
                                                    =       sqrt((balloonRadius*balloonRadius)-(setupUpperRadius*setupUpperRadius))                              ;

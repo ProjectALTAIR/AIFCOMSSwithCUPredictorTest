@@ -80,20 +80,20 @@ void UpdateALTAIRState::doUpdate( float newLat, float newLon, float newAlt )
         OptSourcePayloadState* optSource      = altairState->getOptSource()    ;
 
         extEnv->setCurrentLat(   newLat );
-        extEnv->setCurrentLat(   newLon );
+        extEnv->setCurrentLon(   newLon );
         extEnv->setElevationASL( newAlt );
 
         if (newAlt >  25000) {
             extEnv->setOutsideTemp(-131.21 + 0.00299 * newAlt);
-            extEnv->setOutsideAirPressure(  2.488 * pow(( 0.00299 * newAlt + 141.89)/216.60, -11.388));
+            extEnv->setOutsideAirPressure(    2488.  * pow(( 0.00299 * newAlt + 141.89)/216.60, -11.388));
         }
         if (newAlt <= 25000 && newAlt > 11000) {
             extEnv->setOutsideTemp( -56.46                   );
-            extEnv->setOutsideAirPressure(22.65 * exp(1.73-0.000157*newAlt));
+            extEnv->setOutsideAirPressure(   22650.  * exp(1.73-0.000157*newAlt));
         }
         if (newAlt <= 11000) {
             extEnv->setOutsideTemp(  15.04 - 0.00649 * newAlt);
-            extEnv->setOutsideAirPressure(101.29  * pow((-0.00649 * newAlt + 288.14)/288.08,   5.256));
+            extEnv->setOutsideAirPressure(  101290.  * pow((-0.00649 * newAlt + 288.14)/288.08,   5.256));
         }
 
 	return;

@@ -30,15 +30,21 @@ class DragCalcMethods {
 
     public:
 
-        static float getBalloonDrag();		// get the present drag due to the balloon
+        static float getBalloonDrag(  float balloonSpeed  );	// get the drag due to the balloon
 	
-        static float getParafoilDrag();		// get the present drag due to the parafoil
+        static float getParafoilDrag( float parafoilSpeed );	// get the drag due to the parafoil
 
-        static float getGondolaDrag();		// currently only returns a dummy value for drag on the ALTAIR gondola
+        static float getGondolaDrag(  float gondolaSpeed  );	// currently only returns a dummy value for drag on the ALTAIR gondola
+
+        static float getApproxEffSphericalDragCoef(       );    // return the approximate effective drag coefficient 
+                                                                // k_d = sqrt(pi * c_d / (2 * g)) for a sphere (where c_d = 0.47).
+
+        static float getApproxEffRectangDragCoef(         );    // return the approximate effective drag coefficient 
+                                                                // k_d = sqrt(c_d / (2 * g)) for a rectangle (where c_d = 1.28).
 
     private:
 
-        DragCalcMethods() {} 			// constructor should never be used
+        DragCalcMethods() {} 			                // constructor should never be used
 };
 
 
