@@ -40,7 +40,7 @@ ExternalEnvironState::ExternalEnvironState()
    _currentLon(                 0. ),
    _elevationASL(               5. ),
    _terrainHeight(              5. ),
-   _ascentRate(                 0. ),
+   _ascentRate(                 0. ),        // change to 0. later
    _currentHeading(             0. ),
    _currentTime(                0  ),
    _outsideTemp(                0. ),

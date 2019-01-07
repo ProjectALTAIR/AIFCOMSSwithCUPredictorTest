@@ -30,6 +30,7 @@
 #ifndef __GONDOLAANDPROPSTATE_HH__
 #define __GONDOLAANDPROPSTATE_HH__
 
+#define ALTAIRGondolaTotalMass   3.0                    // ** AN ESTIMATE FOR NOW **:  3.0 kg
 #define ALTAIRGondolaXSecArea    0.2                    // ** AN ESTIMATE FOR NOW **:  0.2 m^2
 
 #define ALTAIRPropellerDiameter  0.35560                // 14.0" = 35.560 cm = 0.35560 m
@@ -51,6 +52,8 @@ class   GondolaAndPropState {
         GondolaAndPropState();
 
         virtual ~GondolaAndPropState();
+
+        virtual float                  getGondolaTotalMass()  { return  ALTAIRGondolaTotalMass    ; }   // in kg
 
         virtual float                  getGondolaXSecArea()   { return  ALTAIRGondolaXSecArea     ; }   // in m^2
 

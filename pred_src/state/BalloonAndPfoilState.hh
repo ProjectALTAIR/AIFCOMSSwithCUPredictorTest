@@ -29,6 +29,9 @@
 #ifndef __BALLOONANDPFOILSTATE_HH__
 #define __BALLOONANDPFOILSTATE_HH__
 
+#define IDEAL_GAS_CONSTANT                     (8314.5)     // in J K^-1 kmol^-1
+#define HELIUM_KILOGRAMSPERKILOMOLE               (4.0)
+
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -55,14 +58,24 @@ class   BalloonAndPfoilState {
         virtual float                  getSolarPanelAvgTemp()           { return _solarPanelAvgTemp;          }  // in Celsius
         virtual float                  getSolarPanelAvgEfficiency()     { return _solarPanelAvgEfficiency;    }
 
-        virtual float                  getBalloonRadius()               { return _balloonRadius;              }  // in meters
+        virtual float                  getParafoilArea()                { return _parafoilArea;               }  // in m^2 (120" x 39" = 3.02 m^2)
+        virtual float                  getParafoilAndRiggingMass()      { return _parafoilRiggingMass;        }  // in kg (about 0.5 kg)
+
+        virtual float                  getBalloonHeliumMass()           { return _balloonHeliumMass;          }  // in kg (one T-size tank contains 1.44 kg of He)
+        virtual float                  getBalloonLatexMass()            { return _balloonLatexMass;           }  // in kg (a common mass is 1.5 kg)
+        virtual float                  getBalloonLatexDensity()         { return _balloonLatexDensity;        }  // in kg/m^3 (around 950 kg/m^3)
+        virtual float                  getBalloonUnstretchedRadius()    { return _balloonUnstretchedRadius;   }  // in meters (a typical uninflated radius is ~0.9 m)
+        virtual float                  getBalloonUnstretchedThickness() { return _balloonUnstretchedThickns;  }  // in meters (typically ~0.2 mm = 0.0002 m)
+        virtual float                  getBalloonBurstingThickness()    { return _balloonBurstingThickns;     }  // in meters (typically ~5 um = 0.000005 m)
+        virtual float                  getBalloonShearModulus()         { return _balloonShearModulus;        }  // Elastic shear modulus of the balloon latex
+                                                                                                                 // in Pa (typically ~300 kPa = 300000 Pa)
         virtual float                  getBalloonHeading()              { return _balloonHeading;             }  // Present balloon heading in degrees East of true North.
                                                                                                                  // The range of _balloonHeading is -infinity to +infinity, 
                                                                                                                  // rather than 0 to 360, since the string connecting the 
                                                                                                                  // balloon to the payload can get twisted.  If the difference
                                                                                                                  // | getBalloonHeading() - getCurrentHeading() | > 360, then
                                                                                                                  // that implies there is at least one full twist in the string.
-        static  const size_t           numDataElements                = 10                               ;
+        static  const size_t           numDataElements                = 18                               ;
         virtual void                   setVariable(                   size_t variableID ,
                                                                       float  dataVariable               );
 
@@ -76,7 +89,16 @@ class   BalloonAndPfoilState {
         virtual void                   setSolarPanelAvgTemp(          float  solarPanelAvgTemp          );
         virtual void                   setSolarPanelAvgEfficiency(    float  solarPanelAvgEfficiency    );
 
-        virtual void                   setBalloonRadius(              float  balloonRadius              );
+        virtual void                   setParafoilArea(               float  parafoilArea               );
+        virtual void                   setParafoilAndRiggingMass(     float  parafoilRiggingMass        );
+
+        virtual void                   setBalloonHeliumMass(          float  balloonHeliumMass          );
+        virtual void                   setBalloonLatexMass(           float  balloonLatexMass           );
+        virtual void                   setBalloonLatexDensity(        float  balloonLatexDensity        );
+        virtual void                   setBalloonUnstretchedRadius(   float  balloonUnstretchedRadius   );
+        virtual void                   setBalloonUnstretchedThickness(float  balloonUnstretchedThickns  );
+        virtual void                   setBalloonBurstingThickness(   float  balloonBurstingThickns     );
+        virtual void                   setBalloonShearModulus(        float  balloonShearModulus        );
         virtual void                   setBalloonHeading(             float  balloonHeading             );
 
     private:
@@ -99,9 +121,26 @@ class   BalloonAndPfoilState {
 #define            BALLOONANDPFOILSTATE_solarPanelAvgEfficiency         7
         float                          _solarPanelAvgEfficiency;
 
-#define            BALLOONANDPFOILSTATE_balloonRadius                   8
-        float                          _balloonRadius;
-#define            BALLOONANDPFOILSTATE_balloonHeading                  9
+#define            BALLOONANDPFOILSTATE_parafoilArea                    8
+        float                          _parafoilArea;
+#define            BALLOONANDPFOILSTATE_parafoilRiggingMass             9
+        float                          _parafoilRiggingMass;
+
+#define            BALLOONANDPFOILSTATE_balloonHeliumMass              10
+        float                          _balloonHeliumMass;
+#define            BALLOONANDPFOILSTATE_balloonLatexMass               11
+        float                          _balloonLatexMass;
+#define            BALLOONANDPFOILSTATE_balloonLatexDensity            12
+        float                          _balloonLatexDensity;
+#define            BALLOONANDPFOILSTATE_balloonUnstretchedRadius       13
+        float                          _balloonUnstretchedRadius;
+#define            BALLOONANDPFOILSTATE_balloonUnstretchedThickns      14
+        float                          _balloonUnstretchedThickns;
+#define            BALLOONANDPFOILSTATE_balloonBurstingThickns         15
+        float                          _balloonBurstingThickns;
+#define            BALLOONANDPFOILSTATE_balloonShearModulus            16
+        float                          _balloonShearModulus;
+#define            BALLOONANDPFOILSTATE_balloonHeading                 17
         float                          _balloonHeading;
 };
 

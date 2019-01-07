@@ -45,7 +45,15 @@ BalloonAndPfoilState::BalloonAndPfoilState()
     _solarPanelSetupUpperRadius(  1.0 ),            // in meters
     _solarPanelAvgTemp(           0.  ),            // in Celsius
     _solarPanelAvgEfficiency(     0.1 ),    
-    _balloonRadius(               1.5 ),            // in meters
+    _parafoilArea(                3.0 ),            // in m^2
+    _parafoilRiggingMass(         0.5 ),            // in kg
+    _balloonHeliumMass(           2.9 ),            // in kg
+    _balloonLatexMass(            1.5 ),            // in kg
+    _balloonLatexDensity(         0.9 ),            // in kg/m^3
+    _balloonUnstretchedRadius(    0.9 ),            // in meters
+    _balloonUnstretchedThickns(   0.0002   ),       // in meters
+    _balloonBurstingThickns(      0.000005 ),       // in meters
+    _balloonShearModulus(    300000.  ),            // in Pa
     _balloonHeading(              0.  )             // in degrees
 {
 }
@@ -90,8 +98,32 @@ BalloonAndPfoilState::setVariable(                  size_t variableID   ,
     case BALLOONANDPFOILSTATE_solarPanelAvgEfficiency:
       setSolarPanelAvgEfficiency(dataVariable);
       break;
-    case BALLOONANDPFOILSTATE_balloonRadius:
-      setBalloonRadius(dataVariable);
+    case BALLOONANDPFOILSTATE_parafoilArea:
+      setParafoilArea(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_parafoilRiggingMass:
+      setParafoilAndRiggingMass(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonHeliumMass:
+      setBalloonHeliumMass(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonLatexMass:
+      setBalloonLatexMass(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonLatexDensity:
+      setBalloonLatexDensity(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonUnstretchedRadius:
+      setBalloonUnstretchedRadius(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonUnstretchedThickns:
+      setBalloonUnstretchedThickness(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonBurstingThickns:
+      setBalloonBurstingThickness(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonShearModulus:
+      setBalloonShearModulus(dataVariable);
       break;
     case BALLOONANDPFOILSTATE_balloonHeading:
       setBalloonHeading(dataVariable);
@@ -154,9 +186,59 @@ BalloonAndPfoilState::setSolarPanelAvgEfficiency(    float solarPanelAvgEfficien
 
 
 void
-BalloonAndPfoilState::setBalloonRadius(              float balloonRadius              )
+BalloonAndPfoilState::setParafoilArea(               float parafoilArea               )
 {
-  _balloonRadius              = balloonRadius              ;
+  _parafoilArea               = parafoilArea               ;
+}
+
+void
+BalloonAndPfoilState::setParafoilAndRiggingMass(     float parafoilRiggingMass        )
+{
+  _parafoilRiggingMass        = parafoilRiggingMass        ;
+}
+
+
+
+void
+BalloonAndPfoilState::setBalloonHeliumMass(          float balloonHeliumMass          )
+{
+  _balloonHeliumMass          = balloonHeliumMass          ;
+}
+
+void
+BalloonAndPfoilState::setBalloonLatexMass(           float balloonLatexMass           )
+{
+  _balloonLatexMass           = balloonLatexMass           ;
+}
+
+void
+BalloonAndPfoilState::setBalloonLatexDensity(        float balloonLatexDensity        )
+{
+  _balloonLatexDensity        = balloonLatexDensity        ;
+}
+
+void
+BalloonAndPfoilState::setBalloonUnstretchedRadius(   float balloonUnstretchedRadius   )
+{
+  _balloonUnstretchedRadius   = balloonUnstretchedRadius   ;
+}
+
+void
+BalloonAndPfoilState::setBalloonUnstretchedThickness(float balloonUnstretchedThickns  )
+{
+  _balloonUnstretchedThickns  = balloonUnstretchedThickns  ;
+}
+
+void
+BalloonAndPfoilState::setBalloonBurstingThickness(   float balloonBurstingThickns     )
+{
+  _balloonBurstingThickns     = balloonBurstingThickns     ;
+}
+
+void
+BalloonAndPfoilState::setBalloonShearModulus(        float balloonShearModulus        )
+{
+  _balloonShearModulus        = balloonShearModulus        ;
 }
 
 void

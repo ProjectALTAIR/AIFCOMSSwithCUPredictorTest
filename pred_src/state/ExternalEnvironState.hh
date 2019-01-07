@@ -34,6 +34,8 @@
 #define         kelvinMinusCelsius        273.15                         // in K (or degC)
 #define         idealGasConstant         8314.46                         // in J K^-1 kmol^-1
 #define         airMolarMass               28.97                         // in kg kmol^-1
+#define         heliumMolarMass             4.00                         // in kg kmol^-1
+#define         gravConstantLittleg         9.81                         // in m s^-2
 
 //------------------------------------
 // Collaborating Class Declarations --
