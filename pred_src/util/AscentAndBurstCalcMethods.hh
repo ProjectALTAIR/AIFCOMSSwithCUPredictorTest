@@ -35,7 +35,7 @@ class AscentAndBurstCalcMethods {
 
         static float getVerticalAcceleration();		// Calculate the present vertical acceleration, in m/s^2. 
 	                                                // Negative values will be returned when acceleration is downward. 
-        static float getBurstAltitude();		// Get the estimated burst altitude of the balloon, in meters above mean sea level.
+        static bool  areWeAtBurstAltitude();		// Has the balloon stretched out so much that it will burst?
 
     private:
 

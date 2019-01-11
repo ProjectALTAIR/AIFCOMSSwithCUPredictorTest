@@ -122,12 +122,19 @@ float AscentAndBurstCalcMethods::getVerticalAcceleration()
 
 
 //
-float AscentAndBurstCalcMethods::getBurstAltitude()
+bool AscentAndBurstCalcMethods::areWeAtBurstAltitude()
 {
 	ExternalEnvironState* extEnv 	  = altairState->getExtEnv()                          ;
 	BalloonAndPfoilState* balAndPfoil = altairState->getBalAndPfoil()                     ;
 
-	return 30000.                                                                         ;
+        float                 effRadius   = BalloonPropertiesCalcMethods::getBalloonRadius() +
+                                            BalloonPropertiesCalcMethods::getAddnlRadiusStretchFromPayload() ;
+        float                 radRatio    = balAndPfoil->getBalloonUnstretchedRadius() / effRadius           ;
+        float                 balThickns  = balAndPfoil->getBalloonUnstretchedThickness() *
+                                            radRatio * radRatio                               ;
+
+        if (balThickns <= balAndPfoil->getBalloonBurstingThickness()) return true             ;
+
+//        if (extEnv->getElevationASL() > 30000.) return true                                   ;
+        return false                                                                          ;
 }
-
-

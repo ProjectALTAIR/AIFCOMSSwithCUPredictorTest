@@ -82,13 +82,20 @@ float BalloonPropertiesCalcMethods::getInteriorPressure()
 
 float BalloonPropertiesCalcMethods::getTotalMassOfAllBalloonComponents()
 {
-        BalloonAndPfoilState* balAndPfoil = altairState->getBalAndPfoil()                     ;
-        GondolaAndPropState*  gondAndProp = altairState->getGondAndProp()                     ;
+        BalloonAndPfoilState* balAndPfoil  = altairState->getBalAndPfoil()                    ;
+        GondolaAndPropState*  gondAndProp  = altairState->getGondAndProp()                    ;
+        float                 solPanelMass = 0.                                               ;
 
-        return  (balAndPfoil->getBalloonHeliumMass() +
-                 balAndPfoil->getBalloonLatexMass() +
-                 balAndPfoil->getParafoilAndRiggingMass() +
-                 gondAndProp->getGondolaTotalMass()         )                                 ;
+        if (balAndPfoil->getAreSolarPanelsInstalled()) 
+            solPanelMass = balAndPfoil->getNumOfSolarPanels() * 
+                           balAndPfoil->getIndivSolarPanelMass()                              ;
+
+        return  (balAndPfoil->getBalloonHeliumMass()          +
+                 balAndPfoil->getBalloonLatexMass()           +
+                 solPanelMass                                 +
+                 balAndPfoil->getBalloonValveAndNeckRigMass() +
+                 balAndPfoil->getParafoilAndRiggingMass()     +
+                 gondAndProp->getGondolaTotalMass()             )                             ;
 }
 
 float BalloonPropertiesCalcMethods::getMassOfDisplacedAir()
