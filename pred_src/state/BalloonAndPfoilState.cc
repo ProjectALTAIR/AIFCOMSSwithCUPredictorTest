@@ -40,6 +40,7 @@ BalloonAndPfoilState::BalloonAndPfoilState()
   : _isCutdown(               false   ),
     _areSolarPanelsInstalled( false   ),
     _numOfSolarPanels(            0   ),            
+    _indivSolarPanelMass(         1.9 ),            // in kg
     _indivSolarPanelWidth(        1.0 ),            // in meters
     _indivSolarPanelLength(       1.0 ),            // in meters
     _solarPanelSetupUpperRadius(  1.0 ),            // in meters
@@ -49,6 +50,7 @@ BalloonAndPfoilState::BalloonAndPfoilState()
     _parafoilRiggingMass(         0.5 ),            // in kg
     _balloonHeliumMass(           2.9 ),            // in kg
     _balloonLatexMass(            1.5 ),            // in kg
+    _balloonValveAndNeckRigMass(  0.4 ),            // in kg
     _balloonLatexDensity(         0.9 ),            // in kg/m^3
     _balloonUnstretchedRadius(    0.9 ),            // in meters
     _balloonUnstretchedThickns(   0.0002   ),       // in meters
@@ -83,6 +85,9 @@ BalloonAndPfoilState::setVariable(                  size_t variableID   ,
     case BALLOONANDPFOILSTATE_numOfSolarPanels:
       setNumOfSolarPanels((int) dataVariable);
       break;
+    case BALLOONANDPFOILSTATE_indivSolarPanelMass:
+      setIndivSolarPanelMass(dataVariable);
+      break;
     case BALLOONANDPFOILSTATE_indivSolarPanelWidth:
       setIndivSolarPanelWidth(dataVariable);
       break;
@@ -109,6 +114,9 @@ BalloonAndPfoilState::setVariable(                  size_t variableID   ,
       break;
     case BALLOONANDPFOILSTATE_balloonLatexMass:
       setBalloonLatexMass(dataVariable);
+      break;
+    case BALLOONANDPFOILSTATE_balloonValveAndNeckRigMass:
+      setBalloonValveAndNeckRigMass(dataVariable);
       break;
     case BALLOONANDPFOILSTATE_balloonLatexDensity:
       setBalloonLatexDensity(dataVariable);
@@ -151,6 +159,12 @@ void
 BalloonAndPfoilState::setNumOfSolarPanels(           int   numOfSolarPanels           )
 {
   _numOfSolarPanels           = numOfSolarPanels           ;
+}
+
+void
+BalloonAndPfoilState::setIndivSolarPanelMass(        float indivSolarPanelMass        )
+{
+  _indivSolarPanelMass        = indivSolarPanelMass        ;
 }
 
 void
@@ -209,6 +223,12 @@ void
 BalloonAndPfoilState::setBalloonLatexMass(           float balloonLatexMass           )
 {
   _balloonLatexMass           = balloonLatexMass           ;
+}
+
+void
+BalloonAndPfoilState::setBalloonValveAndNeckRigMass( float balloonValveAndNeckRigMass )
+{
+  _balloonValveAndNeckRigMass = balloonValveAndNeckRigMass ;
 }
 
 void

@@ -52,6 +52,7 @@ class   BalloonAndPfoilState {
 
         virtual bool                   getAreSolarPanelsInstalled()     { return _areSolarPanelsInstalled;    }
         virtual int                    getNumOfSolarPanels()            { return _numOfSolarPanels;           }
+        virtual float                  getIndivSolarPanelMass()         { return _indivSolarPanelMass;        }  // in kg
         virtual float                  getIndivSolarPanelWidth()        { return _indivSolarPanelWidth;       }  // in meters
         virtual float                  getIndivSolarPanelLength()       { return _indivSolarPanelLength;      }  // in meters
         virtual float                  getSolarPanelSetupUpperRadius()  { return _solarPanelSetupUpperRadius; }  // in meters
@@ -63,6 +64,7 @@ class   BalloonAndPfoilState {
 
         virtual float                  getBalloonHeliumMass()           { return _balloonHeliumMass;          }  // in kg (one T-size tank contains 1.44 kg of He)
         virtual float                  getBalloonLatexMass()            { return _balloonLatexMass;           }  // in kg (a common mass is 1.5 kg)
+        virtual float                  getBalloonValveAndNeckRigMass()  { return _balloonValveAndNeckRigMass; }  // in kg (usually about 0.4 kg)
         virtual float                  getBalloonLatexDensity()         { return _balloonLatexDensity;        }  // in kg/m^3 (around 950 kg/m^3)
         virtual float                  getBalloonUnstretchedRadius()    { return _balloonUnstretchedRadius;   }  // in meters (a typical uninflated radius is ~0.9 m)
         virtual float                  getBalloonUnstretchedThickness() { return _balloonUnstretchedThickns;  }  // in meters (typically ~0.2 mm = 0.0002 m)
@@ -75,7 +77,7 @@ class   BalloonAndPfoilState {
                                                                                                                  // balloon to the payload can get twisted.  If the difference
                                                                                                                  // | getBalloonHeading() - getCurrentHeading() | > 360, then
                                                                                                                  // that implies there is at least one full twist in the string.
-        static  const size_t           numDataElements                = 18                               ;
+        static  const size_t           numDataElements                = 20                               ;
         virtual void                   setVariable(                   size_t variableID ,
                                                                       float  dataVariable               );
 
@@ -83,6 +85,7 @@ class   BalloonAndPfoilState {
 
         virtual void                   setAreSolarPanelsInstalled(    bool   areSolarPanelsInstalled    );
         virtual void                   setNumOfSolarPanels(           int    numOfSolarPanels           );
+        virtual void                   setIndivSolarPanelMass(        float  indivSolarPanelMass        );
         virtual void                   setIndivSolarPanelWidth(       float  indivSolarPanelWidth       );
         virtual void                   setIndivSolarPanelLength(      float  indivSolarPanelLength      );
         virtual void                   setSolarPanelSetupUpperRadius( float  solarPanelSetupUpperRadius );
@@ -94,6 +97,7 @@ class   BalloonAndPfoilState {
 
         virtual void                   setBalloonHeliumMass(          float  balloonHeliumMass          );
         virtual void                   setBalloonLatexMass(           float  balloonLatexMass           );
+        virtual void                   setBalloonValveAndNeckRigMass( float  balloonValveAndNeckRigMass );
         virtual void                   setBalloonLatexDensity(        float  balloonLatexDensity        );
         virtual void                   setBalloonUnstretchedRadius(   float  balloonUnstretchedRadius   );
         virtual void                   setBalloonUnstretchedThickness(float  balloonUnstretchedThickns  );
@@ -110,37 +114,41 @@ class   BalloonAndPfoilState {
         bool                           _areSolarPanelsInstalled;
 #define            BALLOONANDPFOILSTATE_numOfSolarPanels                2
         int                            _numOfSolarPanels;
-#define            BALLOONANDPFOILSTATE_indivSolarPanelWidth            3
+#define            BALLOONANDPFOILSTATE_indivSolarPanelMass             3
+        float                          _indivSolarPanelMass;
+#define            BALLOONANDPFOILSTATE_indivSolarPanelWidth            4
         float                          _indivSolarPanelWidth;
-#define            BALLOONANDPFOILSTATE_indivSolarPanelLength           4
+#define            BALLOONANDPFOILSTATE_indivSolarPanelLength           5
         float                          _indivSolarPanelLength;
-#define            BALLOONANDPFOILSTATE_solarPanelSetupUpperRadius      5
+#define            BALLOONANDPFOILSTATE_solarPanelSetupUpperRadius      6
         float                          _solarPanelSetupUpperRadius;
-#define            BALLOONANDPFOILSTATE_solarPanelAvgTemp               6
+#define            BALLOONANDPFOILSTATE_solarPanelAvgTemp               7
         float                          _solarPanelAvgTemp;
-#define            BALLOONANDPFOILSTATE_solarPanelAvgEfficiency         7
+#define            BALLOONANDPFOILSTATE_solarPanelAvgEfficiency         8
         float                          _solarPanelAvgEfficiency;
 
-#define            BALLOONANDPFOILSTATE_parafoilArea                    8
+#define            BALLOONANDPFOILSTATE_parafoilArea                    9
         float                          _parafoilArea;
-#define            BALLOONANDPFOILSTATE_parafoilRiggingMass             9
+#define            BALLOONANDPFOILSTATE_parafoilRiggingMass            10
         float                          _parafoilRiggingMass;
 
-#define            BALLOONANDPFOILSTATE_balloonHeliumMass              10
+#define            BALLOONANDPFOILSTATE_balloonHeliumMass              11
         float                          _balloonHeliumMass;
-#define            BALLOONANDPFOILSTATE_balloonLatexMass               11
+#define            BALLOONANDPFOILSTATE_balloonLatexMass               12
         float                          _balloonLatexMass;
-#define            BALLOONANDPFOILSTATE_balloonLatexDensity            12
+#define            BALLOONANDPFOILSTATE_balloonValveAndNeckRigMass     13
+        float                          _balloonValveAndNeckRigMass;
+#define            BALLOONANDPFOILSTATE_balloonLatexDensity            14
         float                          _balloonLatexDensity;
-#define            BALLOONANDPFOILSTATE_balloonUnstretchedRadius       13
+#define            BALLOONANDPFOILSTATE_balloonUnstretchedRadius       15
         float                          _balloonUnstretchedRadius;
-#define            BALLOONANDPFOILSTATE_balloonUnstretchedThickns      14
+#define            BALLOONANDPFOILSTATE_balloonUnstretchedThickns      16
         float                          _balloonUnstretchedThickns;
-#define            BALLOONANDPFOILSTATE_balloonBurstingThickns         15
+#define            BALLOONANDPFOILSTATE_balloonBurstingThickns         17
         float                          _balloonBurstingThickns;
-#define            BALLOONANDPFOILSTATE_balloonShearModulus            16
+#define            BALLOONANDPFOILSTATE_balloonShearModulus            18
         float                          _balloonShearModulus;
-#define            BALLOONANDPFOILSTATE_balloonHeading                 17
+#define            BALLOONANDPFOILSTATE_balloonHeading                 19
         float                          _balloonHeading;
 };
 
