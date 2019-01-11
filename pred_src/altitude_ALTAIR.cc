@@ -21,8 +21,10 @@
 
 #include "state/ALTAIR_state.hh"
 #include "state/ExternalEnvironState.hh"
+#include "state/BalloonAndPfoilState.hh"
 #include "util/UpdateALTAIRState.hh"
 #include "util/AscentAndBurstCalcMethods.hh"
+#include "util/DragCalcMethods.hh"
 
 // get density of atmosphere at a given altitude
 // uses NASA model from http://www.grc.nasa.gov/WWW/K-12/airplane/atmosmet.html
@@ -78,12 +80,28 @@ altitude_model_get_altitude(int time_into_flight, float* alt) {
 //        self->initial_alt = *alt;
 //        self->burst_time = (self->burst_altitude - self->initial_alt) / self->ascent_rate;
     }
+
+    ExternalEnvironState* extEnv      = altairState->getExtEnv()                          ;
+    BalloonAndPfoilState* balAndPfoil = altairState->getBalAndPfoil()                     ;
     
-//    *alt += TIMESTEP * altairState->getExtEnv()->getAscentRate();
-    *alt += TIMESTEP * AscentAndBurstCalcMethods::getEquilibAscentRate();    // We want predicted, _not_ measured, ascent rate, so this is right.
+    float ascentRate = extEnv->getAscentRate();
+    *alt += TIMESTEP * ascentRate;                                          
+
+//    *alt += TIMESTEP * AscentAndBurstCalcMethods::getEquilibAscentRate();    // We want predicted, _not_ measured, ascent rate, so this is right.
                                                                              // But ultimately we should account for accel and decel here,
                                                                              // _not_ just have ascent rate of 5 and drag coeff of 5.5225,
                                                                              // have an accurate rather than estimated air density model, etc etc.
+    if (AscentAndBurstCalcMethods::areWeAtBurstAltitude()) {
+        balAndPfoil->setIsCutdown(true);
+        extEnv->setAscentRate(0.);
+    }
+    ascentRate       =   AscentAndBurstCalcMethods::getPresentAscentTerminalVelocity();    // Velocity is effectively always terminal.
+//    ascentRate      += TIMESTEP * AscentAndBurstCalcMethods::getVerticalAcceleration();  // Ultimately we need an accurate rather than estimated air density model for this.
+    if (balAndPfoil->getIsCutdown()) {
+//        ascentRate   = -(DragCalcMethods::getParafoilDrag(5.))/sqrt(extEnv->getOutsideAirDensity());
+        ascentRate   =   AscentAndBurstCalcMethods::getPresentDescentTerminalVelocity();   // Velocity is effectively always terminal.
+    }
+    extEnv->setAscentRate(ascentRate);         
 /*
     // If we are not doing a descending mode sim then start going up
     // at out ascent rate. The ascent rate is constant to a good approximation.
