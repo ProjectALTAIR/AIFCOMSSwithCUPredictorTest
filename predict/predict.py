@@ -426,7 +426,7 @@ def write_file(output_format, data, window, mintime, maxtime):
         downloaded_data = { }
         current_var = 0
         time_per_var = datetime.timedelta()
-        for var in ('hgtprs', 'ugrdprs', 'vgrdprs'):
+        for var in ('hgtprs', 'ugrdprs', 'vgrdprs', 'tmpprs', 'vvelprs'):
             current_var += 1
             grid = data[var]
             log.info('Processing variable \'%s\' with shape %s...' % (var, grid.shape))
@@ -462,16 +462,16 @@ def write_file(output_format, data, window, mintime, maxtime):
 
             now = datetime.datetime.now()
             time_elapsed = now - starttime
-            num_vars = (current_time - 1)*3 + current_var
+            num_vars = (current_time - 1)*5 + current_var
             time_per_var = time_elapsed / num_vars
-            total_time = num_times * 3 * time_per_var
+            total_time = num_times * 5 * time_per_var
             time_left = total_time - time_elapsed
             time_left = timelib.strftime('%M:%S', timelib.gmtime(time_left.seconds))
             
             update_progress(gfs_percent=int(
                 10 +
                 (((current_time - 1) * 90) / num_times) +
-                ((current_var * 90) / (3 * num_times))
+                ((current_var * 90) / (5 * num_times))
                 ), gfs_timeremaining=time_left)
 
         # Check all the downloaded data has the same shape
@@ -484,6 +484,8 @@ def write_file(output_format, data, window, mintime, maxtime):
         hgtprs = downloaded_data['hgtprs']
         ugrdprs = downloaded_data['ugrdprs']
         vgrdprs = downloaded_data['vgrdprs']
+        tmpprs = downloaded_data['tmpprs']
+        vvelprs = downloaded_data['vvelprs']
 
         log.debug('Using longitudes: %s' % (map(lambda x: x[1], longitudes),))
 
@@ -523,13 +525,14 @@ def write_file(output_format, data, window, mintime, maxtime):
 
         # Write the number of components in each data line.
         output.write('# data line component count\n')
-        output.write('3\n') # FIXME: HARDCODED!
+        output.write('5\n') # FIXME: HARDCODED!
 
         # Write the data itself.
         output.write('# now the data in axis 3 major order\n')
         output.write('# data is: '
                      'geopotential height [gpm], u-component wind [m/s], '
-                     'v-component wind [m/s]\n')
+                     'v-component wind [m/s], temperature [K], '
+                     'vertical velocity (pressure) [Pa/s]\n')
         for pressureidx, pressure in enumerate(hgtprs.maps['lev']):
             for latidx, latitude in enumerate(hgtprs.maps['lat']):
                 for lonidx, longitude in enumerate(hgtprs.maps['lon']):
@@ -537,7 +540,9 @@ def write_file(output_format, data, window, mintime, maxtime):
                         continue
                     record = ( hgtprs.array[pressureidx,latidx,lonidx], \
                                ugrdprs.array[pressureidx,latidx,lonidx], \
-                               vgrdprs.array[pressureidx,latidx,lonidx] )
+                               vgrdprs.array[pressureidx,latidx,lonidx], \
+                               tmpprs.array[pressureidx,latidx,lonidx], \
+                               vvelprs.array[pressureidx,latidx,lonidx] )
                     output.write(','.join(map(str,record)) + '\n')
 
 def canonicalise_longitude(lon):
