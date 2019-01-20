@@ -64,7 +64,7 @@ class   ExternalEnvironState {
         virtual float                  getForwardSpeedRelToWind( );
         virtual float                  getElevationASL(          ); // Present ALTAIR elevation (in meters) above mean sea level
         virtual float                  getAscentRate(            ); // In m/s
-        virtual float                  getTerrainHeight(         ); // Height of ground (or sea) terrain, in meters above mean sea level, at present ALTAIR lat and lon
+        virtual float                  getTerrainHeight(         ); // Height of ground (or water) terrain, in meters above mean sea level, at present ALTAIR lat and lon
         
         static  const size_t           numDataElements             = 10                           ;
         virtual void                   setVariable(              size_t   variableID ,
