@@ -46,6 +46,8 @@ add_executable(pred_ALTAIR
         state/GondolaAndPropState.hh
         state/OptSourcePayloadState.cc
         state/OptSourcePayloadState.hh
+        util/BalloonPropertiesCalcMethods.cc
+        util/BalloonPropertiesCalcMethods.hh
         util/ThrustCalcMethods.cc
         util/ThrustCalcMethods.hh
         util/DragCalcMethods.cc
@@ -67,10 +69,10 @@ add_executable(pred_ALTAIR
 	util/getdelim.h
 	util/random.c
 	altitude_ALTAIR.hh
-	wind/wind_file_cache.c
-	wind/wind_file_cache.h
-	wind/wind_file.c
-	wind/wind_file.h
+	wind/wind_file_cache_ALTAIR.c
+	wind/wind_file_cache_ALTAIR.h
+	wind/wind_file_ALTAIR.c
+	wind/wind_file_ALTAIR.h
 	altitude_ALTAIR.cc
 	pred_ALTAIR.cc
 	run_model_ALTAIR.cc

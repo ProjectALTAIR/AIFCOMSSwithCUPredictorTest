@@ -23,7 +23,7 @@
 extern "C" {
 #include "ini/iniparser.h"
 #include "util/gopt.h"
-#include "wind/wind_file_cache.h"
+#include "wind/wind_file_cache_ALTAIR.h"
 }
 
 #include "pred_ALTAIR.hh"

@@ -17,13 +17,15 @@
 #include <assert.h>
 
 extern "C" {
-#include "wind/wind_file.h"
+#include "wind/wind_file_ALTAIR.h"
 #include "util/random.h"
 }
 
 #include "run_model_ALTAIR.hh"
 #include "pred_ALTAIR.hh"
 
+#include "state/ALTAIR_state.hh"
+#include "state/ExternalEnvironState.hh"
 #include "util/ThrustCalcMethods.hh"
 #include "util/DragCalcMethods.hh"
 #include "util/SolarPowerCalcMethods.hh"
@@ -76,9 +78,12 @@ _advance_one_timestep(wind_file_cache_t* cache,
     for(i=0; i<n_states; ++i)
     {
         float ddlat, ddlng;
-        float wind_v, wind_u, wind_var;
+        float wind_v, wind_u, wind_var, pres, temp, wind_z;
         float u_samp, v_samp, u_lik, v_lik;
+        float prev_alt, prev_pres, wind_zvel = 0.;
         model_state_t* state = &(states[i]);
+
+        prev_alt  = state->alt;
 
 // the below both updates and returns the altitude (it does more than just get it -- it updates it!)
 //        if(!altitude_model_get_altitude(state->alt_model, 
@@ -87,7 +92,7 @@ _advance_one_timestep(wind_file_cache_t* cache,
             return 0; // alt < 0; finished
 
         if(!get_wind(cache, state->lat, state->lng, state->alt, timestamp, 
-                    &wind_v, &wind_u, &wind_var))
+                    &wind_v, &wind_u, &wind_var, &pres, &temp, &wind_z))
             return -1; // error
 
         _get_frame(state->lat, state->lng, state->alt, &ddlat, &ddlng);
@@ -112,6 +117,14 @@ _advance_one_timestep(wind_file_cache_t* cache,
         state->lat += v_samp * delta_t / ddlat;
         state->lng += u_samp * delta_t / ddlng;
 
+        prev_pres = altairState->getExtEnv()->getOutsideAirPressure();
+        altairState->getExtEnv()->setOutsideAirPressure(pres);
+        altairState->getExtEnv()->setOutsideTemp(temp);
+// wind_z is in Pa/s rather than m/s: want to multiply by m/Pa (= d(alt)/d(pres)) to get m/s
+        if (pres != prev_pres) wind_zvel = wind_z * (state->alt - prev_alt) / (pres - prev_pres);
+// and make sure it is not a crazy value
+        if (wind_zvel > 5. || wind_zvel < -5.) wind_zvel = 0.;
+        state->alt += (wind_zvel * delta_t);
         UpdateALTAIRState::doUpdate(state->lat, state->lng, state->alt);
 
         state->loglik += (double)(u_lik + v_lik);
@@ -195,9 +208,9 @@ int run_model(wind_file_cache_t* cache,
 }
 
 int get_wind(wind_file_cache_t* cache, float lat, float lng, float alt, long int timestamp,
-        float* wind_v, float* wind_u, float *wind_var) {
+        float* wind_v, float* wind_u, float *wind_var, float *pres, float *temp, float *wind_z) {
     int i, s;
-    float lambda, wu_l, wv_l, wu_h, wv_h;
+    float lambda, wu_l, wv_l, wu_h, wv_h, pres_l, pres_h, temp_l, temp_h, wz_l, wz_h;
     float wuvar_l, wvvar_l, wuvar_h, wvvar_h;
     wind_file_cache_entry_t* found_entries[] = { NULL, NULL };
     wind_file_t* found_files[] = { NULL, NULL };
@@ -241,13 +254,18 @@ int get_wind(wind_file_cache_t* cache, float lat, float lng, float alt, long int
     else
         lambda = 0.5f;
 
-    s = wind_file_get_wind(found_files[0], lat, lng, alt, &wu_l, &wv_l, &wuvar_l, &wvvar_l);
+    s = wind_file_get_wind(found_files[0], lat, lng, alt, &wu_l, &wv_l, &wuvar_l, &wvvar_l,
+                                                          &pres_l, &temp_l, &wz_l);
     if (s == 0) return 0; // hard error
-    s = wind_file_get_wind(found_files[1], lat, lng, alt, &wu_h, &wv_h, &wuvar_h, &wvvar_h);
+    s = wind_file_get_wind(found_files[1], lat, lng, alt, &wu_h, &wv_h, &wuvar_h, &wvvar_h,
+                                                          &pres_h, &temp_h, &wz_h);
     if (s == 0) return 0;
 
-    *wind_u = lambda * wu_h + (1.f-lambda) * wu_l;
-    *wind_v = lambda * wv_h + (1.f-lambda) * wv_l;
+    *wind_u = lambda * wu_h   + (1.f-lambda) * wu_l  ;
+    *wind_v = lambda * wv_h   + (1.f-lambda) * wv_l  ;
+    *pres   = lambda * pres_h + (1.f-lambda) * pres_l;
+    *temp   = lambda * temp_h + (1.f-lambda) * temp_l - kelvinMinusCelsius;
+    *wind_z = lambda * wz_h   + (1.f-lambda) * wz_l  ;
 
     // flatten the u and v variances into a single mean variance for the
     // magnitude.
