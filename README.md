@@ -93,7 +93,7 @@ In this same `predict` directory, run `node server.js`.  Open a web browser, and
 
 You should then have AIFCOMSS running in your web browser.
 
-#### Mac OS X (tested on v. 10.13.5 "High Sierra")
+#### Mac OS X (tested on v. 10.13.5 "High Sierra" and on v. 10.14.2 "Mojave")
 
 Check that you have CMake installed on your Mac by typing `which cmake` in a terminal window from your
 `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` directory.  If you don't have it, then download the .dmg
@@ -219,4 +219,8 @@ The log files for the different code languages used can be found in the location
  * PHP : /var/log/apache2/error.log (on Linux)
  * Python : /var/www/AIFCOMSSwithCUPredictorTest/predict/pred/[the folder corresponding to your run] (on Linux)
 
+On MacOS or Linux, if you are not getting any flight path prediction whatsoever (which can happen after a reboot): try doing a
 
+    sudo apachectl restart
+
+and then re-running node server.js and AIFCOMSS.
