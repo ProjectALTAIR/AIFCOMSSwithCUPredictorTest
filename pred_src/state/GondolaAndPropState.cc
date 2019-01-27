@@ -38,7 +38,8 @@
 // Constructor --
 //---------------
 GondolaAndPropState::GondolaAndPropState() :
-  _propAxleRotAngle(0.)
+  _propAxleRotAngle(         0. ),
+  _batteryStoredEnergy( 215000. )
 {
   for (int i = 0; i < 4; ++i) {
     _rpmMotor[i]     = 0;
@@ -142,20 +143,23 @@ GondolaAndPropState::setVariable(         size_t variableID   ,
                                           float  dataVariable    )
 {
   switch (variableID) {
-    case GONDOLAANDPROPSTATE_propAxleRotAngle:
+    case GONDOLAANDPROPSTATE_propAxleRotAngle     :
       setPropAxleRotAngle(dataVariable);
       break;
-    case  GONDOLAANDPROPSTATE_rpmMotor         :
-    case (GONDOLAANDPROPSTATE_rpmMotor     + 1):
-    case (GONDOLAANDPROPSTATE_rpmMotor     + 2):
-    case (GONDOLAANDPROPSTATE_rpmMotor     + 3):
+    case  GONDOLAANDPROPSTATE_rpmMotor            :
+    case (GONDOLAANDPROPSTATE_rpmMotor     + 1)   :
+    case (GONDOLAANDPROPSTATE_rpmMotor     + 2)   :
+    case (GONDOLAANDPROPSTATE_rpmMotor     + 3)   :
       setRPMMotor(     variableID + 1 - GONDOLAANDPROPSTATE_rpmMotor     , (int) dataVariable);
       break;
-    case  GONDOLAANDPROPSTATE_currentMotor     :
-    case (GONDOLAANDPROPSTATE_currentMotor + 1):
-    case (GONDOLAANDPROPSTATE_currentMotor + 2):
-    case (GONDOLAANDPROPSTATE_currentMotor + 3):
+    case  GONDOLAANDPROPSTATE_currentMotor        :
+    case (GONDOLAANDPROPSTATE_currentMotor + 1)   :
+    case (GONDOLAANDPROPSTATE_currentMotor + 2)   :
+    case (GONDOLAANDPROPSTATE_currentMotor + 3)   :
       setCurrentMotor( variableID + 1 - GONDOLAANDPROPSTATE_currentMotor , (int) dataVariable);
+      break;
+    case  GONDOLAANDPROPSTATE_batteryStoredEnergy :
+      setBatteryStoredEnergy(dataVariable);
       break;
     default:
       break;                                          // should really be an error here ...
@@ -163,13 +167,19 @@ GondolaAndPropState::setVariable(         size_t variableID   ,
 }
 
 void
-GondolaAndPropState::setPropAxleRotAngle( float propAxleRotAngle )
+GondolaAndPropState::setBatteryStoredEnergy( float batteryStoredEnergy )
 {
-  _propAxleRotAngle = propAxleRotAngle;
+  _batteryStoredEnergy = batteryStoredEnergy ;
 }
 
 void
-GondolaAndPropState::setRPMMotor(  int motorNum, int rpmMotor )
+GondolaAndPropState::setPropAxleRotAngle(    float propAxleRotAngle    )
+{
+  _propAxleRotAngle    = propAxleRotAngle    ;
+}
+
+void
+GondolaAndPropState::setRPMMotor(  int motorNum, int rpmMotor          )
 {
   if (motorNum >= 1 && motorNum <= 4) _rpmMotor[motorNum-1] = rpmMotor;
   else                                {}            // we should turn this into an actual error...

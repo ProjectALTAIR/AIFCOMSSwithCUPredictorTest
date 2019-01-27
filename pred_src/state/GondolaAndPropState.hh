@@ -53,48 +53,54 @@ class   GondolaAndPropState {
 
         virtual ~GondolaAndPropState();
 
-        virtual float                  getGondolaTotalMass()  { return  ALTAIRGondolaTotalMass    ; }   // in kg
+        virtual float                  getGondolaTotalMass()    { return  ALTAIRGondolaTotalMass  ; }   // in kg
 
-        virtual float                  getGondolaXSecArea()   { return  ALTAIRGondolaXSecArea     ; }   // in m^2
+        virtual float                  getGondolaXSecArea()     { return  ALTAIRGondolaXSecArea   ; }   // in m^2
 
-        virtual float                  getPropAxleRotAngle()  { return _propAxleRotAngle          ; }   // in degrees, ranging from (-180,180]
+        virtual float                  getBatteryStoredEnergy() { return _batteryStoredEnergy     ; }   // the present stored energy in onboard batteries, in Joules (one fully-
+                                                                                                        // charged 2700 mAh 11.1 V ALTAIR battery contains slightly over 100 kJ)
+        virtual float                  getPropAxleRotAngle()    { return _propAxleRotAngle        ; }   // in degrees, ranging from (-180,180]
 
-        virtual float                  getPropellerDiameter() { return  ALTAIRPropellerDiameter   ; }   // in m
-        virtual float                  getPropellerPitch()    { return  ALTAIRPropellerPitch      ; }   // in m
+        virtual float                  getPropellerDiameter()   { return  ALTAIRPropellerDiameter ; }   // in m
+        virtual float                  getPropellerPitch()      { return  ALTAIRPropellerPitch    ; }   // in m
 
-        virtual int                    getPropRotDir(       int   motorNum                      ) ;     // Returns +1 if that propeller turns clockwise (when
+        virtual int                    getPropRotDir(          int   motorNum                   ) ;     // Returns +1 if that propeller turns clockwise (when
                                                                                                         // viewed from above the gondola, if _propAxleRotAngle = 0),
                                                                                                         // and -1 if counter-clockwise.
 
-        virtual int                    getRPMMotor(         int   motorNum                      ) ;     // motorNum goes from 1 to 4 (not 0 to 3)
+        virtual int                    getRPMMotor(            int   motorNum                   ) ;     // motorNum goes from 1 to 4 (not 0 to 3)
         virtual int                    getRPMMotor1(                                            ) ;
         virtual int                    getRPMMotor2(                                            ) ;
         virtual int                    getRPMMotor3(                                            ) ;
         virtual int                    getRPMMotor4(                                            ) ;
 
-        virtual float                  getCurrentMotor(     int   motorNum                      ) ;     // motorNum goes from 1 to 4 (not 0 to 3)
+        virtual float                  getCurrentMotor(        int   motorNum                   ) ;     // motorNum goes from 1 to 4 (not 0 to 3)
         virtual float                  getCurrentMotor1(                                        ) ;
         virtual float                  getCurrentMotor2(                                        ) ;
         virtual float                  getCurrentMotor3(                                        ) ;
         virtual float                  getCurrentMotor4(                                        ) ;
 
-        static  const size_t           numDataElements             = 9                            ;
-        virtual void                   setVariable(         size_t variableID ,
-                                                            float  dataVariable                 ) ;
+        static  const size_t           numDataElements                = 10                        ;
+        virtual void                   setVariable(            size_t variableID ,
+                                                               float  dataVariable              ) ;
 
-        virtual void                   setPropAxleRotAngle( float propAxleRotAngle              ) ;     // in degrees, ranging from (-180,180]
+        virtual void                   setBatteryStoredEnergy( float batteryStoredEnergy        ) ;     // in Joules
 
-        virtual void                   setRPMMotor(         int   motorNum , int   rpmMotor     ) ;     // motorNum goes from 1 to 4 (not 0 to 3)
-        virtual void                   setRPMMotor1(        int   rpmMotor1                     ) ;
-        virtual void                   setRPMMotor2(        int   rpmMotor2                     ) ;
-        virtual void                   setRPMMotor3(        int   rpmMotor3                     ) ;
-        virtual void                   setRPMMotor4(        int   rpmMotor4                     ) ;
+        virtual void                   setPropAxleRotAngle(    float propAxleRotAngle           ) ;     // in degrees, ranging from (-180,180]
 
-        virtual void                   setCurrentMotor(     int   motorNum , float currentMotor ) ;     // motorNum goes from 1 to 4 (not 0 to 3)
-        virtual void                   setCurrentMotor1(    float currentMotor1                 ) ;
-        virtual void                   setCurrentMotor2(    float currentMotor2                 ) ;
-        virtual void                   setCurrentMotor3(    float currentMotor3                 ) ;
-        virtual void                   setCurrentMotor4(    float currentMotor4                 ) ;
+        virtual void                   setRPMMotor(            int   motorNum  , 
+                                                               int   rpmMotor                   ) ;     // motorNum goes from 1 to 4 (not 0 to 3)
+        virtual void                   setRPMMotor1(           int   rpmMotor1                  ) ;
+        virtual void                   setRPMMotor2(           int   rpmMotor2                  ) ;
+        virtual void                   setRPMMotor3(           int   rpmMotor3                  ) ;
+        virtual void                   setRPMMotor4(           int   rpmMotor4                  ) ;
+
+        virtual void                   setCurrentMotor(        int   motorNum  , 
+                                                               float currentMotor               ) ;     // motorNum goes from 1 to 4 (not 0 to 3)
+        virtual void                   setCurrentMotor1(       float currentMotor1              ) ;
+        virtual void                   setCurrentMotor2(       float currentMotor2              ) ;
+        virtual void                   setCurrentMotor3(       float currentMotor3              ) ;
+        virtual void                   setCurrentMotor4(       float currentMotor4              ) ;
 
 
     private:
@@ -106,6 +112,8 @@ class   GondolaAndPropState {
         int                            _rpmMotor[4]                                               ;
 #define             GONDOLAANDPROPSTATE_currentMotor              5
         float                          _currentMotor[4]                                           ;     // current flowing into each motor + ESC combination, in Amps
+#define             GONDOLAANDPROPSTATE_batteryStoredEnergy       9
+        float                          _batteryStoredEnergy                                       ;     // in Joules
 
 };
 
