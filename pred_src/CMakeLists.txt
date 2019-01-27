@@ -58,6 +58,8 @@ add_executable(pred_ALTAIR
         util/AscentAndBurstCalcMethods.hh
         util/HeliumLossCalcMethods.cc
         util/HeliumLossCalcMethods.hh
+        util/PropulsionUtils.cc
+        util/PropulsionUtils.hh
         util/UpdateALTAIRState.cc
         util/UpdateALTAIRState.hh
 	util/gopt.c
@@ -84,6 +86,59 @@ add_executable(pred_ALTAIR
 	ini/dictionary.c
 )
 
+add_executable(pred_StationKeep
+        state/ALTAIR_state.cc
+        state/ALTAIR_state.hh
+        state/ExternalEnvironState.cc
+        state/ExternalEnvironState.hh
+        state/BalloonAndPfoilState.cc
+        state/BalloonAndPfoilState.hh
+        state/GondolaAndPropState.cc
+        state/GondolaAndPropState.hh
+        state/OptSourcePayloadState.cc
+        state/OptSourcePayloadState.hh
+        util/BalloonPropertiesCalcMethods.cc
+        util/BalloonPropertiesCalcMethods.hh
+        util/ThrustCalcMethods.cc
+        util/ThrustCalcMethods.hh
+        util/DragCalcMethods.cc
+        util/DragCalcMethods.hh
+        util/SolarPowerCalcMethods.cc
+        util/SolarPowerCalcMethods.hh
+        util/AscentAndBurstCalcMethods.cc
+        util/AscentAndBurstCalcMethods.hh
+        util/HeliumLossCalcMethods.cc
+        util/HeliumLossCalcMethods.hh
+        util/PropulsionUtils.cc
+        util/PropulsionUtils.hh
+        util/UpdateALTAIRState.cc
+        util/UpdateALTAIRState.hh
+	util/gopt.c
+	util/getdelim.c
+	util/random.h
+	util/gopt.h
+	util/getline.h
+	util/getline.c
+	util/getdelim.h
+	util/random.c
+	altitude_StationKeep.hh
+	wind/wind_file_cache_ALTAIR.c
+	wind/wind_file_cache_ALTAIR.h
+	wind/wind_file_ALTAIR.c
+	wind/wind_file_ALTAIR.h
+	altitude_StationKeep.cc
+	pred_StationKeep.cc
+	run_model_StationKeep.cc
+	pred_StationKeep.hh
+	run_model_StationKeep.hh
+	ini/iniparser.c
+	ini/iniparser.h
+	ini/dictionary.h
+	ini/dictionary.c
+)
+
 target_link_libraries(pred ${GLIB_LIBRARIES} -lm)
 
 target_link_libraries(pred_ALTAIR ${GLIB_LIBRARIES} -lm)
+
+target_link_libraries(pred_StationKeep ${GLIB_LIBRARIES} -lm)
