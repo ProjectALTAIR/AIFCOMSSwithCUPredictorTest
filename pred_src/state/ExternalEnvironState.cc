@@ -41,7 +41,6 @@ ExternalEnvironState::ExternalEnvironState()
    _elevationASL(               5. ),
    _terrainHeight(              5. ),
    _ascentRate(                 0. ),        // change to 0. later
-   _currentHeading(             0. ),
    _currentTime(                0  ),
    _outsideTemp(                0. ),
    _outsideAirPressure(    101325. ),        // standard atmospheric pressure
@@ -75,12 +74,6 @@ float
 ExternalEnvironState::getCurrentLon()
 {
   return _currentLon;
-}
-
-float
-ExternalEnvironState::getCurrentHeading()
-{
-  return _currentHeading;
 }
 
 float
@@ -152,9 +145,6 @@ ExternalEnvironState::setVariable(               size_t   variableID ,
     case EXTERNALENVIRONSTATE_ascentRate:
       setAscentRate(dataVariable);
       break;
-    case EXTERNALENVIRONSTATE_currentHeading:
-      setCurrentHeading(dataVariable);
-      break;
     case EXTERNALENVIRONSTATE_currentTime:
       setCurrentTime(dataVariable);
       break;
@@ -188,12 +178,6 @@ void
 ExternalEnvironState::setCurrentLon(             float    currentLon            )
 {
   _currentLon            = currentLon;
-}
-
-void
-ExternalEnvironState::setCurrentHeading(         float    currentHeading        )
-{
-  _currentHeading        = currentHeading;
 }
 
 void

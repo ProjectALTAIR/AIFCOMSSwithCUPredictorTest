@@ -57,7 +57,6 @@ class   ExternalEnvironState {
         virtual long  int              getCurrentTime(           ); // Standard Unix timestamp (i.e., seconds since midnight Jan. 1, 1970)
         virtual float                  getCurrentLat(            ); // Present ALTAIR latitude in degrees North of the Equator (negative for South)
         virtual float                  getCurrentLon(            ); // Present ALTAIR longitude in degrees East of the prime meridian (negative for West)
-        virtual float                  getCurrentHeading(        ); // Present ALTAIR heading in degrees East of true North (range is [0.,360.) )
         virtual float                  getOutsideTemp(           ); // In Celsius
         virtual float                  getOutsideAirPressure(    ); // In Pascals
         virtual float                  getOutsideAirDensity(     ); // Related to pressure and temp by the equation of state for air 
@@ -66,14 +65,13 @@ class   ExternalEnvironState {
         virtual float                  getAscentRate(            ); // In m/s
         virtual float                  getTerrainHeight(         ); // Height of ground (or water) terrain, in meters above mean sea level, at present ALTAIR lat and lon
         
-        static  const size_t           numDataElements             = 10                           ;
+        static  const size_t           numDataElements             =  9                           ;
         virtual void                   setVariable(              size_t   variableID ,
                                                                  float    dataVariable           );
 
         virtual void                   setCurrentTime(           long int currentTime            );
         virtual void                   setCurrentLat(            float    currentLat             );
         virtual void                   setCurrentLon(            float    currentLon             );
-        virtual void                   setCurrentHeading(        float    currentHeading         );
         virtual void                   setOutsideTemp(           float    outsideTemp            );
         virtual void                   setOutsideAirPressure(    float    outsideAirPressure     );
         virtual void                   setForwardSpeedRelToWind( float    forwardSpeedRelToWind  );
@@ -93,15 +91,13 @@ class   ExternalEnvironState {
         float                          _terrainHeight;
 #define            EXTERNALENVIRONSTATE_ascentRate               4
         float                          _ascentRate;
-#define            EXTERNALENVIRONSTATE_currentHeading           5
-        float                          _currentHeading;
-#define            EXTERNALENVIRONSTATE_currentTime              6
+#define            EXTERNALENVIRONSTATE_currentTime              5
         long int                       _currentTime;
-#define            EXTERNALENVIRONSTATE_outsideTemp              7
+#define            EXTERNALENVIRONSTATE_outsideTemp              6
         float                          _outsideTemp;
-#define            EXTERNALENVIRONSTATE_outsideAirPressure       8
+#define            EXTERNALENVIRONSTATE_outsideAirPressure       7
         float                          _outsideAirPressure;
-#define            EXTERNALENVIRONSTATE_forwardSpeedRelToWind    9
+#define            EXTERNALENVIRONSTATE_forwardSpeedRelToWind    8
         float                          _forwardSpeedRelToWind;
 
 };

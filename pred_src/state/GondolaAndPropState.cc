@@ -37,20 +37,22 @@
 //---------------
 // Constructor --
 //---------------
-GondolaAndPropState::GondolaAndPropState() :
-  _propAxleRotAngle(         0. ),
-  _batteryStoredEnergy( 215000. )
+GondolaAndPropState::GondolaAndPropState(               ) :
+  _gondolaHeading(                                   0. ),
+  _gondolaUpwardsTilt(                               0. ),
+  _propAxleRotAngle(                                 0. ),
+  _batteryStoredEnergy( ALTAIRTotalBatteryStoredEnergy  )
 {
   for (int i = 0; i < 4; ++i) {
-    _rpmMotor[i]     = 0;
-    _currentMotor[i] = 0;
+    _rpmMotor[i]     =  ALTAIRFullSpeedPropRPM            ;
+    _currentMotor[i] =                               0    ;
   }
 }
 
 //--------------
 // Destructor --
 //--------------
-GondolaAndPropState::~GondolaAndPropState()
+GondolaAndPropState::~GondolaAndPropState(              )
 {
 }
 
@@ -59,7 +61,7 @@ GondolaAndPropState::~GondolaAndPropState()
 // Methods --
 //-----------
 int
-GondolaAndPropState::getPropRotDir( int motorNum )
+GondolaAndPropState::getPropRotDir(       int motorNum  )
 {
   switch (motorNum) {
     case 1:
@@ -143,6 +145,12 @@ GondolaAndPropState::setVariable(         size_t variableID   ,
                                           float  dataVariable    )
 {
   switch (variableID) {
+    case GONDOLAANDPROPSTATE_gondolaHeading       :
+      setGondolaHeading(dataVariable);
+      break;
+    case GONDOLAANDPROPSTATE_gondolaUpwardsTilt   :
+      setGondolaUpwardsTilt(dataVariable);
+      break;
     case GONDOLAANDPROPSTATE_propAxleRotAngle     :
       setPropAxleRotAngle(dataVariable);
       break;
@@ -164,6 +172,18 @@ GondolaAndPropState::setVariable(         size_t variableID   ,
     default:
       break;                                          // should really be an error here ...
   }
+}
+
+void
+GondolaAndPropState::setGondolaHeading(      float gondolaHeading      )
+{
+  _gondolaHeading      = gondolaHeading      ;
+}
+
+void
+GondolaAndPropState::setGondolaUpwardsTilt(  float gondolaUpwardsTilt  )
+{
+  _gondolaUpwardsTilt  = gondolaUpwardsTilt  ;
 }
 
 void

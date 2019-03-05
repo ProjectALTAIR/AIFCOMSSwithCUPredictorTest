@@ -30,11 +30,17 @@
 #ifndef __GONDOLAANDPROPSTATE_HH__
 #define __GONDOLAANDPROPSTATE_HH__
 
-#define ALTAIRGondolaTotalMass   3.0                    // ** AN ESTIMATE FOR NOW **:  3.0 kg
-#define ALTAIRGondolaXSecArea    0.2                    // ** AN ESTIMATE FOR NOW **:  0.2 m^2
+#define ALTAIRGondolaTotalMass               3.0        // ** AN ESTIMATE FOR NOW **:  3.0 kg
+#define ALTAIRGondolaXSecArea                0.2        // ** AN ESTIMATE FOR NOW **:  0.2 m^2
 
-#define ALTAIRPropellerDiameter  0.35560                // 14.0" = 35.560 cm = 0.35560 m
-#define ALTAIRPropellerPitch     0.11938                //  4.7" = 11.938 cm = 0.11938 m
+#define ALTAIRPropellerDiameter              0.35560    // 14.0" = 35.560 cm = 0.35560 m
+#define ALTAIRPropellerPitch                 0.11938    //  4.7" = 11.938 cm = 0.11938 m
+#define ALTAIRFullSpeedAheadPower          800.         // in Watts
+#define ALTAIRFullSpeedPropRPM            6000
+
+#define ALTAIRTotalBatteryStoredEnergy  215000.         // in Joules
+#define ALTAIRMustTurnOffBelowBattFraction   0.20
+#define ALTAIRCanTurnOnAboveBattFraction     0.30
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -56,6 +62,9 @@ class   GondolaAndPropState {
         virtual float                  getGondolaTotalMass()    { return  ALTAIRGondolaTotalMass  ; }   // in kg
 
         virtual float                  getGondolaXSecArea()     { return  ALTAIRGondolaXSecArea   ; }   // in m^2
+
+        virtual float                  getGondolaHeading()      { return _gondolaHeading          ; }   // Present ALTAIR heading in degrees East of true North (range is [  0.,360.) )
+        virtual float                  getGondolaUpwardsTilt()  { return _gondolaUpwardsTilt      ; }   // Present ALTAIR upwards tilt in degrees above flat    (range is [-90., 90.] )
 
         virtual float                  getBatteryStoredEnergy() { return _batteryStoredEnergy     ; }   // the present stored energy in onboard batteries, in Joules (one fully-
                                                                                                         // charged 2700 mAh 11.1 V ALTAIR battery contains slightly over 100 kJ)
@@ -80,9 +89,12 @@ class   GondolaAndPropState {
         virtual float                  getCurrentMotor3(                                        ) ;
         virtual float                  getCurrentMotor4(                                        ) ;
 
-        static  const size_t           numDataElements                = 10                        ;
+        static  const size_t           numDataElements                = 12                        ;
         virtual void                   setVariable(            size_t variableID ,
                                                                float  dataVariable              ) ;
+
+        virtual void                   setGondolaHeading(      float gondolaHeading             ) ;     // in degrees East of true North (range is [  0.,360.) )
+        virtual void                   setGondolaUpwardsTilt(  float gondolaUpwardsTilt         ) ;     // in degrees above flat         (range is [-90., 90.] )
 
         virtual void                   setBatteryStoredEnergy( float batteryStoredEnergy        ) ;     // in Joules
 
@@ -105,14 +117,19 @@ class   GondolaAndPropState {
 
     private:
 
-#define             GONDOLAANDPROPSTATE_propAxleRotAngle          0
+#define             GONDOLAANDPROPSTATE_gondolaHeading            0
+        float                          _gondolaHeading                                            ;
+#define             GONDOLAANDPROPSTATE_gondolaUpwardsTilt        1
+        float                          _gondolaUpwardsTilt                                        ;
+
+#define             GONDOLAANDPROPSTATE_propAxleRotAngle          2
         float                          _propAxleRotAngle                                          ;   
 
-#define             GONDOLAANDPROPSTATE_rpmMotor                  1
+#define             GONDOLAANDPROPSTATE_rpmMotor                  3
         int                            _rpmMotor[4]                                               ;
-#define             GONDOLAANDPROPSTATE_currentMotor              5
+#define             GONDOLAANDPROPSTATE_currentMotor              7
         float                          _currentMotor[4]                                           ;     // current flowing into each motor + ESC combination, in Amps
-#define             GONDOLAANDPROPSTATE_batteryStoredEnergy       9
+#define             GONDOLAANDPROPSTATE_batteryStoredEnergy      11
         float                          _batteryStoredEnergy                                       ;     // in Joules
 
 };
