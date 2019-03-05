@@ -30,21 +30,28 @@ class DragCalcMethods {
 
     public:
 
-        static float getBalloonDrag(  float balloonSpeed  );	// get the drag due to the balloon
-	
-        static float getParafoilDrag( float parafoilSpeed );	// get the drag due to the parafoil
+        static float getBalloonDrag(     float balloonSpeed    );  // get the drag due to the balloon
 
-        static float getGondolaDrag(  float gondolaSpeed  );	// currently only returns a dummy value for drag on the ALTAIR gondola
+        static float getTerminalSpeed(   float propThrust      );  // get the terminal speed (in m/s) for a given propeller thrust (in
+	                                                           // Newtons), assuming effectively all the drag is due to the balloon
+        static float getThrustFromSpeed( float terminalSpeed   );  // the inverse of the function above: get propeller thrust (in
+                                                                   // Newtons) from a given terminal speed (in m/s)
+        static float getThrustFromPower( float propulsivePower );  // get propeller thrust (in Newtons) from a given propulsive
+                                                                   // power (in Watts, assuming no wasted power -- i.e., multiply by efficiency)
 
-        static float getApproxEffSphericalDragCoef(       );    // return the approximate effective drag coefficient 
-                                                                // k_d = sqrt(pi * c_d / (2 * g)) for a sphere (where c_d = 0.47).
+        static float getParafoilDrag(    float parafoilSpeed   );  // get the drag due to the parafoil
 
-        static float getApproxEffRectangDragCoef(         );    // return the approximate effective drag coefficient 
-                                                                // k_d = sqrt(c_d / (2 * g)) for a rectangle (where c_d = 1.28).
+        static float getGondolaDrag(     float gondolaSpeed    );  // currently only returns a dummy value for drag on the ALTAIR gondola
+
+        static float getApproxEffSphericalDragCoef(            );  // return the approximate effective drag coefficient 
+                                                                   // k_d = sqrt(pi * c_d / (2 * g)) for a sphere (where c_d = 0.47).
+
+        static float getApproxEffRectangDragCoef(              );  // return the approximate effective drag coefficient 
+                                                                   // k_d = sqrt(c_d / (2 * g)) for a rectangle (where c_d = 1.28).
 
     private:
 
-        DragCalcMethods() {} 			                // constructor should never be used
+        DragCalcMethods() {} 			                   // constructor should never be used
 };
 
 

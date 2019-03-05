@@ -55,8 +55,6 @@ float DragCalcMethods::getBalloonDrag( float balloonSpeed )
 //	float payloadSpeed		  = extEnv->getForwardSpeedRelToWind()				;
 	float tempInK			  = extEnv->getOutsideTemp() + kelvinMinusCelsius 		;
 	float airDensity		  = extEnv->getOutsideAirDensity()				;
-	float elevationASL		  = extEnv->getElevationASL()					;
-	float pressure 			  = extEnv->getOutsideAirPressure()				;
 	float balloonRadius  		  = BalloonPropertiesCalcMethods::getBalloonRadius()            ;
 	
         // The formula below approximates dynamic viscosity in SI units (poiseuilles, i.e. kg / (m s) or Pa s).
@@ -74,6 +72,57 @@ float DragCalcMethods::getBalloonDrag( float balloonSpeed )
 	return ( dragCoef * crossSecArea * airDensity * balloonSpeed * balloonSpeed / 2. )		;
 }
 
+float DragCalcMethods::getTerminalSpeed( float propThrust )
+{
+	ExternalEnvironState* extEnv 	  = altairState->getExtEnv()					;
+
+	float airDensity		  = extEnv->getOutsideAirDensity()				;
+	float balloonRadius  		  = BalloonPropertiesCalcMethods::getBalloonRadius()            ;
+	
+	float crossSecArea   		  = M_PI * balloonRadius * balloonRadius     			;
+
+	// This equation comes from curve fitting and is sourced from: http://pages.mtu.edu/~fmorriso/DataCorrelationForSphereDrag2016.pdf
+//	float dragCoef       		  = 24/reynoldsNumber + 2.6*(reynoldsNumber/5)/(1+pow((reynoldsNumber/5),1.52)) + 0.411*pow(reynoldsNumber/2.63e5,-7.94)
+//							/(1+pow(reynoldsNumber/2.63e5,-8)) + 0.25*(reynoldsNumber/1e6)/(1+(reynoldsNumber/1e6));
+        float dragCoef                    = 0.47                                                        ;
+
+	return sqrt( 2.* propThrust / (dragCoef * crossSecArea * airDensity) )		                ;
+}
+
+float DragCalcMethods::getThrustFromSpeed( float terminalSpeed )
+{
+        ExternalEnvironState* extEnv      = altairState->getExtEnv()                                    ;
+
+        float airDensity                  = extEnv->getOutsideAirDensity()                              ;
+        float balloonRadius               = BalloonPropertiesCalcMethods::getBalloonRadius()            ;
+
+        float crossSecArea                = M_PI * balloonRadius * balloonRadius                        ;
+
+        // This equation comes from curve fitting and is sourced from: http://pages.mtu.edu/~fmorriso/DataCorrelationForSphereDrag2016.pdf
+//      float dragCoef                    = 24/reynoldsNumber + 2.6*(reynoldsNumber/5)/(1+pow((reynoldsNumber/5),1.52)) + 0.411*pow(reynoldsNumber/2.63e5,-7.94)
+//                                                      /(1+pow(reynoldsNumber/2.63e5,-8)) + 0.25*(reynoldsNumber/1e6)/(1+(reynoldsNumber/1e6));
+        float dragCoef                    = 0.47                                                        ;
+
+        return (terminalSpeed * terminalSpeed * dragCoef * crossSecArea * airDensity / 2.)              ;
+}
+
+float DragCalcMethods::getThrustFromPower( float propulsivePower )
+{
+        ExternalEnvironState* extEnv      = altairState->getExtEnv()                                    ;
+
+        float airDensity                  = extEnv->getOutsideAirDensity()                              ;
+        float balloonRadius               = BalloonPropertiesCalcMethods::getBalloonRadius()            ;
+
+        float crossSecArea                = M_PI * balloonRadius * balloonRadius                        ;
+
+        // This equation comes from curve fitting and is sourced from: http://pages.mtu.edu/~fmorriso/DataCorrelationForSphereDrag2016.pdf
+//      float dragCoef                    = 24/reynoldsNumber + 2.6*(reynoldsNumber/5)/(1+pow((reynoldsNumber/5),1.52)) + 0.411*pow(reynoldsNumber/2.63e5,-7.94)
+//                                                      /(1+pow(reynoldsNumber/2.63e5,-8)) + 0.25*(reynoldsNumber/1e6)/(1+(reynoldsNumber/1e6));
+        float dragCoef                    = 0.47                                                        ;
+
+        return pow((propulsivePower * propulsivePower * dragCoef * crossSecArea * airDensity) / 2. , 
+                                            0.333333)                                                   ;
+}
 
 // Returns drag in Newtons due to the ALTAIR parafoil at a given speed relative to the wind in some direction. 
 // Note that this function returns a dummy value that is likely way off, depending on the current wind speed,
@@ -111,7 +160,7 @@ float DragCalcMethods::getGondolaDrag( float gondolaSpeed )
 }
 
 // The below two methods are good approximations, respectively, for spheres and for rectangles perpendicular to
-// airfow, both at high Reynolds numbers, which will effectively always be the case in every calculation we do.
+// airflow, both at high Reynolds numbers, which will effectively always be the case in every calculation we do.
 float DragCalcMethods::getApproxEffSphericalDragCoef()
 {
         float c_d             = 0.47                                                        ;

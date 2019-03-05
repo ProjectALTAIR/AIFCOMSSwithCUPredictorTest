@@ -36,7 +36,6 @@ using namespace std;
 #include "../state/BalloonAndPfoilState.hh"
 #include "../state/GondolaAndPropState.hh"
 #include "../state/OptSourcePayloadState.hh"
-#include "PropulsionUtils.hh"
 
 //              ----------------------------------------
 //              -- Public Member Function Definitions --
@@ -73,18 +72,17 @@ void UpdateALTAIRState::initializeState()
 	return;
 }
 
-void UpdateALTAIRState::doUpdate( float newLat, float newLon, float newAlt )
+void UpdateALTAIRState::doUpdate( float newLat, float newLon, float newAlt, float newBattLevel )
 {
 	ExternalEnvironState*  extEnv 	      = altairState->getExtEnv()       ;
 	BalloonAndPfoilState*  balAndPfoil    = altairState->getBalAndPfoil()  ;
         GondolaAndPropState*   gondAndProp    = altairState->getGondAndProp()  ;
         OptSourcePayloadState* optSource      = altairState->getOptSource()    ;
 
-        PropulsionUtils::doUpdate(     &newLat,      &newLon,      &newAlt )   ;
-
-        extEnv->setCurrentLat(   newLat );
-        extEnv->setCurrentLon(   newLon );
-        extEnv->setElevationASL( newAlt );
+        extEnv->setCurrentLat(                  newLat       );
+        extEnv->setCurrentLon(                  newLon       );
+        extEnv->setElevationASL(                newAlt       );
+        if (newBattLevel != -1.)   gondAndProp->setBatteryStoredEnergy( newBattLevel );
 
 /*
         if (newAlt >  25000) {

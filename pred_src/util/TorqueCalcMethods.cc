@@ -123,11 +123,12 @@ float TorqueCalcMethods::getTorqueRoll()
 
 float TorqueCalcMethods::getMutualTorque()
 {
-        ExternalEnvironState* extEnv       = altairState->getExtEnv()                        ;
         BalloonAndPfoilState* balAndPfoil  = altairState->getBalAndPfoil()                   ;
+        GondolaAndPropState*  gondAndProp  = altairState->getGondAndProp()                   ;
+
 
         float                 headingDiff  = balAndPfoil->getBalloonHeading() - 
-                                                  extEnv->getCurrentHeading()                ;
+                                             gondAndProp->getGondolaHeading()                ;
 
 // Now, estimate the mutual torque as a function of the heading difference headingDiff.
 // In the below *very* rough estimation, we will just assume that if headingDiff is 

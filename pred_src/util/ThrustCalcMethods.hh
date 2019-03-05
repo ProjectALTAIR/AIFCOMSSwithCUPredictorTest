@@ -45,10 +45,10 @@ class ThrustCalcMethods {
 
     public:
 
-	static float getInterpMethodThrust();     // get the present thrust in Newtons using the interpolation method
+	static float getInterpMethodThrust();                                  // get the present thrust in Newtons using the interpolation method
+	static int   getRPMFromThrustIntMethod(   float   totalThrust   );     // given a thrust in Newtons, determine propeller RPM to create that thrust
 
-        static float getMomTransMethodThrust();   // get the present thrust in Newtons using the momentum transfer method
-
+        static float getMomTransMethodThrust();                                // get the present thrust in Newtons using the momentum transfer method
 
         // helper functions, used internally by the above static methods
         static float getAdvanceRatioJ(            int     propNum       );
@@ -60,7 +60,7 @@ class ThrustCalcMethods {
 
     private:
 
-        ThrustCalcMethods() {}                    // constructor should never be used
+        ThrustCalcMethods() {}                                                  // constructor should never be used
 	
 };
 

@@ -74,7 +74,16 @@ float ThrustCalcMethods::getInterpMethodThrust()
         return (thrustProp[0] + thrustProp[1] + thrustProp[2] + thrustProp[3]);
 }
 
+int   ThrustCalcMethods::getRPMFromThrustIntMethod(   float   totalThrust      )
+{
+        ExternalEnvironState* extEnv        =  altairState->getExtEnv()                 ;
+        GondolaAndPropState*  gondAndProp   =  altairState->getGondAndProp()            ;
 
+        float                 d             = gondAndProp->getPropellerDiameter()       ;
+        float                 rho           = extEnv->getOutsideAirDensity()            ;
+
+        return                30. * sqrt(totalThrust / (getThrustCoefficientC_T(getAdvanceRatioJ(1)) * rho * (d * d * d * d)));
+}
 
 //
 // Get the thrust using the momentum transfer method:
@@ -142,6 +151,7 @@ float ThrustCalcMethods::getAdvanceRatioJ(int propNum)
         float fSpeed  = altairState->getExtEnv()->getForwardSpeedRelToWind();
         float d       = altairState->getGondAndProp()->getPropellerDiameter();
         float angFreq = altairState->getGondAndProp()->getRPMMotor(propNum) * M_PI / 30.;         // turn RPM into radians/s
+        if (fSpeed < 0.1 || angFreq < 1.0) return 0.;                                             // deal with divide-by-0 cases
         return (fSpeed / (angFreq*d));                        
 }
 

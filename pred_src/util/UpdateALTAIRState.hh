@@ -30,20 +30,22 @@ class UpdateALTAIRState {
 
     public:
 
-        static void initializeState(                                );   // Initialize the current ALTAIR state from telemetered info 
-                                                                         // obtained via the p5.js frame, and having been output to 
-                                                                         // the /tmp/altairdata.txt file via server.js .
+        static void initializeState(                                 );   // Initialize the current ALTAIR state from telemetered info 
+                                                                          // obtained via the p5.js frame, and having been output to 
+                                                                          // the /tmp/altairdata.txt file via server.js .
 
-        static void doUpdate(             float   newLat ,               // Update the current ALTAIR state from simulated info 
-                                          float   newLon ,               // obtained via the flight path prediction simulation that
-                                          float   newAlt            );   // utilizes the current wind and weather data.
+        static void doUpdate(             float   newLat ,                // Update the current ALTAIR state from simulated info 
+                                          float   newLon ,                // obtained via the flight path prediction simulation that
+                                          float   newAlt ,                // utilizes the current wind and weather data.
+                                          float   newBattLevel = -1. );
+
     private:
 
         static void setALTAIRDataElement( size_t  elemID ,
-                                          float   altairDataElement );
+                                          float   altairDataElement  );
 
 
-        UpdateALTAIRState(                                          ) {} // constructor should never be used
+        UpdateALTAIRState(                                           ) {} // constructor should never be used
 };
 
 #endif // __UPDATEALTAIRSTATE_HH__

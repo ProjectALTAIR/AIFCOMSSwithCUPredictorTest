@@ -15,10 +15,12 @@
 */
 /**************************************************************************/
 
-
 #ifndef __PROPULSIONUTILS_HH__
 #define __PROPULSIONUTILS_HH__
 
+#define ALTAIRPropulsiveEfficiency     0.70     // In actuality this will be a function of the
+                                                // specific operating conditions at the time,
+                                                // but we will use 80% as an estimate for now.
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -26,10 +28,14 @@ class PropulsionUtils {
 
     public:
 
-	static void doUpdate(float *newLat, float *newLon, float *newAlt);  
+	static void  getPropVelocityVector(float *prop_u, float *prop_v, float *prop_z);  // in m/s
+
+        static float getExpendedPower(                                                );  // in watts
+
+        static int   setSpeedTo(           float  speed                               );  // speed should be in m/s
+        static int   goFullSpeedAhead(                                                );  // go as fast as one can go without completely emptying the batteries
 
     protected:
-
 
     private:
 
