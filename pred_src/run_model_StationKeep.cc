@@ -26,8 +26,10 @@ extern "C" {
 
 #include "state/ALTAIR_state.hh"
 #include "state/ExternalEnvironState.hh"
-#include "util/ThrustCalcMethods.hh"
-#include "util/DragCalcMethods.hh"
+#include "state/GondolaAndPropState.hh"
+// #include "util/ThrustCalcMethods.hh"
+// #include "util/DragCalcMethods.hh"
+#include "util/PropulsionUtils.hh"
 #include "util/SolarPowerCalcMethods.hh"
 #include "util/UpdateALTAIRState.hh"
 
@@ -78,9 +80,11 @@ _advance_one_timestep(wind_file_cache_t* cache,
     for(i=0; i<n_states; ++i)
     {
         float ddlat, ddlng;
-        float wind_v, wind_u, wind_var, pres, temp, wind_z;
+        float wind_v, wind_u, wind_var, pres, temp, wind_z_Pas;
+        float prop_v, prop_u, prop_z;
         float u_samp, v_samp, u_lik, v_lik;
-        float prev_alt, prev_pres, wind_zvel = 0.;
+        float prev_alt, prev_pres, zvel = 0.;
+        float battLevel;
         model_state_t* state = &(states[i]);
 
         prev_alt  = state->alt;
@@ -92,8 +96,10 @@ _advance_one_timestep(wind_file_cache_t* cache,
             return 0; // alt < 0; finished
 
         if(!get_wind(cache, state->lat, state->lng, state->alt, timestamp, 
-                    &wind_v, &wind_u, &wind_var, &pres, &temp, &wind_z))
+                    &wind_v, &wind_u, &wind_var, &pres, &temp, &wind_z_Pas))
             return -1; // error
+
+        PropulsionUtils::getPropVelocityVector(&prop_u, &prop_v, &prop_z);
 
         _get_frame(state->lat, state->lng, state->alt, &ddlat, &ddlng);
 
@@ -104,13 +110,20 @@ _advance_one_timestep(wind_file_cache_t* cache,
 
         assert(wind_var >= 0.f);
 
+        battLevel  = altairState->getGondAndProp()->getBatteryStoredEnergy();
+        battLevel -= delta_t * PropulsionUtils::getExpendedPower();
+        if (battLevel < 0.) battLevel = 0.;
+
         //fprintf(stderr, "U: %f +/- %f, V: %f +/- %f\n",
         //        wind_u, sqrtf(wind_u_var),
         //        wind_v, sqrtf(wind_v_var));
 
-        u_samp = random_sample_normal(wind_u, wind_var, &u_lik);
-        v_samp = random_sample_normal(wind_v, wind_var, &v_lik);
-
+        u_samp      = random_sample_normal(wind_u, wind_var, &u_lik);
+        v_samp      = random_sample_normal(wind_v, wind_var, &v_lik);
+        if (battLevel > 0.) {
+            u_samp += prop_u;
+            v_samp += prop_v;
+        }
         //u_samp = wind_u;
         //v_samp = wind_v;
 
@@ -120,12 +133,17 @@ _advance_one_timestep(wind_file_cache_t* cache,
         prev_pres = altairState->getExtEnv()->getOutsideAirPressure();
         altairState->getExtEnv()->setOutsideAirPressure(pres);
         altairState->getExtEnv()->setOutsideTemp(temp);
-// wind_z is in Pa/s rather than m/s: want to multiply by m/Pa (= d(alt)/d(pres)) to get m/s
-        if (pres != prev_pres) wind_zvel = wind_z * (state->alt - prev_alt) / (pres - prev_pres);
+// wind_z_Pas is in Pa/s rather than m/s: want to multiply by m/Pa (= d(alt)/d(pres)) to get m/s
+        if (pres != prev_pres) zvel = wind_z_Pas * (state->alt - prev_alt) / (pres - prev_pres);
 // and make sure it is not a crazy value
-        if (wind_zvel > 5. || wind_zvel < -5.) wind_zvel = 0.;
-        state->alt += (wind_zvel * delta_t);
-        UpdateALTAIRState::doUpdate(state->lat, state->lng, state->alt);
+        if (zvel > 5. || zvel < -5.) zvel = 0.;
+// add in any vertical speed from propulsion
+        if (battLevel > 0.) zvel += prop_z;
+        state->alt += (zvel * delta_t);
+// add battery energy from solar panels
+        if (battLevel > 0.) battLevel += delta_t * SolarPowerCalcMethods::getInstantaneousSolarPower();
+
+        UpdateALTAIRState::doUpdate(state->lat, state->lng, state->alt, battLevel);
 
         state->loglik += (double)(u_lik + v_lik);
     }
@@ -191,6 +209,8 @@ int run_model(wind_file_cache_t* cache,
 
         log_counter++;
         timestamp += TIMESTEP;
+
+        PropulsionUtils::goFullSpeedAhead();
     }
 
     for(i=0; i<n_states; ++i) 
@@ -275,6 +295,14 @@ int get_wind(wind_file_cache_t* cache, float lat, float lng, float alt, long int
 }
 
 void write_position(float lat, float lng, float alt, int timestamp) {
+    float                 prop_v, prop_u, prop_z                                 ;
+
+//    float                 thrust        = ThrustCalcMethods::getInterpMethodThrust( );
+//    float                 terminalSpeed = DragCalcMethods::getTerminalSpeed( thrust );
+//    float                 expPower      = thrust * terminalSpeed / ALTAIRPropulsiveEfficiency;
+
+    GondolaAndPropState*  gondAndProp             = altairState->getGondAndProp();
+
     // the predictor uses 0<=lng<360; most other things expect -180<lng<=180
     if (lng > 180)
         lng -= 360;
@@ -287,7 +315,15 @@ void write_position(float lat, float lng, float alt, int timestamp) {
         }
     }
 
-    fprintf(output, "%d,%g,%g,%g\n", timestamp, lat, lng, alt);
+//    fprintf(output, "%d,%g,%g,%g\n", timestamp, lat, lng, alt);
+//    fprintf(output, "%d,%g,%g,%g,%g\n", timestamp, lat, lng, alt, altairState->getGondAndProp()->getBatteryStoredEnergy());
+    PropulsionUtils::getPropVelocityVector(&prop_u, &prop_v, &prop_z);
+    fprintf(output, "%11d,%4.4f,%4.4f,%7.1f,%6.0f,%6.3f,%6.3f,%6.3f,%4d,%4d,%4d,%4d\n", timestamp, lat, lng, alt, gondAndProp->getBatteryStoredEnergy(),
+            prop_u, prop_v, prop_z, gondAndProp->getRPMMotor1(), gondAndProp->getRPMMotor2(), gondAndProp->getRPMMotor3(), gondAndProp->getRPMMotor4());
+//    expPower = PropulsionUtils::getExpendedPower();
+//    fprintf(output, "%11d,%4.4f,%4.4f,%7.1f,%6.0f,%6.3f,%6.3f,%6.3f,%4d,%4d,%4d,%4d,%6.3f,%6.3f,%6.3f\n", timestamp, lat, lng, alt, gondAndProp->getBatteryStoredEnergy(),
+//            prop_u, prop_v, prop_z, gondAndProp->getRPMMotor1(), gondAndProp->getRPMMotor2(), gondAndProp->getRPMMotor3(), gondAndProp->getRPMMotor4(),
+//            thrust, terminalSpeed, expPower);
     if (ferror(output)) {
       fprintf(stderr, "ERROR: error writing to CSV file\n");
       exit(1);
