@@ -1,5 +1,7 @@
 # AIFCOMSS with [CUSF](https://github.com/cuspaceflight) Prediction
 
+These instructions are intended to be read from the web page https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest , on the bottom half of that page.  So please go to [that page](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest) instead, if you are reading them from another location.
+
 &nbsp; &nbsp; &nbsp; &nbsp; Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Mac screenshot (on Safari v. 11 browser)                
 
 <img src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_9jul18.jpg" data-canonical-src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_9jul18.jpg" width=440 height=300 /> &nbsp; &nbsp;   <img src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotMac_24jun18.jpg" data-canonical-src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotMac_24jun18.jpg" width=420 height=300 />
