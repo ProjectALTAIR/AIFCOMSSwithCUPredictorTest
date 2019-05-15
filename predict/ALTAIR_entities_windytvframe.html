@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
     <script src="https://cdn.rawgit.com/Leaflet/Leaflet.label/0.8/dist/leaflet.label.js"></script>
     <script src="https://api4.windy.com/assets/libBoot.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -123,7 +123,6 @@
 //                window.setTimeout(addSliderTitle, 5000);
 //        }
 
-
         var                         theLevel =  0;
         if (roundALTAIRAlt >    50) theLevel =  1;        
         if (roundALTAIRAlt >   200) theLevel =  2;
@@ -164,13 +163,7 @@
             // picker was closed
         });
 
-        broadcast.once('redrawFinished', () => {
-//             map.addControl( new HeightSlider() );
-             picker.open({ lat: ALTAIRLat, lon: ALTAIRLon });
-             // Opening of a picker (async)
-        });
-
-        map.options.minZoom = 4;
+        map.options.minZoom =  4;
         map.options.maxZoom = 17;
 
         var topLayer = L.tileLayer('http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -191,6 +184,12 @@
 //                map.addControl( new HeightSlider() );
 //                window.setTimeout(addSliderTitle, 5000);
 
+        broadcast.once('redrawFinished', () => {
+//             map.addControl( new HeightSlider() );
+             picker.open({ lat: ALTAIRLat, lon: ALTAIRLon });
+             // Opening of a picker (async)
+        });
+
         setInterval(function () {
                 aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
                 aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
@@ -205,6 +204,7 @@
 
                 var lat = parseFloat(aLTAIRLatInput.value);
                 var lon = parseFloat(aLTAIRLonInput.value);
+                map.panTo([lat, lon]);
                 makePred(map);
                 latLonsALTAIRPath.push([lat,lon]);
 
@@ -215,6 +215,7 @@
                     picker.open({ lat: lat, lon: lon });
                     // Opening of a picker (async)
                 });
+
 
 // W and W.interpolation.interpolateValues are not available in Windy API v4.0 (or 3.0) -- only in v2.3
 //                var values = W.interpolation.interpolateValues(lat, lon, roundALTAIRAlt);
@@ -241,17 +242,17 @@
                 lastPolyline = thePolyline;
 
                 var marker = L.marker([lat, lon])
-                    .bindLabel(ALTAIRAltText, { noHide: true, offset: [20,-40], className: "location_marker" })
+//                    .bindLabel(ALTAIRAltText, { noHide: true, offset: [20,-40], className: "location_marker" })
+                    .bindTooltip(ALTAIRAltText, { permanent: true, className: "location_marker", offset: [20,-40] })
                     .addTo( map );
                 marker.setOpacity( 0.65 );
                 lastMarker = marker;
 
-               $(".location_marker").html(ALTAIRAltText);
+                $(".location_marker").html(ALTAIRAltText);
 
+        }, 5000);
 
-        }, 10000);
-
-      map.panTo([ALTAIRLat, ALTAIRLon]);
+//      map.panTo([ALTAIRLat, ALTAIRLon]);
 
     })
 
