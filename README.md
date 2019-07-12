@@ -169,6 +169,8 @@ installation directory to the `pred_src` directory containing `pred.exe`:
  -  `cygintl-8.dll`
  -  `cygpcre-1.dll`
  -  `cygwin1.dll`
+ -  `cygstdc++-6.dll`
+ -  `cyggcc_s-seh-1.dll`
 
 Open a command terminal, navigate to the `AIFCOMSSwithCUPredictorTest` directory, and run
 
