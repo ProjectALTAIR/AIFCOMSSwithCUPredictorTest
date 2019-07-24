@@ -618,16 +618,28 @@ wind_file_get_wind(wind_file_t* file, float lat, float lon, float height,
                            ((interp_height >= left_height) || 
                             (left_pr_idx == file->axes[0]->n_values)))
                         {
-                                left_pr_idx = i;
-                                left_height = interp_height;
+// Check that the wind doesn't have crazy/stupid values at this location.  And only set pr_idx and height values if it doesn't.
+                            float theu, thev;
+                            _wind_file_get_wind_raw(file,
+                                left_lat_idx, left_lon_idx, i, &theu, &thev);
+                                if (theu > -500. && theu < 500. && thev > -500. && thev < 500.) {
+                                    left_pr_idx = i;
+                                    left_height = interp_height;
+                                }
                         }
 
                         if((interp_height >= height) && 
                            ((interp_height <= right_height) ||
                             (right_pr_idx == file->axes[0]->n_values)))
                         {
-                                right_pr_idx = i;
-                                right_height = interp_height;
+// Check that the wind doesn't have crazy/stupid values at this location.  And only set pr_idx and height values if it doesn't.
+                            float theu, thev;
+                            _wind_file_get_wind_raw(file,
+                                right_lat_idx, right_lon_idx, i, &theu, &thev);
+                                if (theu > -500. && theu < 500. && thev > -500. && thev < 500.) {
+                                    right_pr_idx = i;
+                                    right_height = interp_height;
+                                }
                         }
                 }
 
