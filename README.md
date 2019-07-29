@@ -161,7 +161,7 @@ located at `/cygdrive/c` when using this terminal. Run
     cmake .
     make
 
-to build the source files, and then close the Cygwin terminal. Copy the following files from the `bin` folder in Cygwin's 
+to build the source files, and then close the Cygwin terminal.  (Don't worry about the warnings you get when you do cmake . or make, but if you constantly get an error involving glib-2.0, FindPkgConfig.cmake, and/or pkg_check_modules when doing cmake . that prevents you from then doing make and building the pred executables, then please see the debugging hints at the bottom of this page.)  Copy the following files from the `bin` folder in Cygwin's 
 installation directory to the `pred_src` directory containing `pred.exe`:
 
  -  `cygglib-2.0-0.dll`
@@ -228,3 +228,19 @@ On MacOS or Linux, if you are not getting any flight path prediction whatsoever 
     sudo apachectl restart
 
 and then re-running node server.js and AIFCOMSS.
+
+On Windows, if you constantly get an error like the below when doing cmake . :
+
+    -- Checking for module 'glib-2.0'
+    --
+    CMake Error at /usr/share/cmake-3.14.5/Modules/FindPkgConfig.cmake:457 (message):
+      A required package was not found
+    Call Stack (most recent call first):
+      /usr/share/cmake-3.14.5/Modules/FindPkgConfig.cmake:642 (_pkg_check_modules_internal)
+      CMakeLists.txt:8 (pkg_check_modules)
+      
+even if you properly installed libglib2.0 and libglib2.0-devel , etc (per the above Windows instructions) when you installed Cygwin, then you should comment out line 8 of the pred_src/CMakeLists.txt file by putting a # symbol in front of line 8 like so:
+
+    # pkg_check_modules(GLIB REQUIRED glib-2.0)
+    
+and then re-do cmake . and then make.  The above error should then go away, and then your pred executables should get built properly.
