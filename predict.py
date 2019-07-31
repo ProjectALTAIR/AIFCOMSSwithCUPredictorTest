@@ -308,8 +308,6 @@ def main():
         alarm_flags = []
 
     command = [pred_binary, '-i', gfs_dir, '-vv', '-o', uuid_path+'flight_path.csv', uuid_path+'scenario.ini']
-    if OS_IS_WINDOWS:
-        command = pred_binary + ' -i ' + gfs_dir + ' -vv ' + '-o '+uuid_path+'flight_path.csv ' + uuid_path+'scenario.ini'
     log.info('The command is:')
     log.info(command)
     pred_process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
