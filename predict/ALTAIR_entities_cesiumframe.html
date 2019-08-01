@@ -62,12 +62,26 @@ var ALTAIRAlt =  500.;
 // var aLTAIRAltInput = window.parent.document.getElementById('fLTAIRAlt');
 var epsilonDegs    = 0.0001;
 
+/*
 var aLTAIRLatInput = window.parent.p5frame.document.getElementById('gLTAIRLat');
 var aLTAIRLonInput = window.parent.p5frame.document.getElementById('gLTAIRLon');
 var aLTAIRAltInput = window.parent.p5frame.document.getElementById('gLTAIRAlt');
+console.log(window);
+console.log(window.parent);
+console.log(window.parent.p5frame);
+console.log(window.parent.p5frame.document);
+console.log(window.parent.p5frame.document.getElementById('gLTAIRLat'));
+console.log(aLTAIRLatInput);
+var aLTAIRLatInput = window.parent.wframe.document.getElementById('wLTAIRLat');
+var aLTAIRLonInput = window.parent.wframe.document.getElementById('wLTAIRLon');
+var aLTAIRAltInput = window.parent.wframe.document.getElementById('wLTAIRAlt');
 var ALTAIRInpLat   = parseFloat(aLTAIRLatInput.value);
 var ALTAIRInpLon   = parseFloat(aLTAIRLonInput.value);
 var ALTAIRInpAlt   = parseFloat(aLTAIRAltInput.value);
+*/
+var ALTAIRInpLat =   48.4593;
+var ALTAIRInpLon = -123.3117;
+var ALTAIRInpAlt =  500.;
 
 if (ALTAIRInpLat <= 90. && ALTAIRInpLat >= -90. && ALTAIRInpLon <= 180. && ALTAIRInpLon >= -180. && ALTAIRInpAlt >= -200. && ALTAIRInpAlt <= 50000.) {
    ALTAIRLat = ALTAIRInpLat;
