@@ -17,12 +17,14 @@
 #include <time.h>
 #include <errno.h>
 #include <unistd.h>
+#include <string>
+#include <iostream>
+#include <algorithm>
 
 #define _BSD_SOURCE
 
 extern "C" {
 #include "ini/iniparser.h"
-#include "util/gopt.h"
 #include "wind/wind_file_cache_ALTAIR.h"
 }
 
@@ -33,12 +35,32 @@ extern "C" {
 #include "state/ALTAIR_state.hh"
 #include "state/ExternalEnvironState.hh"
 
+using namespace std;
+
+char* getCmdOption(   char** begin, char** end, const std::string& option);
+bool  cmdOptionExists(char** begin, char** end, const std::string& option);
+
 FILE* output;
 // FILE* myoutput;
 FILE* kml_file;
 
 const char* data_dir;
 int verbosity;
+
+char* getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return *itr;
+    }
+    return 0;
+}
+
+bool cmdOptionExists(char** begin, char** end, const std::string& option)
+{
+    return std::find(begin, end, option) != end;
+}
 
 int main(int argc, const char *argv[]) {
     
@@ -62,26 +84,14 @@ int main(int argc, const char *argv[]) {
 //    fclose(myoutput);
     
     // configure command-line options parsing
-    void *options = gopt_sort(&argc, argv, gopt_start(
-        gopt_option('h', 0, gopt_shorts('h', '?'), gopt_longs("help")),
-        gopt_option('z', 0, gopt_shorts(0), gopt_longs("version")),
-        gopt_option('v', GOPT_REPEAT, gopt_shorts('v'), gopt_longs("verbose")),
-        gopt_option('o', GOPT_ARG, gopt_shorts('o'), gopt_longs("output")),
-        gopt_option('k', GOPT_ARG, gopt_shorts('k'), gopt_longs("kml")),
-        gopt_option('t', GOPT_ARG, gopt_shorts('t'), gopt_longs("start_time")),
-        gopt_option('i', GOPT_ARG, gopt_shorts('i'), gopt_longs("data_dir")),
-        gopt_option('d', 0, gopt_shorts('d'), gopt_longs("descending")),
-        gopt_option('e', GOPT_ARG, gopt_shorts('e'), gopt_longs("wind_error")),
-        gopt_option('a', GOPT_ARG, gopt_shorts('a'), gopt_longs("alarm"))
-    ));
 
-    if (gopt(options, 'h')) {
+    if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-h")) {
         // Help!
         // Print usage information
         printf("Usage: %s [options] [scenario files]\n", argv[0]);
         printf("Options:\n\n");
         printf(" -h --help               Display this information.\n");
-        printf(" --version               Display version information.\n");
+        printf(" -z                      Display version information.\n");
         printf(" -v --verbose            Display more information while running,\n");
         printf("                           Use -vv, -vvv etc. for even more verbose output.\n");
         printf(" -t --start_time <int>   Start time of model, defaults to current time.\n");
@@ -92,35 +102,30 @@ int main(int argc, const char *argv[]) {
         printf("                           burst or cutdown. burst_alt and ascent_rate ignored.\n");
         printf(" -i --data_dir <dir>     Input directory for wind data, defaults to current dir.\n\n");
         printf(" -e --wind_error <err>   RMS windspeed error (m/s).\n");
-        printf(" -a --alarm <seconds>    Use alarm() to kill pred incase it hangs.\n");
         printf("The scenario file is an INI-like file giving the launch scenario. If it is\n");
         printf("omitted, the scenario is read from standard input.\n");
       exit(0);
     }
 
-    if (gopt(options, 'z')) {
+    if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-z")) {
       // Version information
       printf("Landing Prediction version: %s\nCopyright (c) CU Spaceflight 2009\n", VERSION);
       exit(0);
     }
 
-    if (gopt_arg(options, 'a', &argument) && strcmp(argument, "-")) {
-      alarm_time = strtol(argument, &endptr, 0);
-      if (endptr == argument) {
-        fprintf(stderr, "ERROR: %s: invalid alarm length\n", argument);
-        exit(1);
-      }
-      alarm(alarm_time);
+    if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-vv")) {
+      verbosity = 2;
+    } else if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-v")) {
+      verbosity = 1;
     }
     
-    verbosity = gopt(options, 'v');
-    
-    if (gopt(options, 'd'))
+    if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-d"))
         descent_mode = DESCENT_MODE_DESCENDING;
     else
         descent_mode = DESCENT_MODE_NORMAL;
-      
-    if (gopt_arg(options, 'k', &argument) && strcmp(argument, "-")) {
+
+    if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-k")) {
+      argument = getCmdOption((char **) argv, (char **) (argv+argc), "-k");
       kml_file = fopen(argument, "wb");
       if (!kml_file) {
         fprintf(stderr, "ERROR: %s: could not open KML file for output\n", argument);
@@ -130,7 +135,8 @@ int main(int argc, const char *argv[]) {
     else
       kml_file = NULL;
 
-    if (gopt_arg(options, 't', &argument) && strcmp(argument, "-")) {
+    if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-t")) {
+      argument = getCmdOption((char **) argv, (char **) (argv+argc), "-t");
       initial_timestamp = strtol(argument, &endptr, 0);
       if (endptr == argument) {
         fprintf(stderr, "ERROR: %s: invalid start timestamp\n", argument);
@@ -140,25 +146,31 @@ int main(int argc, const char *argv[]) {
       initial_timestamp = time(NULL);
     }
     
-    if (!(gopt_arg(options, 'i', &data_dir) && strcmp(data_dir, "-")))
+    for(int counter=0;counter<argc;counter++) fprintf(stderr, "INFO: argv[%d]: %s \n", counter, argv[counter]);
+    if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-i")) {
+      fprintf(stderr, "INFO: found -i option\n");
+      data_dir = getCmdOption((char **) argv, (char **) (argv+argc), "-i");
+    } else {
       data_dir = "./";
-
+    }
+    fprintf(stderr, "INFO: data_dir = '%s'.\n", data_dir);
 
     // populate wind data file cache
     file_cache = wind_file_cache_new(data_dir);
 
     // read in flight parameters
-    n_scenarios = argc - 1;
-    if(n_scenarios == 0) {
+//    n_scenarios = argc - 1;
+//    if(n_scenarios == 0) {
         // we'll parse from std in
         n_scenarios = 1;
-    }
+//    }
 
     for(scenario_idx = 0; scenario_idx < n_scenarios; ++scenario_idx) {
         char* scenario_output = NULL;
 
         if(argc > scenario_idx+1) {
-            scenario = iniparser_load(argv[scenario_idx+1]);
+//            scenario = iniparser_load(argv[scenario_idx+1]);
+            scenario = iniparser_load(argv[argc-1]);
         } else {
             scenario = iniparser_loadfile(stdin);
         }
@@ -175,7 +187,8 @@ int main(int argc, const char *argv[]) {
 
         scenario_output = iniparser_getstring(scenario, "output:filename", NULL);
 
-        if (gopt_arg(options, 'o', &argument) && strcmp(argument, "-")) {
+        if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-o")) {
+            argument = getCmdOption((char **) argv, (char **) (argv+argc), "-o");
             if(verbosity > 0) {
                 fprintf(stderr, "INFO: Writing output to file specified on command line: %s\n", argument);
             }
@@ -226,7 +239,8 @@ int main(int argc, const char *argv[]) {
         burst_alt = iniparser_getdouble(scenario, (char*)"altitude-model:burst-altitude", 1.0);
 
         rmswinderror = iniparser_getdouble(scenario, (char*)"atmosphere:wind-error", 0.0);
-        if(gopt_arg(options, 'e', &argument) && strcmp(argument, "-")) {
+        if(cmdOptionExists((char **) argv, (char **) (argv+argc), "-e")) {
+            argument = getCmdOption((char **) argv, (char **) (argv+argc), "-e");
             rmswinderror = strtod(argument, &endptr);
             if (endptr == argument) {
                 fprintf(stderr, "ERROR: %s: invalid RMS wind speed error\n", argument);
@@ -327,9 +341,6 @@ int main(int argc, const char *argv[]) {
             fclose(output);
         }
     }
-
-    // release gopt data, 
-    gopt_free(options);
 
     // release the file cache resources.
     wind_file_cache_free(file_cache);
