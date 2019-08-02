@@ -391,9 +391,9 @@ wind_file_new(const char* filepath)
                 return NULL;
         }
 
-        if(self->n_components != 3) 
+        if(self->n_components != 5) 
         {
-                fprintf(stderr, "ERROR: Expected 3 component data in file.\n");
+                fprintf(stderr, "ERROR: Expected 5 component data in file.\n");
                 wind_file_free(self);
                 return NULL;
         }
