@@ -64,8 +64,10 @@ class   ExternalEnvironState {
         virtual float                  getElevationASL(          ); // Present ALTAIR elevation (in meters) above mean sea level
         virtual float                  getAscentRate(            ); // In m/s
         virtual float                  getTerrainHeight(         ); // Height of ground (or water) terrain, in meters above mean sea level, at present ALTAIR lat and lon
+        virtual float                  getStationKeepingLat(     ); // The goal latitude for ALTAIR station keeping in degrees North of the Equator (negative for South).  Set to -999. if no station keeping.
+        virtual float                  getStationKeepingLon(     ); // The goal longitude for ALTAIR station keeping in degrees East of the prime meridian (negative for West).  Set to -999. if no station keeping.
         
-        static  const size_t           numDataElements             =  9                           ;
+        static  const size_t           numDataElements             = 11                           ;
         virtual void                   setVariable(              size_t   variableID ,
                                                                  float    dataVariable           );
 
@@ -78,6 +80,8 @@ class   ExternalEnvironState {
         virtual void                   setElevationASL(          float    elevationASL           );
         virtual void                   setAscentRate(            float    ascentRate             );
         virtual void                   setTerrainHeight(         float    terrainHeight          );
+        virtual void                   setStationKeepingLat(     float    stationKeepingLat      );
+        virtual void                   setStationKeepingLon(     float    stationKeepingLon      );
 
     private:
 
@@ -99,6 +103,10 @@ class   ExternalEnvironState {
         float                          _outsideAirPressure;
 #define            EXTERNALENVIRONSTATE_forwardSpeedRelToWind    8
         float                          _forwardSpeedRelToWind;
+#define            EXTERNALENVIRONSTATE_stationKeepingLat        9
+        float                          _stationKeepingLat;
+#define            EXTERNALENVIRONSTATE_stationKeepingLon       11
+        float                          _stationKeepingLon;
 
 };
 

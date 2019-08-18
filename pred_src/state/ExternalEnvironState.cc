@@ -44,7 +44,9 @@ ExternalEnvironState::ExternalEnvironState()
    _currentTime(                0  ),
    _outsideTemp(                0. ),
    _outsideAirPressure(    101325. ),        // standard atmospheric pressure
-   _forwardSpeedRelToWind(      0. )
+   _forwardSpeedRelToWind(      0. ),
+   _stationKeepingLat(       -999. ),   
+   _stationKeepingLon(       -999. )
 {
 }
 
@@ -124,6 +126,18 @@ ExternalEnvironState::getTerrainHeight()
   return _terrainHeight;
 }
 
+float
+ExternalEnvironState::getStationKeepingLat()
+{
+  return _stationKeepingLat;
+}
+
+float
+ExternalEnvironState::getStationKeepingLon()
+{
+  return _stationKeepingLon;
+}
+
 
 void                   
 ExternalEnvironState::setVariable(               size_t   variableID ,
@@ -156,6 +170,12 @@ ExternalEnvironState::setVariable(               size_t   variableID ,
       break;
     case EXTERNALENVIRONSTATE_forwardSpeedRelToWind:
       setForwardSpeedRelToWind(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_stationKeepingLat:
+      setStationKeepingLat(dataVariable);
+      break;
+    case EXTERNALENVIRONSTATE_stationKeepingLon:
+      setStationKeepingLon(dataVariable);
       break;
     default:                                      
       break;                                          // should really be an error here ...
@@ -214,6 +234,18 @@ void
 ExternalEnvironState::setTerrainHeight(          float    terrainHeight         )
 {
   _terrainHeight         = terrainHeight;
+}
+
+void
+ExternalEnvironState::setStationKeepingLat(      float    stationKeepingLat     )
+{
+  _stationKeepingLat     = stationKeepingLat;
+}
+
+void
+ExternalEnvironState::setStationKeepingLon(      float    stationKeepingLon     )
+{
+  _stationKeepingLon     = stationKeepingLon;
 }
 
 
