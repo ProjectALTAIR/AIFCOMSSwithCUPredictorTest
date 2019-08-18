@@ -111,6 +111,10 @@ add_executable(pred_StationKeep
         util/HeliumLossCalcMethods.hh
         util/PropulsionUtils.cc
         util/PropulsionUtils.hh
+        util/StationKeepingFigureOfMerit.cc
+        util/StationKeepingFigureOfMerit.hh
+        util/StationKeepingAlgorithms.cc
+        util/StationKeepingAlgorithms.hh
         util/UpdateALTAIRState.cc
         util/UpdateALTAIRState.hh
 	util/gopt.c

@@ -29,6 +29,7 @@ extern "C" {
 #include "state/GondolaAndPropState.hh"
 // #include "util/ThrustCalcMethods.hh"
 // #include "util/DragCalcMethods.hh"
+#include "util/StationKeepingAlgorithms.hh"
 #include "util/PropulsionUtils.hh"
 #include "util/SolarPowerCalcMethods.hh"
 #include "util/UpdateALTAIRState.hh"
@@ -91,6 +92,8 @@ _advance_one_timestep(wind_file_cache_t* cache,
 
 // the below both updates and returns the altitude (it does more than just get it -- it updates it!)
 //        if(!altitude_model_get_altitude(state->alt_model, 
+        assert(!isnan(state->lat));
+        assert(!isnan(state->alt));
         if(!altitude_model_get_altitude( 
                                         timestamp - initial_timestamp, &state->alt))
             return 0; // alt < 0; finished
@@ -210,7 +213,8 @@ int run_model(wind_file_cache_t* cache,
         log_counter++;
         timestamp += TIMESTEP;
 
-        PropulsionUtils::goFullSpeedAhead();
+//        PropulsionUtils::goFullSpeedAhead();
+        StationKeepingAlgorithms::doStationKeep( cache );
     }
 
     for(i=0; i<n_states; ++i) 
@@ -241,7 +245,7 @@ int get_wind(wind_file_cache_t* cache, float lat, float lng, float alt, long int
             &(found_entries[0]), &(found_entries[1]));
 
     if(!found_entries[0] || !found_entries[1]) {
-        fprintf(stderr, "ERROR: Do not have wind data for this (lat, lon, alt, time).\n");
+        fprintf(stderr, "ERROR: Do not have wind data for this (lat, lon, alt, time) = (%f, %f, %f, %ld).\n", lat, lng, alt, timestamp);
         return 0;
     }
 
@@ -280,6 +284,10 @@ int get_wind(wind_file_cache_t* cache, float lat, float lng, float alt, long int
     s = wind_file_get_wind(found_files[1], lat, lng, alt, &wu_h, &wv_h, &wuvar_h, &wvvar_h,
                                                           &pres_h, &temp_h, &wz_h);
     if (s == 0) return 0;
+    assert(!isnan(wvvar_h));
+    assert(!isnan(wuvar_h));
+    assert(!isnan(wuvar_l));
+    assert(!isnan(wvvar_l));
 
     *wind_u = lambda * wu_h   + (1.f-lambda) * wu_l  ;
     *wind_v = lambda * wv_h   + (1.f-lambda) * wv_l  ;
