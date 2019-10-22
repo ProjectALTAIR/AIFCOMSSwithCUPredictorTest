@@ -221,9 +221,9 @@ The log files for the different code languages used can be found in the location
 
  * Javascript : The developer Javascript console of the server (you can find this in your web browser).
  * PHP : /var/log/apache2/error.log (on Linux)
- * Python : /var/www/AIFCOMSSwithCUPredictorTest/predict/pred/[the folder corresponding to your run] (on Linux)
+ * Python : /var/www/AIFCOMSSwithCUPredictorTest/predict/preds/[the folder corresponding to your run] (on Linux)
 
-On MacOS or Linux, if you are not getting any flight path prediction whatsoever (which can happen after a reboot): try doing a
+On MacOS or Linux, <b>if you are not getting any flight path prediction whatsoever</b> (which can happen after a reboot): try doing a
 
     sudo apachectl restart
 
