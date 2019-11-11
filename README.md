@@ -223,7 +223,7 @@ The log files for the different code languages used can be found in the location
  * PHP : /var/log/apache2/error.log (on Linux)
  * Python : /var/www/AIFCOMSSwithCUPredictorTest/predict/preds/[the folder corresponding to your run] (on Linux)
 
-<b>If you are not getting any flight path prediction whatsoever</b> (which can sometimes happen on any of the three platforms, for example, the first time you run AIFCOMSS, or after a reboot, etc): On MacOS or Linux, try doing a
+<b>If you are not getting any flight path prediction whatsoever</b> (which can sometimes happen on any of MacOS, Linux, or Windows -- for example, the first time you run AIFCOMSS, or after a reboot, etc): On MacOS or Linux, try doing a
 
     sudo apachectl restart
 
