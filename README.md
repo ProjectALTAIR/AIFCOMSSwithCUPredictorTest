@@ -227,7 +227,7 @@ The log files for the different code languages used can be found in the location
 
     sudo apachectl restart
 
-and then re-running node server.js and AIFCOMSS.  On Windows, try either a) restarting Apache within AMPPS (there is a toggle switch in the AMPSS window for doing that), or b) restarting AMPSS entirely; and then (after having done either a or b) re-running node server.js and AIFCOMSS.
+and then re-running node server.js and AIFCOMSS.  On Windows, try either a) restarting Apache within AMPPS (there is a toggle switch in the AMPSS window for doing that), or b) restarting AMPSS entirely; and then (after having done either a or b), re-running node server.js and AIFCOMSS.
 
 On Windows, if you constantly get an error like the below when doing cmake . :
 
