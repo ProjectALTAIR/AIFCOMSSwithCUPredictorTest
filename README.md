@@ -223,11 +223,11 @@ The log files for the different code languages used can be found in the location
  * PHP : /var/log/apache2/error.log (on Linux)
  * Python : /var/www/AIFCOMSSwithCUPredictorTest/predict/preds/[the folder corresponding to your run] (on Linux)
 
-<b>If you are not getting any flight path prediction whatsoever</b> (which can happen, for example, the first time you run AIFCOMSS, or after a reboot, etc): On MacOS or Linux, try doing a
+<b>If you are not getting any flight path prediction whatsoever</b> (which can sometimes happen on any of the three platforms, for example, the first time you run AIFCOMSS, or after a reboot, etc): On MacOS or Linux, try doing a
 
     sudo apachectl restart
 
-and then re-running node server.js and AIFCOMSS.  On Windows, try either a) restarting Apache within AMPPS (there is a toggle switch in the AMPSS window for doing that), or b) restarting AMPSS entirely; and then (after doing either a or b) re-running node server.js and AIFCOMSS.
+and then re-running node server.js and AIFCOMSS.  On Windows, try either a) restarting Apache within AMPPS (there is a toggle switch in the AMPSS window for doing that), or b) restarting AMPSS entirely; and then (after having done either a or b) re-running node server.js and AIFCOMSS.
 
 On Windows, if you constantly get an error like the below when doing cmake . :
 
