@@ -79,7 +79,6 @@ Navigate to `/var/www/AIFCOMSSwithCUPredictorTest/pred_src` and run
 to compile the code found there. Once compiled, the following files must be made executable (`sudo chmod +x [file]`):
 
  * `/var/www/AIFCOMSSwithCUPredictorTest/predict.py`
- * `/var/www/AIFCOMSSwithCUPredictorTest/predict/predict.py`
  * `/var/www/AIFCOMSSwithCUPredictorTest/pred_src/pred`
  * `/var/www/AIFCOMSSwithCUPredictorTest/cron/clear-pydap-cache-cronjob.sh`
  * `/var/www/AIFCOMSSwithCUPredictorTest/cron/prune-predictions-cronjob.sh`
