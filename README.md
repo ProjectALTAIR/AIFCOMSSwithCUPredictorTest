@@ -99,14 +99,21 @@ You should then have AIFCOMSS running in your web browser.
 Check that you have CMake installed on your Mac by typing `which cmake` in a terminal window from your
 `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` directory.  If you don't have it, then download the .dmg
 Mac installer for it from https://cmake.org/download/ , and then install it, following all instructions.  After that,
-`which cmake` should find your installed CMake executable in `/usr/local/bin/cmake`.
+`which cmake` should find your installed CMake executable in `/usr/local/bin/cmake`.  (But if `which cmake` from your
+`/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` directory **still** fails to find cmake after that, then try
+the command `sudo "/Applications/CMake.app/Contents/bin/cmake-gui" --install` and then hopefully after that, `which cmake`
+will successfully find the cmake command.)
 
 Then, navigate to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/pred_src` and run
 
     $ cmake .
     $ make
 
-to compile the code found there. Once compiled, the following files must be made executable (`sudo chmod +x [file]`):
+to compile the code found there.  (If you happen to encounter errors such as "Could not find pkgConfig" and
+"Could not find package glib-2.0" after running `make` as above, then try downloading and installing [Homebrew](https://coolestguidesontheplanet.com/installing-homebrew-on-macos-sierra-package-manager-for-unix-apps/), 
+and then running `brew install glib`, before trying `cmake .` and `make` again.)
+
+Once compiled, the following files must be made executable (`sudo chmod +x [file]`):
 
  * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict.py`
  * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/predict.py`
