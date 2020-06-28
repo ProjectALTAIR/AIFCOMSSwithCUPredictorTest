@@ -4,7 +4,7 @@ These instructions are intended to be read from https://github.com/ProjectALTAIR
 
 Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Mac screenshot (on Safari v. 11 browser)                
 
-<img src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_9jul18.jpg" data-canonical-src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_9jul18.jpg" width=350 height=250 /> &nbsp; &nbsp; <img src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotMac_24jun18.jpg" data-canonical-src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotMac_24jun18.jpg" width=350 height=250 />
+<img src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_9jul18.jpg" data-canonical-src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_9jul18.jpg" width=315 height=225 /> &nbsp; &nbsp; <img src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotMac_24jun18.jpg" data-canonical-src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotMac_24jun18.jpg" width=350 height=250 />
 
 ## Installation
 
