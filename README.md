@@ -43,7 +43,7 @@ so that all the project files are located at `/<www>/AIFCOMSSwithCUPredictorTest
 ***except server.js and package.json*** from your Cesium directory into
 `/<www>/AIFCOMSSwithCUPredictorTest/predict`, leaving the original `server.js` and `package.json` files
 from this GitHub AIFCOMSSwithCUPredictorTest repository intact.  (A few other files will show up as duplicates;
-users should replace those other existing files in `/<www>/AIFCOMSSwithCUPredictorTest/predict` with the new files from your Cesium directory, rather than just ignoring those files.)  Be sure to put those Cesium files and folders **directly** into your `/<www>/AIFCOMSSwithCUPredictorTest/predict/` directory, e.g. after that you should have the subdirectories `/predict/Build/`, `/predict/Apps/`, `/predict/ThirdParty/`, and files including `/predict/LICENCE.md`, etc.; rather than putting those Cesium files and folders all into a subdirectory of their own.
+users should replace those other existing files in `/<www>/AIFCOMSSwithCUPredictorTest/predict` with the new files from your Cesium directory, rather than just ignoring those files.)  Be sure to put those Cesium files and folders **directly** into your `/<www>/AIFCOMSSwithCUPredictorTest/predict/` directory, e.g. after doing that you should have the subdirectories `/predict/Build/`, `/predict/Apps/`, `/predict/ThirdParty/`, and files including `/predict/LICENCE.md`, etc.; rather than putting those Cesium files and folders all into a subdirectory of their own.
 
 There are a few paths that need to be changed at this point:
 
