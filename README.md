@@ -49,7 +49,7 @@ There are a few paths that need to be changed at this point:
 
  * In `/<www>/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (e.g., `/var/www/html/AIFCOMSSwithCUPredictorTest/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\` etc). **Make sure the path ends with a `/` or `\\` (the latter on Windows)**.  Also, change `PYTHON_PATH` to the location of your Python executable (eg., `/usr/bin/python` on Linux or `C:\\Python27\\python.exe` on Windows). **On Windows, make sure you have *double* backslashes in the filenames, to prevent the backslashes from being interpreted as escape characters.  Note that *some* Windows versions (for example *some* installations of Windows 10) can autocorrect file path names, so in that case it is slightly less important to ensure that you always have double backslashes, however in all cases it is best to not rely on autocorrection, and so you should always put double backslashes within the filenames inside these files on Windows PCs.  You can change the paths inside these files on Windows by opening the files in WordPad, for example.**
  * In `/<www>/AIFCOMSSwithCUPredictorTest/predict/py_variables.py`, change `ROOT_DIR` to the same value as you set it in the above (`php_variables.php`) file.  
- * And in `/<www>/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change exports.ROOT_DIR to be the same value, but with the addition of predict/ at the end, i.e. `/var/www/html/AIFCOMSSwithCUPredictorTest/predict/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\predict\\` etc.  **If you use single backslashes instead of double backslashes inside `/<www>/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, and you end up with files named, e.g., AmppswwwAIFCOMSSwithCUPredictorTestpredictaltairdata.txt and AmppswwwAIFCOMSSwithCUPredictorTestpredictaltairpos.txt inside your AIFCOMSSwithCUPredictorTest\predict directory, then that's a sure sign that you need double backslashes within the definition of exports.ROOT_DIR inside your `/<www>/AIFCOMSSwithCUPredictorTest/predict/js_variables.js` file instead.
+ * And in `/<www>/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change exports.ROOT_DIR to be the same value, but with the addition of predict/ at the end, i.e. `/var/www/html/AIFCOMSSwithCUPredictorTest/predict/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\predict\\` etc.  **On Windows, if you use single backslashes instead of double backslashes inside your `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\js_variables.js` file, and you end up with files named, e.g., AmppswwwAIFCOMSSwithCUPredictorTestpredictaltairdata.txt and AmppswwwAIFCOMSSwithCUPredictorTestpredictaltairpos.txt inside your AIFCOMSSwithCUPredictorTest\predict directory after you complete all these instructions and run AIFCOMSS, then that's a sure sign that you need double backslashes within your definition of exports.ROOT_DIR inside your `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\js_variables.js` file instead.
 
 and one that might possibly need to be (depending on your setup):
 
@@ -193,12 +193,23 @@ then
 
     npm update
 
-to install the remaining requirements.  (Note that if `npm install` does not work for you within a command terminal, please instead try it within either a cygwin terminal, or powershell, from the `AIFCOMSSwithCUPredictorTest/predict` directory as above.) 
+to install the remaining requirements.  (Note that if `npm install` does not work for you within a command terminal, please instead try it within either a cygwin terminal, or powershell, from the `AIFCOMSSwithCUPredictorTest/predict` directory as above.)  
 
-Launch Ampps, and in your web browser navigate to `localhost/ampps`. Click on Apache Configuration, turn `mod_headers` on, and 
+Then, while still in that same `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\` directory, note that the two files `altairpos.txt` and `altairdata.txt` in that directory should be "symbolic links" to the files `C:\tmp\altairpos.txt`  and `C:\tmp\altairdata.txt` -- rather than their just containing the text /tmp/altairpos.txt and /tmp/altairdata.txt.  (This AIFCOMSSwithCUPredictorTest package repository in Github should have automatically created those symbolic links when you downloaded the AIFCOMSSwithCUPredictorTest package, however symbolic link creation from Github package downloads appears to be unavoidably broken on Windows.)  If those two files just contain text, rather than being symbolic links, then you'll need to erase those two files `altairpos.txt` and `altairdata.txt`, and then create those two symbolic links manually -- you can follow the instructions at:
+
+    https://www.howtogeek.com/howto/16226/complete-guide-to-symbolic-links-symlinks-on-windows-or-linux/
+
+if you have not created symbolic links in Windows before.  (BTW, those two links should be _soft_ symbolic links, also known as softlinks.)  You could first create the two files `C:\tmp\altairpos.txt`  and `C:\tmp\altairdata.txt`, to which the symbolic links in `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\altairpos.txt` and `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\altairdata.txt` should point, by (within a Cygwin terminal) trying the two commands
+
+    touch /cygdrive/c/tmp/altairdata.txt
+    touch /cygdrive/c/tmp/altairpos.txt
+
+which should create empty files in `C:\tmp\altairpos.txt` and `C:\tmp\altairdata.txt` -- and then, after that, creating the symbolic links to those files mentioned above.
+
+Then launch Ampps, and in your web browser navigate to `localhost/ampps`. Click on Apache Configuration, turn `mod_headers` on, and 
 restart Apache.
 
-In a terminal, navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory, and run
+In a new terminal, navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory, and run
 
     node server.js
 
