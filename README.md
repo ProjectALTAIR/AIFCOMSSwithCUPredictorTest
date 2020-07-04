@@ -206,7 +206,9 @@ if you have not created symbolic links in Windows before.  (BTW, those two link
 
 which should create empty files in `C:\tmp\altairpos.txt` and `C:\tmp\altairdata.txt` -- and then, after that, creating the symbolic links to those files mentioned above.
 
-Then launch Ampps, and in your web browser navigate to `localhost/ampps`. Click on Apache Configuration, turn `mod_headers` on, and 
+Then, make sure that your `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\` directory, your `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\preds\` directory, and your `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\gfs\` directory all have full control and read, write, and execute access by the system, and also by system administrators and yourself.  You could consult this guide to changing Windows file and folder permissions if you are new to changing permissions on Windows: https://www.online-tech-tips.com/computer-tips/set-file-folder-permissions-windows/.
+
+Then, launch Ampps, and in your web browser navigate to `localhost/ampps`. Click on Apache Configuration, turn `mod_headers` on, and 
 restart Apache.
 
 In a new terminal, navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory, and run
