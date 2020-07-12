@@ -248,7 +248,8 @@ The log files for the different code languages used can be found in the location
 
     sudo apachectl restart
 
-and then re-running node server.js and AIFCOMSS.  On Windows, try either a) restarting Apache within AMPPS (there is a toggle switch in the AMPSS window for doing that), or b) restarting AMPSS entirely; and then (after having done either a or b), re-running node server.js and AIFCOMSS.
+and then re-running node server.js and AIFCOMSS.  On Windows, try either a) restarting Apache within AMPPS (there is a toggle switch in the AMPSS window for doing that), or b) restarting AMPSS entirely; and then (after having done either a or b), re-running node server.js and AIFCOMSS.  On any one of the three operating systems -- if you haven't run AIFCOMSS in a while (or are running the flight path prediction for the very first time), and are not getting a flight path prediction the first time you run it after your long hiatus
+since your last AIFCOMSS run, then try just reloading the browser -- typically you just need that one browser reload to get the flight path prediction going (after it takes its ~20 second to determine the flight path prediction).
 
 On Windows, if you constantly get an error like the below when doing cmake . :
 
