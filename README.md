@@ -178,7 +178,7 @@ installation directory to the `pred_src` directory containing `pred.exe`:
  -  `cygstdc++-6.dll`
  -  `cyggcc_s-seh-1.dll`
 
-Open a command terminal, navigate to the `AIFCOMSSwithCUPredictorTest` directory, and run
+Open a command terminal (or a Cygwin terminal window), navigate to the `AIFCOMSSwithCUPredictorTest` directory, and run
 
     pip install -r requirements_win.txt
     pip install numpy
