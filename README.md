@@ -9,9 +9,9 @@ Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; Mac screenshot
 ## Installation
 
 After first [uninstalling](https://www.wikihow.com/Uninstall-Python) any other version of Python that you might possibly already have on your 
-Mac, Linux, or Windows computer, please install the Python 3.7 version of [Anaconda](https://www.anaconda.com/products/individual), using
+Mac, Linux, or Windows computer, please install the Python 3.8 version of [Anaconda](https://www.anaconda.com/products/individual), using
 the installer that can be found near the bottom of [this page](https://www.anaconda.com/products/individual).  (If you are on a Mac, use 
-the command-line version of the Anaconda installer.)  [Installation instructions for the Anaconda installer can be found here.](https://docs.anaconda.com/anaconda/install/)  Once you have that installed, you should then have Python 3.7 (specifically Python 3.7.6) 
+the command-line version of the Anaconda installer.)  [Installation instructions for the Anaconda installer can be found here.](https://docs.anaconda.com/anaconda/install/)  Once you have that installed, you should then have Python 3.8 
 installed on your computer -- it is part of the Anaconda installation.<br>
 
 Then, also on <i>any</i> platform (Mac, Linux, or Windows), this package <i>also</i> requires the installation of an 
