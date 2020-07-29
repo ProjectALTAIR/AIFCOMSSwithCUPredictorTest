@@ -8,11 +8,13 @@ Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; Mac screenshot
 
 ## Installation
 
-First, make sure that your Mac, Linux, or Windows computer has Python 
-([https://www.python.org](https://www.python.org)) - but NOT version 3.x of Python - version 2.7 is best (note that Python v. 3 is really a quite different language from Python v. 2, and not backwards-compatible with v. 2), installed 
-(and if not, then please install Python v. 2.7, using the instructions on the Python website.  Install pip, if asked, during the Python installation.) <br>
+After first [uninstalling](https://www.wikihow.com/Uninstall-Python) any other version of Python that you might possibly already have on your 
+Mac, Linux, or Windows computer, please install the Python 3.7 version of [Anaconda](https://www.anaconda.com/products/individual), using
+the installer that can be found near the bottom of [this page](https://www.anaconda.com/products/individual).  (If you are on a Mac, use 
+the command-line version of the Anaconda installer.)  [Installation instructions for the Anaconda installer can be found here.](https://docs.anaconda.com/anaconda/install/)  Once you have that installed, you should then have Python 3.7 (specifically Python 3.7.6) 
+installed on your computer -- it is part of the Anaconda installation.<br>
 
-On <i>any</i> platform (Mac, Linux, or Windows), this package <i>also</i> requires the installation of an 
+Then, also on <i>any</i> platform (Mac, Linux, or Windows), this package <i>also</i> requires the installation of an 
 AMP (Apache/MySQL/PHP) stack. Instructions can be found online for:
 
  * Ubuntu Linux: [https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/](https://www.unixmen.com/how-to-install-lamp-stack-on-ubuntu-16-04/)
@@ -87,7 +89,7 @@ Furthermore, the `/var/www/AIFCOMSSwithCUPredictorTest/predict/preds` and `/var/
 directories must be given full (rwx) access by the PHP interpreter and both `predict.py` files. The simplest way to do so is 
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
 
-Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_linux.txt` to install some of the 
+Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_python3.txt` to install the 
 Python requirements. Change directories to `/var/www/AIFCOMSSwithCUPredictorTest/predict/` and run `npm update` to install the remaining requirements.
 
 In this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
@@ -125,7 +127,7 @@ Furthermore, the `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/pred
 directories must be given full (rwx) access by the PHP interpreter and both `predict.py` files. The simplest way to do so is 
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
 
-Navigate back to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_macos.txt` to install some of the 
+Navigate back to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_python3.txt` to install some of the 
 Python requirements. Change directories to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/` and run 
 
     npm install
@@ -178,14 +180,16 @@ installation directory to the `pred_src` directory containing `pred.exe`:
  -  `cygstdc++-6.dll`
  -  `cyggcc_s-seh-1.dll`
 
-Open a command terminal (or a Cygwin terminal window), navigate to the `AIFCOMSSwithCUPredictorTest` directory, and run
+Open a command terminal or a Cygwin terminal window, navigate to the `AIFCOMSSwithCUPredictorTest` directory, and run
 
-    pip install -r requirements_win.txt
-    pip install numpy
+    pip install -r requirements_python3.txt
 
-to install some of the Python requirements.  (Note that you might need to use the full path to the location of your pip.exe executable.)
+to install the Python requirements.  (Note that you might need to use the full path to the location of your pip.exe executable.
+That above pip installation also assumes that you have [git](https://git-scm.com/download/win) already installed on your computer;
+if you don't, then you will need to install git, and then after that also make sure that the git executable is in your PATH -- i.e.
+that typing "git" on the Cygwin or terminal command line correctly finds your installed git executable.)
 
-Then navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory and run
+Then, navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory and run
 
     npm install
 
