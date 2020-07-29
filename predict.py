@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# This is the Python 3 version of this file.  
+# (Tested in Python 3.7.6 with Anaconda, but should work in other Python versions, and certainly more recent versions.)
+
 # Modules from the Python standard library.
 import datetime
 import time as timelib
