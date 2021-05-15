@@ -1,5 +1,5 @@
 numpy==1.18.1
 simplejson==3.17.0
 statsd-client==1.0.7
-httplib2==0.18.1
+httplib2==0.19.1
 git+https://github.com/pydap/pydap.git@fc0dd0e6f180e455dbb68a06a85f84b1eca6754f
