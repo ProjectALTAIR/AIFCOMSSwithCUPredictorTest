@@ -113,7 +113,7 @@ Then, navigate to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/pre
 
 to compile the code found there.  (If you happen to encounter errors such as "Could not find pkgConfig" and
 "Could not find package glib-2.0" after running `make` as above, then try downloading and installing [Homebrew](https://coolestguidesontheplanet.com/installing-homebrew-on-macos-sierra-package-manager-for-unix-apps/), 
-and then running `brew install glib`, before trying `cmake .` and `make` again.)
+and then running `brew install glib` \[and `brew install pkgconfig` if you need that too\], before trying `cmake .` and `make` again.)
 
 Once compiled, the following files must be made executable (`sudo chmod +x [file]`):
 
