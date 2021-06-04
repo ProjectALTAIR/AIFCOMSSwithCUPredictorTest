@@ -95,7 +95,12 @@ using `sudo chmod a+rwx [directory]`, although safety-conscious users may want t
 Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_python3.txt` to install the 
 Python requirements. Change directories to `/var/www/AIFCOMSSwithCUPredictorTest/predict/` and run `npm update` to install the remaining requirements.
 
-In this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
+Then, within this same `predict` directory, create the symbolic link files `altairpos.txt` and `altairdata.txt` via the commands
+
+    ln -s /tmp/altairpos.txt .
+    ln -s /tmp/altairdata.txt .
+
+Then, in this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
 You should then have AIFCOMSS running in your web browser.
 
@@ -141,7 +146,12 @@ then
  
 to install the remaining requirements.
 
-In this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
+Then, within this same `predict` directory, create the symbolic link files `altairpos.txt` and `altairdata.txt` via the commands
+
+    ln -s /tmp/altairpos.txt .
+    ln -s /tmp/altairdata.txt .
+
+Then, in this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
 You should then have AIFCOMSS running in your web browser.
 
