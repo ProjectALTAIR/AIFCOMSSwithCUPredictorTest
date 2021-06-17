@@ -1,1 +1,1 @@
-ROOT_DIR = '/path/to/AIFCOMSSwithCUPredictorTest'
+ROOT_DIR = '/path/to/AIFCOMSSwithCUPredictorTest/'
