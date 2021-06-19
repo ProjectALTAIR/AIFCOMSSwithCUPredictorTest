@@ -11,12 +11,12 @@ Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; Mac screenshot
 After first [uninstalling](https://www.wikihow.com/Uninstall-Python) any other version of Python that you might possibly already have on your 
 Mac, Linux, or Windows computer, please install the Python 3.8 version of [Anaconda](https://www.anaconda.com/products/individual), using
 the installer that can be found near the bottom of [this page](https://www.anaconda.com/products/individual).  (If you are on a Mac, use 
-the command-line version of the Anaconda installer.)  [Installation instructions for the Anaconda installer can be found here.](https://docs.anaconda.com/anaconda/install/)  If asked, make sure to add Anaconda3 to your PATH environment variable (even though it might 
-say that that option is not recommended), as well as registering Anaconda3 as your default Python 3.8 (if that is asked as well).  Once you
-have that installed, you should then have Python 3.8 
-installed on your computer -- it is part of the Anaconda installation.  After you successfully install the Python 3.8 version of Anaconda
-on your machine, you should reboot your computer (so that Anaconda's settings to make it the default location for your Python application, 
-etc., can take effect).<br>
+the command-line version of the Anaconda installer.)  [Installation instructions for the Anaconda installer can be found here.](https://docs.anaconda.com/anaconda/install/)
+If asked during the installation, make sure to add Anaconda3 to your PATH environment variable (even though it might say that that option is
+not recommended), as well as registering Anaconda3 as your default Python 3.8 (if that is asked as well).  Once you have that installed, you
+should then have Python 3.8 installed on your computer -- it is part of the Anaconda installation.  After you successfully install the
+Python 3.8 version of Anaconda on your machine, you should reboot your computer (so that Anaconda's settings to make it the default location
+for your Python application, etc., can take effect).<br>
 
 Then, also on <i>any</i> platform (Mac, Linux, or Windows), and also following the reboot mentioned above, 
 this package <i>also</i> requires the installation of an 
