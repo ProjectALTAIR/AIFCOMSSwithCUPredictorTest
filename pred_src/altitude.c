@@ -17,7 +17,6 @@
 
 #include "pred.h"
 #include "altitude.h"
-#include "run_model.h"
 
 // get density of atmosphere at a given altitude
 // uses NASA model from http://www.grc.nasa.gov/WWW/K-12/airplane/atmosmet.html
