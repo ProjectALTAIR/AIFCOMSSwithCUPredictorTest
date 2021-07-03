@@ -14,6 +14,8 @@
 #ifndef __ALTITUDE_H__
 #define __ALTITUDE_H__
 
+#define TIMESTEP 1          // in seconds
+
 typedef struct altitude_model_s altitude_model_t;
 
 // create an altitude/time model with given parameters, must be called before
