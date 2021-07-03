@@ -31,6 +31,9 @@
 const char* data_dir;
 int verbosity;
 
+FILE* output = 0;
+FILE* kml_file = 0;
+
 int main(int argc, const char *argv[]) {
     
     const char* argument;
