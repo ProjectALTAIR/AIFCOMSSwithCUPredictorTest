@@ -29,8 +29,8 @@ int run_model(wind_file_cache_t* cache, altitude_model_t* alt_model,
 #define DEGREES_TO_METRES  111198.92345          // one degree latitude corresponds to this many metres
 #define DEGREES_TO_RADIANS 0.0174532925          // 1 degree is this many radians
 
-FILE* output;
-FILE* kml_file;
+extern FILE* output;
+extern FILE* kml_file;
 
 // get the wind values in the u and v directions at a point in space and time from the dataset data
 // we interpolate lat, lng, alt and time. The GRIB data only contains pressure levels so we first
