@@ -22,7 +22,6 @@ int run_model(wind_file_cache_t* cache, altitude_model_t* alt_model,
               float initial_lat, float initial_lng, float initial_alt, 
 	      long int initial_timestamp, float rmswinderror);
 
-#define TIMESTEP 1          // in seconds
 #define LOG_DECIMATE 50     // write entry to output files every x timesteps
 
 #define METRES_TO_DEGREES  0.00000899289281755   // one metre corresponds to this many degrees latitude
