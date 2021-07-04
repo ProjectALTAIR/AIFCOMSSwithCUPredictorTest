@@ -195,7 +195,7 @@ installation directory to the `pred_src` directory containing `pred.exe`:
  -  `cygstdc++-6.dll`
  -  `cyggcc_s-seh-1.dll`
 
-When you installed Cygwin above, it probably installed Python 3.9 on your system, and then also (unfortunately) made that into the default Python on your system (by putting Python 3.9 executables at the head of your Windows PATH environment variable.)  You will need to remove Python 3.9 from your PATH, so that the Python 3.8 executables (including pip, which you will be using right below) from your **Anaconda installation** will again be your default Python executables.  To do this on Windows 10, follow the instructions shown [here](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/) but instead of adding the Python3.9 executable directories to your PATH, you will be **deleting** the Python3.9 executable directories from your system PATH.  (Don't worry, this doesn't delete the actual Python3.9 executable files themselves -- it just makes them non-default.) Fortunately, the Python3.9 executable directories will be obvious within the system PATH.  Delete these directories from your system PATH, and then choose OK.
+When you installed Cygwin above, it probably installed Python 3.9 on your system, and then also (unfortunately) made that into the default Python on your system (by putting Python 3.9 executables at the head of your Windows PATH environment variable.)  You will need to remove Python 3.9 from your PATH, so that the Python 3.8 executables (including pip, which you will be using right below) from your **Anaconda installation** will again be your default Python executables.  To do this on Windows 10, follow the instructions shown [here](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/), but instead of adding the Python3.9 executable directories to your PATH, you will be **deleting** the Python3.9 executable directories from your system PATH.  (Don't worry, this doesn't delete the actual Python3.9 executable files themselves -- it just makes them non-default.) Fortunately, the Python3.9 executable directories will be obvious within the system PATH.  Delete these directories from your system PATH, and then choose OK.
 
 Then, open a new Cygwin terminal window, navigate to the `AIFCOMSSwithCUPredictorTest` directory, make absolutely sure that you will be getting the Anaconda-installed Python 3.8 version of pip by typing
 
@@ -207,8 +207,7 @@ and then (if the result of the above looks good -- i.e. there's an anaconda in t
 
 to install the Python requirements.  (Note that you might need to use the full path to the location of your pip.exe executable.
 That above pip installation also assumes that you have [git](https://git-scm.com/download/win) already installed on your computer;
-if you don't, then you will need to install git, and then after that also make sure that the git executable is in your PATH -- i.e.
-that typing "git" on the Cygwin or terminal command line correctly finds your installed git executable.)
+if you don't, then you might need to also install git, and then after that also make sure that the git executable is in your PATH.)
 
 Then, navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory and run
 
