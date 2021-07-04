@@ -157,7 +157,7 @@ Then, in this same `predict` directory, run `node server.js`.  Open a web browse
 
 You should then have AIFCOMSS running in your web browser.
 
-#### Windows (tested on Windows 7)
+#### Windows (tested on Windows 7 and Windows 10)
 
 Windows has no built in C compiler or interpreter.
 
@@ -195,7 +195,13 @@ installation directory to the `pred_src` directory containing `pred.exe`:
  -  `cygstdc++-6.dll`
  -  `cyggcc_s-seh-1.dll`
 
-Open a command terminal or a Cygwin terminal window, navigate to the `AIFCOMSSwithCUPredictorTest` directory, and run
+When you installed Cygwin above, it probably installed Python 3.9 on your system, and then also (unfortunately) made that into the default Python on your system (by putting Python 3.9 executables at the head of your Windows PATH environment variable.)  You will need to remove Python 3.9 from your PATH, so that the Python 3.8 executables (including pip, which you will be using right below) from your **Anaconda installation** will again be your default Python executables.  To do this on Windows 10, follow the instructions shown [here](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/) but instead of adding the Python3.9 executable directories to your PATH, you will be **deleting** the Python3.9 executable directories from your system PATH.  (Don't worry, this doesn't delete the actual Python3.9 executable files themselves -- it just makes them non-default.) Fortunately, the Python3.9 executable directories will be obvious within the system PATH.  Delete these directories from your system PATH, and then choose OK.
+
+Then, open a new Cygwin terminal window, navigate to the `AIFCOMSSwithCUPredictorTest` directory, make absolutely sure that you will be getting the Anaconda-installed Python 3.8 version of pip by typing
+
+    which pip
+
+and then (if the result of the above looks good -- i.e. there's an anaconda in the directory name), run
 
     pip install -r requirements_python3.txt
 
