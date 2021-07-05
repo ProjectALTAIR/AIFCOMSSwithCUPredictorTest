@@ -230,7 +230,9 @@ Then, while still in that same `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict
 if you have not created symbolic links in Windows before.  (BTW, those two links should be _soft_ symbolic links, also known as softlinks.)  You could first create the two files `C:\tmp\altairpos.txt`  and `C:\tmp\altairdata.txt`, to which the symbolic links in `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\altairpos.txt` and `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\altairdata.txt` should point, by (within a Cygwin terminal) trying the two commands
 
     touch /cygdrive/c/tmp/altairdata.txt
-    
+
+and
+
     touch /cygdrive/c/tmp/altairpos.txt
 
 which should create empty files in `C:\tmp\altairpos.txt` and `C:\tmp\altairdata.txt` -- and then, after that, creating the symbolic links to those files mentioned above.
