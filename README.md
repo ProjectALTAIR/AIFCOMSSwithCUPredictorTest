@@ -42,11 +42,11 @@ this would be `/var/www/` or `/var/www/html/`; for AMPPS on Windows, this would 
 
 Then, install version 1.51 (not the most recent version, but version 1.51) of CesiumJS ([https://cesium.com/downloads/](https://cesium.com/downloads/)) to an **entirely** new subdirectory here (i.e. create a new subdirectory before installing CesiumJS v1.51 into that subdirectory) - you'll need it later. 
 
-[//]: # For Ubuntu, and Linux in general, Node-v6.11.2 is required. It is very easy to install through the following commands :
-[//]: # 
-[//]: #         $ sudo apt-get install curl
-[//]: #         $ curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
-[//]: #         $ sudo apt-get install nodejs
+<!--- For Ubuntu, and Linux in general, Node-v6.11.2 is required. It is very easy to install through the following commands :
+ 
+        $ sudo apt-get install curl
+        $ curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
+        $ sudo apt-get install nodejs -->
 
 Back in your `/<www>/` (i.e., `/var/www/` or `/var/www/html/` or `C:\Ampps\www\` or `/Users/<your user name>/Sites/`, etc etc) directory, download the package repository at
 [https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest)
