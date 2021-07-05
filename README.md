@@ -223,17 +223,13 @@ then
 
 to install the remaining requirements.  (Note that if `npm install` does not work for you within a command terminal, please instead try it within either a cygwin terminal, or powershell, from the `AIFCOMSSwithCUPredictorTest/predict` directory as above.)  
 
-Then, while still in that same `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\` directory, note that the two files `altairpos.txt` and `altairdata.txt` in that directory should be "symbolic links" to the files `C:\tmp\altairpos.txt`  and `C:\tmp\altairdata.txt` -- rather than their just containing the text /tmp/altairpos.txt and /tmp/altairdata.txt.  (This AIFCOMSSwithCUPredictorTest package repository in Github should have automatically created those symbolic links when you downloaded the AIFCOMSSwithCUPredictorTest package, however symbolic link creation from Github package downloads appears to be unavoidably broken on Windows.)  If those two files just contain text, rather than being symbolic links, then you'll need to erase those two files `altairpos.txt` and `altairdata.txt`, and then create those two symbolic links manually -- you can follow the instructions at:
+Then, while still in that same `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\` directory, note that the two files `altairpos.txt` and `altairdata.txt` in that directory should be "symbolic links" to the files `C:\tmp\altairpos.txt`  and `C:\tmp\altairdata.txt` -- rather than their just containing the text /tmp/altairpos.txt and /tmp/altairdata.txt.  (This AIFCOMSSwithCUPredictorTest package repository in Github should have automatically created those symbolic links when you downloaded the AIFCOMSSwithCUPredictorTest package, however symbolic link creation from Github package downloads appears to be unavoidably broken on Windows.)  If those two files just contain text, rather than being symbolic links, then you'll need to erase those two files `altairpos.txt` and `altairdata.txt`, and then create those two symbolic links manually -- you can follow the instructions at https://www.howtogeek.com/howto/16226/complete-guide-to-symbolic-links-symlinks-on-windows-or-linux/ if you have not created symbolic links in Windows before.  (BTW, those two links should be _soft_ symbolic links, also known as softlinks.)  You could first create the two files `C:\tmp\altairpos.txt`  and `C:\tmp\altairdata.txt`, to which the symbolic links in `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\altairpos.txt` and `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\altairdata.txt` should point, by (within a Cygwin terminal) trying the two commands:
 
-    https://www.howtogeek.com/howto/16226/complete-guide-to-symbolic-links-symlinks-on-windows-or-linux/
-
-if you have not created symbolic links in Windows before.  (BTW, those two links should be _soft_ symbolic links, also known as softlinks.)  You could first create the two files `C:\tmp\altairpos.txt`  and `C:\tmp\altairdata.txt`, to which the symbolic links in `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\altairpos.txt` and `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\altairdata.txt` should point, by (within a Cygwin terminal) trying the two commands:
-
-    touch /cygdrive/c/tmp/altairpos.txt
+      touch /cygdrive/c/tmp/altairpos.txt
 
 and
 
-    touch /cygdrive/c/tmp/altairdata.txt
+      touch /cygdrive/c/tmp/altairdata.txt
 
 which should create empty files in `C:\tmp\altairpos.txt` and `C:\tmp\altairdata.txt` -- and then, after that, creating the symbolic links to those files mentioned above.
 
