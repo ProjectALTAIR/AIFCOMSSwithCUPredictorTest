@@ -66,7 +66,9 @@ and one that might possibly need to be (depending on your setup):
 
  * In `/<www>/AIFCOMSSwithCUPredictorTest/predict/AIFCOMSS.html`, change the path of `AIFpred.php` to the correct location, <i>if</i> the correct location happens to be different than `http://localhost/AIFCOMSSwithCUPredictorTest/predict/AIFpred.php` in your setup.
 
-The next steps depend heavily on the operating system.
+The next steps depend heavily on the operating system.<br><br>
+
+
 
 ### <ins>Linux (tested on Mint 18.2)</ins>
 	
@@ -108,7 +110,9 @@ Then, within this same `predict` directory, create the symbolic link files `alta
 
 Then, in this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
-You should then have AIFCOMSS running in your web browser.
+You should then have AIFCOMSS running in your web browser.<br><br>
+
+
 
 ### <ins>Mac OS X (tested on v. 10.13.5 "High Sierra" and on v. 10.14.2 "Mojave")</ins>
 
@@ -159,7 +163,9 @@ Then, within this same `predict` directory, create the symbolic link files `alta
 
 Then, in this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
-You should then have AIFCOMSS running in your web browser.
+You should then have AIFCOMSS running in your web browser.<br><br>
+
+
 
 ### <ins>Windows (tested on Windows 7 and Windows 10)</ins>
 
