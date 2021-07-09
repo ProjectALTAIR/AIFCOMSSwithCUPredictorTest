@@ -38,7 +38,7 @@ This will terminate unimportant Windows processes using port 80.  (Be aware that
 Now, navigate to the directory from which your HTML and PHP files are being served (in Linux for example, 
 this would be `/var/www/` or `/var/www/html/`; for AMPPS on Windows, this would be `C:\path\to\Ampps\www\`, i.e. the installation path of AMPPS; and for Mac OS, this would likely be `/Users/<your user name>/Sites/`) and install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/) -- however, if you are using Windows, please see the following!).  If you are on Windows, do *not* install the latest or the recommended version of Node.js (which is probably some 14.x version of Node.js), but rather the significantly-older version 12.8.3 of Node.js, a Windows installer for which can be found in the node-v12.18.3-x64.msi file within the directory https://nodejs.org/download/release/v12.18.3/.  (This is because the Serialport package, which we will be downloading later, conflicts with more recent versions of Node.js on Windows.  Node.js version 12.8.3 does everything we need Node.js to do, so we're not in need of a more recent version.  We have not \[yet?\] found this conflict to be a problem on Mac or on Linux, only on Windows, so if you are on Mac or Linux, please just install the nodejs.org-recommended version of Node.js, rather than restricting yourself to Node.js 12.8.3, and just let me know if you see a problem later in any case.)
 
-Then, install version 1.51 (not the most recent version, but version 1.51) of CesiumJS ([https://cesium.com/downloads/](https://cesium.com/downloads/)) to an **entirely** new subdirectory here (i.e. create a new subdirectory before installing CesiumJS v1.51 into that subdirectory) - you'll need it later. 
+Then, install version 1.83 (not necessarily the most recent version, but version 1.83) of CesiumJS ([https://cesium.com/downloads/](https://cesium.com/downloads/)) to an **entirely** new subdirectory here (i.e. create a new subdirectory before installing CesiumJS v1.83 into that subdirectory) - you'll need it later. 
 
 <!--- For Ubuntu, and Linux in general, Node-v6.11.2 is required. It is very easy to install through the following commands :
  
@@ -49,8 +49,8 @@ Then, install version 1.51 (not the most recent version, but version 1.51) of Ce
 Back in your `/<www>/` (i.e., `/var/www/` or `/var/www/html/` or `C:\Ampps\www\` or `/Users/<your user name>/Sites/`, etc etc) directory, download the package repository at
 [https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest)
 so that all the project files are located at `/<www>/AIFCOMSSwithCUPredictorTest/`  (and **note that your directory should be called** `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master` -- if it is the latter, just rename it to be the former). Copy all of the files and folders 
-***except server.js and package.json*** from your Cesium directory into
-`/<www>/AIFCOMSSwithCUPredictorTest/predict`, leaving the original `server.js` and `package.json` files
+***except server.cjs and package.json*** from your Cesium directory into
+`/<www>/AIFCOMSSwithCUPredictorTest/predict`, leaving the original `server.cjs` and `package.json` files
 from this GitHub AIFCOMSSwithCUPredictorTest repository intact.  (A few other files will show up as duplicates;
 users should replace those other existing files in `/<www>/AIFCOMSSwithCUPredictorTest/predict` with the new files from your Cesium directory, rather than just ignoring those files.)  Be sure to put those Cesium files and folders **directly** into your `/<www>/AIFCOMSSwithCUPredictorTest/predict/` directory, e.g. after doing that you should have the subdirectories `/predict/Build/`, `/predict/Apps/`, `/predict/ThirdParty/`, and files including `/predict/LICENCE.md`, etc.; rather than putting those Cesium files and folders all into a subdirectory of their own.
 
@@ -58,7 +58,7 @@ There are a few paths that need to be changed at this point:
 
  * In `/<www>/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (e.g., `/var/www/html/AIFCOMSSwithCUPredictorTest/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\` etc). **Make sure the path ends with a `/` or `\\` (the latter on Windows)**.  Also, change `PYTHON_PATH` to the location of your anaconda3 Python executable (e.g., `/Users/<your username>/anaconda3/bin/python` on a Mac). **On Windows, make sure you have *double* backslashes in the filenames, to prevent the backslashes from being interpreted as escape characters.  Note that *some* Windows versions (for example *some* installations of Windows 10) can autocorrect file path names, so in that case it is slightly less important to ensure that you always have double backslashes, however in all cases it is best to not rely on autocorrection, and so you should always put double backslashes within the filenames inside these files on Windows PCs.  You can change the paths inside these files on Windows by opening the files in WordPad, for example.**
  * In `/<www>/AIFCOMSSwithCUPredictorTest/predict/py_variables.py`, change `ROOT_DIR` to the same value as you set it in the above (`php_variables.php`) file.  
- * And in `/<www>/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change exports.ROOT_DIR to be the same value, but with the addition of predict/ at the end, i.e. `/var/www/html/AIFCOMSSwithCUPredictorTest/predict/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\predict\\` etc.  **On Windows, if you use single backslashes instead of double backslashes inside your `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\js_variables.js` file, and you end up with files named, e.g., AmppswwwAIFCOMSSwithCUPredictorTestpredictaltairdata.txt and AmppswwwAIFCOMSSwithCUPredictorTestpredictaltairpos.txt inside your AIFCOMSSwithCUPredictorTest\predict directory after you complete all these instructions and run AIFCOMSS, then that's a sure sign that you need double backslashes within your definition of exports.ROOT_DIR inside your `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\js_variables.js` file instead**.
+ * And in `/<www>/AIFCOMSSwithCUPredictorTest/predict/js_variables.cjs`, change exports.ROOT_DIR to be the same value, but with the addition of predict/ at the end, i.e. `/var/www/html/AIFCOMSSwithCUPredictorTest/predict/` or `C:\\Ampps\\www\\AIFCOMSSwithCUPredictorTest\\predict\\` etc.  **On Windows, if you use single backslashes instead of double backslashes inside your `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\js_variables.cjs` file, and you end up with files named, e.g., AmppswwwAIFCOMSSwithCUPredictorTestpredictaltairdata.txt and AmppswwwAIFCOMSSwithCUPredictorTestpredictaltairpos.txt inside your AIFCOMSSwithCUPredictorTest\predict directory after you complete all these instructions and run AIFCOMSS, then that's a sure sign that you need double backslashes within your definition of exports.ROOT_DIR inside your `C:\Ampps\www\AIFCOMSSwithCUPredictorTest\predict\js_variables.cjs` file instead**.
 
 and one that might possibly need to be (depending on your setup):
 
@@ -106,7 +106,7 @@ Then, within this same `predict` directory, create the symbolic link files `alta
     ln -s /tmp/altairpos.txt .
     ln -s /tmp/altairdata.txt .
 
-Then, in this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
+Then, in this same `predict` directory, run `node server.cjs`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
 You should then have AIFCOMSS running in your web browser.<br><br>
 
@@ -159,7 +159,7 @@ Then, within this same `predict` directory, create the symbolic link files `alta
     ln -s /tmp/altairpos.txt .
     ln -s /tmp/altairdata.txt .
 
-Then, in this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
+Then, in this same `predict` directory, run `node server.cjs`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
 You should then have AIFCOMSS running in your web browser.<br><br>
 
@@ -242,14 +242,14 @@ restart Apache.
 
 In a new terminal, navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory, and run
 
-    node server.js
+    node server.cjs
 
 Open your web browser, and navigate to `localhost:8080/AIFCOMSS.html`. You should then have AIFCOMSS running in your browser.  
 
 ***IF*** the bottom frame (the p5.js window) always just says "Loading ..." (that problem can often occur, especially on some Windows systems), then modify line 6 of `predict\ALTAIR_entities_p5frame.js` to change the value of the
 audibleAlarms variable on that line from `true` to `false`, and then re-run (and let me know if you have any problems).
 
-Also, ***IF*** you get the error "This process does not have permission to listen on port 8080" when you run node server.js, then in that case please try the suggestion on this page: https://medium.com/@myolisi/how-to-fix-error-eacces-permission-denied-8080-in-nodejs-66d6cd5b2ed5, i.e. find the other process that is blocking your port 8080 using "netstat -aon | findstr 8080" and then kill it using "Stop-Process -ID <process_ID> -Force" (and let me know if you have any problems with that).
+Also, ***IF*** you get the error "This process does not have permission to listen on port 8080" when you run node server.cjs, then in that case please try the suggestion on this page: https://medium.com/@myolisi/how-to-fix-error-eacces-permission-denied-8080-in-nodejs-66d6cd5b2ed5, i.e. find the other process that is blocking your port 8080 using "netstat -aon | findstr 8080" and then kill it using "Stop-Process -ID <process_ID> -Force" (and let me know if you have any problems with that).
 
 
 <i>If you prefer VirtualBox to Cygwin</i>:
