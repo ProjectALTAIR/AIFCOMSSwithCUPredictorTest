@@ -110,7 +110,7 @@ Then, in this same `predict` directory, run `node server.js`.  Open a web browse
 
 You should then have AIFCOMSS running in your web browser.
 
-#### Mac OS X (tested on v. 10.13.5 "High Sierra" and on v. 10.14.2 "Mojave")
+### <ins>Mac OS X (tested on v. 10.13.5 "High Sierra" and on v. 10.14.2 "Mojave")</ins>
 
 Check that you have CMake installed on your Mac by typing `which cmake` in a terminal window from your
 `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` directory.  If you don't have it, then download the .dmg
@@ -161,7 +161,7 @@ Then, in this same `predict` directory, run `node server.js`.  Open a web browse
 
 You should then have AIFCOMSS running in your web browser.
 
-#### Windows (tested on Windows 7 and Windows 10)
+### <ins>Windows (tested on Windows 7 and Windows 10)</ins>
 
 Windows has no built in C compiler or interpreter.
 
@@ -259,7 +259,7 @@ virtual optical disk on your virtual machine, install it, and you're done! Gener
 Then follow the upper instructions concerning Linux installation (though be sure to note that the port 80 problem described above remains, as your 
 connection is provided by a Windows machine).
 
-#### Some debugging hints if you need them (all OS's)
+### <ins>Some debugging hints if you need them (all OS's)</ins>
 
 Run your server, and use the developer Javascript console of your browser to find any display or protocol errors. Identify the code language at the source of the error, and the use its log file -- see below for location -- to solve the problem.
 
