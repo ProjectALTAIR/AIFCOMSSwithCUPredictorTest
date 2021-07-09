@@ -68,7 +68,7 @@ and one that might possibly need to be (depending on your setup):
 
 The next steps depend heavily on the operating system.
 
-#### <span style="color:blue"><ins>Linux (tested on Mint 18.2)</ins></span>
+### <ins>Linux (tested on Mint 18.2)</ins>
 	
 The following packages are needed and can be installed from your package manager (eg. `sudo apt-get install [package]`):
 
