@@ -70,7 +70,7 @@ The next steps depend heavily on the operating system.<br><br>
 
 
 
-### <ins>Linux (tested on Mint 18.2)</ins>
+### <ins>Linux</ins> (tested on Mint 18.2)
 	
 The following packages are needed and can be installed from your package manager (eg. `sudo apt-get install [package]`):
 
@@ -114,7 +114,7 @@ You should then have AIFCOMSS running in your web browser.<br><br>
 
 
 
-### <ins>Mac OS X (tested on v. 10.13.5 "High Sierra" and on v. 10.14.2 "Mojave")</ins>
+### <ins>Mac OS X</ins> (tested on v. 10.13.5 "High Sierra" and on v. 10.14.2 "Mojave")
 
 Check that you have CMake installed on your Mac by typing `which cmake` in a terminal window from your
 `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` directory.  If you don't have it, then download the .dmg
@@ -167,7 +167,7 @@ You should then have AIFCOMSS running in your web browser.<br><br>
 
 
 
-### <ins>Windows (tested on Windows 7 and Windows 10)</ins>
+### <ins>Windows</ins> (tested on Windows 7 and Windows 10)
 
 Windows has no built in C compiler or interpreter.
 
@@ -267,7 +267,7 @@ connection is provided by a Windows machine).<br><br>
 
 
 
-### <ins>Some debugging hints if you need them (all OS's)</ins>
+### <ins>Some debugging hints if you need them</ins> (all OS's)
 
 Run your server, and use the developer Javascript console of your browser to find any display or protocol errors. Identify the code language at the source of the error, and the use its log file -- see below for location -- to solve the problem.
 
