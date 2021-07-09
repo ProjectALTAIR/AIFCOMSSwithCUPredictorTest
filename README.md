@@ -299,3 +299,9 @@ even if you properly installed libglib2.0 and libglib2.0-devel , etc (per the ab
     # pkg_check_modules(GLIB REQUIRED glib-2.0)
     
 and then re-do cmake . and then make.  The above error should then go away, and then your pred executables should get built properly.
+
+On any OS, if you run into problems with your npm packages that you installed via `npm install` (perhaps multiple times in the past), and attempted to update via `npm update`, then
+
+    npm rebuild
+    
+will sometimes help a lot.
