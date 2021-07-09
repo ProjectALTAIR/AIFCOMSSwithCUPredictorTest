@@ -29,13 +29,11 @@ AMP (Apache/MySQL/PHP) stack. Instructions can be found online for:
 
 Ignore any optional steps - the goal is just to get PHP pages to display.
 
-Note that on Windows, it is probable that port 80 will be occupied preventing PHP to run. To fix the problem,      
-run the command terminal as administrator (by right-clicking on cmd.exe, and selecting Run as Administrator), and enter the following line :
+Note that on Windows, it is probable that port 80 will be occupied, preventing PHP from running. To fix the problem, run the command terminal as administrator (by right-clicking on cmd.exe, and selecting Run as Administrator), and enter the following line :
 
         $ net stop http
 
-This will terminate unimportant Windows processes using port 80.  (Mind that Skype may also use port 80 
-unless you change your Skype settings.)
+This will terminate unimportant Windows processes using port 80.  (Be aware that Skype may also use port 80, unless you change your Skype settings.)
 
 Now, navigate to the directory from which your HTML and PHP files are being served (in Linux for example, 
 this would be `/var/www/` or `/var/www/html/`; for AMPPS on Windows, this would be `C:\path\to\Ampps\www\`, i.e. the installation path of AMPPS; and for Mac OS, this would likely be `/Users/<your user name>/Sites/`) and install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/) -- however, if you are using Windows, please see the following!).  If you are on Windows, do *not* install the latest or the recommended version of Node.js (which is probably some 14.x version of Node.js), but rather the significantly-older version 12.8.3 of Node.js, a Windows installer for which can be found in the node-v12.18.3-x64.msi file within the directory https://nodejs.org/download/release/v12.18.3/.  (This is because the Serialport package, which we will be downloading later, conflicts with more recent versions of Node.js on Windows.  Node.js version 12.8.3 does everything we need Node.js to do, so we're not in need of a more recent version.  We have not \[yet?\] found this conflict to be a problem on Mac or on Linux, only on Windows, so if you are on Mac or Linux, please just install the nodejs.org-recommended version of Node.js, rather than restricting yourself to Node.js 12.8.3, and just let me know if you see a problem later in any case.)
