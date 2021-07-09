@@ -263,7 +263,9 @@ virtual optical disk on your virtual machine, install it, and you're done! Gener
 [https://linus.nci.nih.gov/bdge/installUbuntu.html](https://linus.nci.nih.gov/bdge/installUbuntu.html)
 
 Then follow the upper instructions concerning Linux installation (though be sure to note that the port 80 problem described above remains, as your 
-connection is provided by a Windows machine).
+connection is provided by a Windows machine).<br><br>
+
+
 
 ### <ins>Some debugging hints if you need them (all OS's)</ins>
 
