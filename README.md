@@ -68,8 +68,10 @@ and one that might possibly need to be (depending on your setup):
 
 The next steps depend heavily on the operating system.
 
-#### <ins><span style="color:yellow">Linux (tested on Mint 18.2)</span></ins>
-
+<span style="color:yellow">
+#### <ins>Linux (tested on Mint 18.2)</ins>
+</span>
+	
 The following packages are needed and can be installed from your package manager (eg. `sudo apt-get install [package]`):
 
  * build-essential
