@@ -312,5 +312,5 @@ On Windows, if you are still getting mysterious permissions problems with pred_S
     make
     cp /cygdrive/c/cygwin64/bin/*.dll .
 
-and then try running pred_StationKeep.exe (or one of the other pred executables) in a regular command prompt terminal again at that point.  (I have absolutely no idea why the above seems to work when nothing else does, however it certainly did for me at very least once, and then repeatedly worked for me afterward for at very least the rest of that day.  This appears to be an unidentified flying Windows permissions problem \[UFWPP\] ...)
+and then try running pred_StationKeep.exe (or one of the other pred executables) in a regular command prompt terminal again at that point.  (I have absolutely no idea why the above seems to work when nothing else does, however it certainly did for me at very least once, and then repeatedly worked for me afterward for at very least the rest of that day.  This appears to me to be an unidentified flying Windows permissions problem \[UFWPP\] ...)
     
