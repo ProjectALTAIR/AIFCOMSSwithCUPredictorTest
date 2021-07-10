@@ -303,3 +303,14 @@ On any OS, if you run into problems with your npm packages that you installed vi
     npm rebuild
     
 will sometimes help a lot.
+
+On Windows, if you are still getting mysterious permissions problems with pred_StationKeep.exe (and/or pred.exe or pred_ALTAIR.exe), even after checking the Windows ACLs of the executable and its pred_src directory, trying to run as Administrator, etc, then try copying ALL of the \*.dll files from the cygwin installation directory into the pred_src directory -- i.e., in a Cygwin terminal, navigating to your pred_src directory, then doing
+
+    make clean
+    rm *.dll
+    cmake .
+    make
+    cp /cygdrive/c/cygwin64/bin/*.dll .
+
+and then try running pred_StationKeep.exe (or one of the other pred executables) in a regular command prompt terminal again at that point.  (I have absolutely no idea why the above seems to work when nothing else does, however it certainly did for me at very least once, and then repeatedly worked for me afterward for at very least the rest of that day.  This appears to be an unidentified flying Windows permissions problem \[UFWPP\] ...)
+    
