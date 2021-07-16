@@ -175,7 +175,7 @@ would be a third option, if you so choose.  Note that if you choose to install V
 your Windows machine, then after you install Visual Studio, all commands below must be run in powershell, rather
 than in the standard Windows command - you can access powershell from the standard Windows command line by
 typing: `$ powershell`, and note that it is also necessary to run the command terminal with Administrator privileges) is required to compile some of the source files - download Cygwin at 
-[https://www.cygwin.com](https://www.cygwin.com). Run the setup, and in addition to the default packages also install:
+[https://www.cygwin.com](https://www.cygwin.com). Run the setup, choosing the default installation options -- but in addition to the default packages also install:
 
  - devel -> gcc-g++
  - devel -> make
@@ -251,6 +251,8 @@ audibleAlarms variable on that line from `true` to `false`, and then re-run (and
 
 Also, ***IF*** you get the error "This process does not have permission to listen on port 8080" when you run node server.cjs, then in that case please try the suggestion on this page: https://medium.com/@myolisi/how-to-fix-error-eacces-permission-denied-8080-in-nodejs-66d6cd5b2ed5, i.e. find the other process that is blocking your port 8080 using "netstat -aon | findstr 8080" and then kill it using "Stop-Process -ID <process_ID> -Force" (and let me know if you have any problems with that).
 
+And ***IF*** you are not getting a blue flight path prediction curve on the map in the upper left browser frame, make sure that Ampps is running (and if it is, try restarting it), and then check your `AIFCOMSSwithCUPredictorTest/predict/preds/` folder for new predictor output subdirectories.  Within the new predictor output subdirectory (which will have a long gibberish-like hexadecimal name), look in the `py_log` file for the main output of the process.  Then look at the "Some debugging hints ..." below (especially the one at the very bottom) for common problems. 
+
 
 <i>If you prefer VirtualBox to Cygwin</i>:
 
@@ -313,4 +315,6 @@ On Windows, if you are still getting mysterious permissions problems with pred_S
     cp /cygdrive/c/cygwin64/bin/*.dll .
 
 and then try running pred_StationKeep.exe (or one of the other pred executables) in a regular command prompt terminal again at that point -- and making sure to do **ALL** of the above when logged in with an Administrator account.  (I have absolutely no idea why the above seems to work when nothing else does, however it certainly did for me at very least once, and then repeatedly worked for me afterward for at very least the rest of that day.  However, it **ONLY** works when one is logged in as an Administrator, so that both the Cygwin terminal AND the command prompt have Administrator privileges.  Otherwise, it doesn't fix the persistent mysterious permissions problems at all.  And failing to do any of the above, even when logged in as an Administrator, doesn't fix anything either.  This appears to me to just be an unidentified flying Windows permissions problem \[UFWPP\] ...)
+
+**UPDATE**: The above Windows 10 permissions problem with pred_StationKeep.exe appears to not in fact be a permissions problem at all, but rather a problem with Windows 10 Exploit Protection settings!!!  In the Start menu, go to Settings, then to Windows Security, then to App & browser control, then to Exploit protection settings, then to the Program settings within Exploit protection settings -- and then add each of pred_StationKeep.exe, pred_ALTAIR.exe, and pred.exe to provide each of those executables with its own custom program settings.  Then, manually remove all default exploit protection settings that have been turned on for those executables (i.e., turn them off), and then save those settings.  That then solves the mysterious "Access is denied." problems with these executables (that occur even when their ACLs allow full control of these executables)!!!
     
