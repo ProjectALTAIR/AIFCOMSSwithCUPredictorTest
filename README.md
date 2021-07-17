@@ -141,7 +141,7 @@ Once compiled, the following files must be made executable (`sudo chmod +x [file
  * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/cron/prune-predictions-cronjob.sh`
 
 Furthermore, the `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/preds` and `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/gfs` 
-directories must be given full (rwx) access by the PHP interpreter and both `predict.py` files. The simplest way to do so is 
+directories must be given full (rwx) access by the PHP interpreter and the `predict.py` file. The simplest way to do so is 
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
 
 Navigate back to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_python3.txt` to install some of the 
