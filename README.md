@@ -134,8 +134,9 @@ and then running `brew install glib` \[and `brew install pkgconfig` if you need 
 Once compiled, the following files must be made executable (`sudo chmod +x [file]`):
 
  * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict.py`
- * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/predict.py`
  * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/pred_src/pred`
+ * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/pred_src/pred_ALTAIR`
+ * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/pred_src/pred_StationKeep`
  * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/cron/clear-pydap-cache-cronjob.sh`
  * `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/cron/prune-predictions-cronjob.sh`
 
