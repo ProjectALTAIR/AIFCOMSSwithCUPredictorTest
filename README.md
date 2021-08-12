@@ -101,7 +101,15 @@ directories must be given full (rwx) access by the PHP interpreter and both `pre
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
 
 Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_python3.txt` to install the 
-Python requirements. Change directories to `/var/www/AIFCOMSSwithCUPredictorTest/predict/` and run `npm update` to install the remaining requirements.
+Python requirements. Change directories to `/var/www/AIFCOMSSwithCUPredictorTest/predict/` and run 
+
+    npm install
+
+then
+
+    npm update
+
+to install the remaining requirements.
 
 Then, within this same `predict` directory, create the symbolic link files `altairpos.txt` and `altairdata.txt` via the commands
 
