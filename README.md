@@ -91,6 +91,8 @@ to compile the code found there. Once compiled, the following files must be made
 
  * `/var/www/AIFCOMSSwithCUPredictorTest/predict.py`
  * `/var/www/AIFCOMSSwithCUPredictorTest/pred_src/pred`
+ * `/var/www/AIFCOMSSwithCUPredictorTest/pred_src/pred_ALTAIR`
+ * `/var/www/AIFCOMSSwithCUPredictorTest/pred_src/pred_StationKeep`
  * `/var/www/AIFCOMSSwithCUPredictorTest/cron/clear-pydap-cache-cronjob.sh`
  * `/var/www/AIFCOMSSwithCUPredictorTest/cron/prune-predictions-cronjob.sh`
 
