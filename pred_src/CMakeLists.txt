@@ -3,7 +3,7 @@
 # Original version: Rich Wareham <rjw57@cam.ac.uk>
 
 # Use PkgConfig to find the glib libraries
-find_package(PkgConfig)
+find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(GLIB REQUIRED glib-2.0)
 
