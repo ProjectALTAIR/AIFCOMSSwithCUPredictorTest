@@ -313,6 +313,12 @@ even if you properly installed libglib2.0 and libglib2.0-devel , etc (per the ab
     
 and then re-do cmake . and then make.  The above error should then go away, and then your pred executables should get built properly.
 
+On any OS (*especially* just after one upgrades OS versions on one's computer) if, when doing the `make` command within the pred_src directory, you constantly get an error saying that the file glib.h can't be found (or get a similar problem with `make` being unable to find other system include files on your computer), then this problem may be due to CMake having cached the old location of your system include files and libraries, and thus you need to get rid of that old CMake-cached info, and ensure that CMake updates these locations.  Run the command:
+
+    source ./cmakeclean.script
+    
+and then run `make` again, following the above.  Doing the above command will remake your CMake-cached system file location info, and hopefully fix your problem!
+
 On any OS, if you run into problems with your npm packages that you installed via `npm install` (perhaps multiple times in the past), and attempted to update via `npm update`, then
 
     npm rebuild
