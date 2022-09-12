@@ -1,5 +1,5 @@
 numpy==1.22.0
-simplejson==3.17.0
+simplejson==2.6.1
 statsd-client==1.0.7
 httplib2==0.19.1
 Pydap==3.2.1
