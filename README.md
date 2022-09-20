@@ -35,10 +35,10 @@ Note that on Windows, it is probable that port 80 will be occupied, preventing P
 
 This will terminate unimportant Windows processes using port 80.  (Be aware that Skype may also use port 80, unless you change your Skype settings.)
 
-Now, install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/) -- however, if you are using Windows, please see the following!).  If you are on Windows, do *not* install the latest or the recommended version of Node.js (which is probably some 14.x version of Node.js), but rather the significantly-older version 12.8.3 of Node.js, a Windows installer for which can be found in the node-v12.18.3-x64.msi file within the directory https://nodejs.org/download/release/v12.18.3/.  (This is because the Serialport package, which we will be downloading later, conflicts with more recent versions of Node.js on Windows.  Node.js version 12.8.3 does everything we need Node.js to do, so we're not in need of a more recent version.  We have not \[yet?\] found this conflict to be a problem on Mac or on Linux, only on Windows, so if you are on Mac or Linux, please just install the nodejs.org-recommended version of Node.js, rather than restricting yourself to Node.js 12.8.3, and just let me know if you see a problem later in any case.)  Use the default Node.js installation, but making sure to add Node.js executables to your PATH if asked during the installation.  (One might need to add the Node.js executables to one's PATH manually at some point afterwards, since installation might not ask if this is wanted, and also might not do it automatically -- but if so, you will find out later that having these executables in your PATH will be needed when the system fails to find them, but that's OK, you can just add them to your PATH at that point.)
+Now, install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/).  Use the default Node.js installation, of the version of Node.js that is "Recommended for most users" on that nodejs.org site, but making sure to add Node.js executables to your PATH if asked during the installation.  (One might need to add the Node.js executables to one's PATH manually at some point afterwards, since installation might not ask if this is wanted, and also might not do it automatically -- but if so, you will find out later that having these executables in your PATH will be needed when the system fails to find them, but that's OK, you can just add them to your PATH at that point.)
 
 Then, navigate to the directory from which your HTML and PHP files are being served (in Linux for example, 
-this would be `/var/www/` or `/var/www/html/`; for AMPPS on Windows, this would be `C:\path\to\Ampps\www\`, i.e. the installation path of AMPPS; and for Mac OS, this would likely be `/Users/<your user name>/Sites/`) and install version 1.83 (not necessarily the most recent version, but version 1.83) of CesiumJS ([https://cesium.com/downloads/](https://cesium.com/downloads/)) to an **entirely** new subdirectory here (i.e. create a new subdirectory before installing CesiumJS v1.83 into that subdirectory) - you'll need it later. 
+this would be `/var/www/` or `/var/www/html/`; for AMPPS on Windows, this would be `C:\path\to\Ampps\www\`, i.e. the installation path of AMPPS; and for Mac OS, this would likely be `/Users/<your user name>/Sites/`) and install version 1.97 (not necessarily the most recent version, but version 1.97) of CesiumJS ([https://cesium.com/downloads/](https://cesium.com/downloads/)) to an **entirely** new subdirectory here (i.e. create a new subdirectory before installing CesiumJS v1.97 into that subdirectory) - you'll need it later. 
 
 <!--- For Ubuntu, and Linux in general, Node-v6.11.2 is required. It is very easy to install through the following commands :
  
@@ -122,7 +122,7 @@ You should then have AIFCOMSS running in your web browser.<br><br>
 
 
 
-### <ins>Mac OS X</ins> (tested on v. 10.13.5 "High Sierra" and on v. 10.14.2 "Mojave")
+### <ins>Mac OS X</ins> (tested on v. 10.13.5 "High Sierra", on v. 10.14.2 "Mojave", and on v. 12.6 "Catalina")
 
 Check that you have CMake installed on your Mac by typing `which cmake` in a terminal window from your
 `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` directory.  If you don't have it, then download the .dmg
