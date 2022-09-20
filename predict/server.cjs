@@ -13,7 +13,7 @@ const chokidar = require("chokidar");
 const compression = require("compression");
 const express = require("express");
 
-// JA Serial port connection code part 1 BEGIN  (added 13sep16, mod for Cesium1.94 on )
+// JA Serial port connection code part 1 BEGIN  (added 13sep16, mod for Cesium1.97 on 19sep22)
            
   const constjsvars = require('./js_variables.cjs');
   const ROOT_DIR = constjsvars.ROOT_DIR;
@@ -627,7 +627,7 @@ const serveResult = (result, fileName, res, next) => {
         );
       }
 
-// JA Serial port connection code part 2 BEGIN  (added 13sep16, mod for Cesium1.94 on )
+// JA Serial port connection code part 2 BEGIN  (added 13sep16, mod for Cesium1.97 on 19sep22)
         
       if (arduinoPortName.localeCompare("") == 0) {
           console.warn("");
