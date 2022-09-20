@@ -90,9 +90,8 @@ if (ALTAIRInpLat <= 90. && ALTAIRInpLat >= -90. && ALTAIRInpLon <= 180. && ALTAI
 }
 
 var ALTAIRGroundPos     = [ Cesium.Cartographic.fromDegrees(ALTAIRLon, ALTAIRLat) ];
-var terrainPromise      = Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos);
 var ALTAIRTerrainHeight = window.document.getElementById('terrHeight');
-Cesium.when(terrainPromise, function(updatedPositions) {
+Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos).then(function (updatedPositions) {
   ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
 });
 var theLocation  = Cesium.Cartesian3.fromDegrees(ALTAIRLon - epsilonDegs, ALTAIRLat - epsilonDegs, ALTAIRAlt+100.);
@@ -260,8 +259,7 @@ viewer.clock.onTick.addEventListener(function () {
         ALTAIRAlt = parseFloat(aLTAIRAltInput.value);
 
         ALTAIRGroundPos     = [ Cesium.Cartographic.fromDegrees(ALTAIRLon, ALTAIRLat) ];
-        terrainPromise      = Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos);
-        Cesium.when(terrainPromise, function(updatedPositions) {
+        Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos).then(function (updatedPositions) {
           ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
         });
 
