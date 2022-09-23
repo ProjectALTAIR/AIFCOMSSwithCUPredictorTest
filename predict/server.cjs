@@ -41,7 +41,8 @@ const express = require("express");
   SerialPort.list().then(
     ports => {
       ports.forEach(port => {
-        if (port.manufacturer && port.manufacturer.includes("Arduino")) {
+//        console.log(port);
+        if (port.manufacturer?.includes("Arduino") || port.vendorId?.includes("2341")) {
           arduinoPortName = port.path;
 //          console.log('Arduino connected to: ' + port.path);
         }
