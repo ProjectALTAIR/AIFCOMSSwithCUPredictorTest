@@ -1644,19 +1644,20 @@ function getScopeTrackingCommand() {
 
   // Refraction correction is based on Saemundsson's Formula, which gives the
   // elevation offset for a celestial object as a function of actual elevation.
-  // Properly, it only applies to the entire airmass, so will only be accurate
-  // if the target is very high in the atmosphere.  Consequently
-  // we only apply a correction equal to the fractional vertical airmass 
-  // multiplied by the nominal correction.  We approximate the 
-  // fractional vertical airmass by (1 - e^(-z/H)), where z is the 
+  // Properly, it only applies to the entire airmass, so would only be accurate
+  // if the target were far above the atmosphere.  Consequently
+  // we only apply a correction equal to the square of the fractional vertical
+  // airmass multiplied by the nominal correction.  We approximate the
+  // fractional vertical airmass by (1 - e^(-z/H)), where z is the
   // altitude difference between ALTAIR and the ground station, and H
-  // is the typical scale height of Earth's atmosphere, equal to 7650 meters. 
+  // is the typical scale height of Earth's atmosphere, equal to 7650 meters.
   // The magnitude of the refraction correction is negligibly small for
   // altitudes more than 40 deg above the horizon.  The formula
   // gives the elevation correction in minutes of arc.
 
-  var refraction = 1.02 / tan(radians(degrees(el) + (10.3 / (degrees(el) + 5.11))));
-  el = el + (radians(refraction/60.) * (1. - exp((groundEle-ele)/7650.)));
+  var refraction   = 1.02 / tan(radians(degrees(el) + (10.3 / (degrees(el) + 5.11))));
+  var fracvertairm = 1.   - exp((groundEle-ele)/7650.);
+  el = el + (radians(refraction/60.) * fracvertairm * fracvertairm);
 
   var azString = hex(round(az * 65536. / TWO_PI), 4);
   var elString = hex(round(el * 65536. / TWO_PI), 4);
