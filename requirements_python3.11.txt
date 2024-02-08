@@ -1,0 +1,4 @@
+simplejson==3.17.0
+statsd-client==1.0.7
+httplib2==0.22.0
+pydap==3.4.1
