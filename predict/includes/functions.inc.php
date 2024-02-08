@@ -164,6 +164,7 @@ function runPred($pred_model) {
     if (defined("PYTHON"))
         $sh = PYTHON . " " . $sh;
 
+    putenv("OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES");
     file_put_contents($log, "Command: " . $sh . "\n");
     chmod( $log , 0666 );
     $commout = shell_exec($sh);
