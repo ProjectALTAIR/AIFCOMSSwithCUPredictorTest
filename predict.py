@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# This is the Python 3 version of this file.  
-# (Tested in Python 3.8.3 with Anaconda, but should work in other Python versions, and certainly more recent versions.)
+# This is the Python 3.11 version of this file.  
+# (Tested in Python 3.11.5 with Anaconda.)
 
 # Modules from the Python standard library.
 import datetime
@@ -720,11 +720,16 @@ def write_file(output_format, thedata, window, mintime, maxtime):
                 for lonidx, longitude in enumerate(hgtprs.maps['lon']):
                     if longitude_distance(longitude, window[2]) > window[3]:
                         continue
-                    record = ( hgtprs.array[pressureidx,latidx,lonidx], \
-                               ugrdprs.array[pressureidx,latidx,lonidx], \
-                               vgrdprs.array[pressureidx,latidx,lonidx], \
-                               tmpprs.array[pressureidx,latidx,lonidx], \
-                               vvelprs.array[pressureidx,latidx,lonidx] )
+                    # record = ( hgtprs.array[pressureidx,latidx,lonidx], \
+                    #            ugrdprs.array[pressureidx,latidx,lonidx], \
+                    #            vgrdprs.array[pressureidx,latidx,lonidx], \
+                    #            tmpprs.array[pressureidx,latidx,lonidx], \
+                    #            vvelprs.array[pressureidx,latidx,lonidx] )
+                    record = ( hgtprs.array[pressureidx,latidx,lonidx].data, \
+                               ugrdprs.array[pressureidx,latidx,lonidx].data, \
+                               vgrdprs.array[pressureidx,latidx,lonidx].data, \
+                               tmpprs.array[pressureidx,latidx,lonidx].data, \
+                               vvelprs.array[pressureidx,latidx,lonidx].data )
                     # record = ( hgtprs.array[0,pressureidx,latidx,lonidx].data, \
                     #            ugrdprs.array[0,pressureidx,latidx,lonidx].data, \
                     #            vgrdprs.array[0,pressureidx,latidx,lonidx].data, \
@@ -869,10 +874,10 @@ def dataset_for_time(time, hd):
             ## print('and end time data = ', dataset['time'][-1].data)
             # print('and sub-time = ', dataset.time.data)
 
-            start_time = timestamp_to_datetime(dataset.time[0])
-            end_time = timestamp_to_datetime(dataset.time[-1])
-            # start_time = timestamp_to_datetime(dataset['time'][0].data)  #j
-            # end_time = timestamp_to_datetime(dataset['time'][-1].data)   #j
+            # start_time = timestamp_to_datetime(dataset.time[0])
+            # end_time = timestamp_to_datetime(dataset.time[-1])
+            start_time = timestamp_to_datetime(dataset['time'][0].data)  #j
+            end_time = timestamp_to_datetime(dataset['time'][-1].data)   #j
 
             print('start time = ', start_time)
             print('end time = ', end_time)
