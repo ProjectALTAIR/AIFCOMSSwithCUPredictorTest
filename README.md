@@ -100,7 +100,7 @@ Furthermore, the `/var/www/AIFCOMSSwithCUPredictorTest/predict/preds` and `/var/
 directories must be given full (rwx) access by the PHP interpreter and both `predict.py` files. The simplest way to do so is 
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
 
-Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_python3.txt` to install the 
+Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `pip install -r requirements_python3.11.txt` to install the 
 Python requirements. Change directories to `/var/www/AIFCOMSSwithCUPredictorTest/predict/` and run 
 
     npm install
@@ -154,8 +154,7 @@ Furthermore, the `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/pred
 directories must be given full (rwx) access by the PHP interpreter and the `predict.py` file. The simplest way to do so is 
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
 
-Navigate back to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` and run `sudo -H pip install -r requirements_python3.txt` to install some of the 
-Python requirements. Change directories to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/` and run 
+Navigate back to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/` and run `pip install -r requirements_python3.11.txt` to install some of the Python requirements. Change directories to `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/` and run 
 
     npm install
 
@@ -222,7 +221,7 @@ Then, open a new Cygwin terminal window, navigate to the `AIFCOMSSwithCUPredicto
 
 and then (if the result of the above looks good -- i.e. there's an anaconda in the directory name), run
 
-    pip install -r requirements_python3.txt
+    pip install -r requirements_python3.11.txt
 
 to install the Python requirements.  (Note that you might need to use the full path to the location of your pip.exe executable.
 That above pip installation also assumes that you have [git](https://git-scm.com/download/win) already installed on your computer;
