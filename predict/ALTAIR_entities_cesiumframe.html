@@ -32,14 +32,19 @@
   <div id="cesiumContainer"></div>
   <script>
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjN2ZmZmNiOC0yNWYzLTQ2NTItOWYwYi1lM2UxN2YwZWNjMWIiLCJpZCI6NTQxOSwic2NvcGVzIjpbImFzciIsImdjIl0sImlhdCI6MTU0MzI5Mzc2OX0.iK0qz6cVGhplj9tIBTEjIHIvPqEwP9tXlhELYuo2fSM';
-    var viewer = new Cesium.Viewer('cesiumContainer',{
-        terrainProvider : new Cesium.CesiumTerrainProvider({
-            url: Cesium.IonResource.fromAssetId(1)
-        })
+    const viewer = new Cesium.Viewer('cesiumContainer',{
+        baseLayer: Cesium.ImageryLayer.fromWorldImagery({
+            style: Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS,
+        }),
+        baseLayerPicker: false,
+        terrain: Cesium.Terrain.fromWorldTerrain()
+//        terrainProvider : new Cesium.CesiumTerrainProvider({
+//            url: Cesium.IonResource.fromAssetId(1)
+//        })
     });
-    var imageryLayer = viewer.imageryLayers.addImageryProvider(
-        new Cesium.IonImageryProvider({ assetId: 2 })
-    );
+//    var imageryLayer = viewer.imageryLayers.addImageryProvider(
+//        new Cesium.IonImageryProvider({ assetId: 2 })
+//    );
 //    viewer.scene.globe.enableLighting = true;
 //    viewer.cesiumWidget.creditContainer.parentElement.style.bottom = '0px';
 //    viewer.cesiumWidget.creditContainer = '';
