@@ -24,7 +24,7 @@ import createRoute from "./scripts/createRoute.js";
   import SerialPort from "serialport";
 //  const {SerialPort} = require('serialport');
   import ReadlineParser from "@serialport/parser-readline";
-  import bindings from "@serialport/bindings";
+  import { autoDetect } from "@serialport/bindings-cpp";
   import { WebSocketServer } from "ws";
 
   const SERVER_PORT = 8081;               // port number for the webSocket server
@@ -35,13 +35,14 @@ import createRoute from "./scripts/createRoute.js";
   const arduinoPortString2     = "COM4";
   const arduinoPortString2a    = process.argv[2];
 
-  var arduinoPortName        = "";
-  var genericPortNamesList   = "Connected serial port names: ";
-  var myPort                 = null;
-  var myConnection           = null;
+  var arduinoPortName          = "";
+  var genericPortNamesList     = "Connected serial port names: ";
+  var myPort                   = null;
+  var myConnection             = null;
 
+  const binding                = autoDetect();
 
-  bindings.list().then(ports => {
+  binding.list().then(ports => {
       ports.forEach(port => {
 //        console.log(port);
         if (port.manufacturer?.includes("Arduino") || port.vendorId?.includes("2341")) {
