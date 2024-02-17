@@ -21,9 +21,9 @@ import createRoute from "./scripts/createRoute.js";
 
   console.log("Thinking for a moment...");
 
-  import SerialPort from "serialport";
+  import { SerialPort } from "serialport";
 //  const {SerialPort} = require('serialport');
-  import ReadlineParser from "@serialport/parser-readline";
+  import { ReadlineParser } from "@serialport/parser-readline";
   import { autoDetect } from "@serialport/bindings-cpp";
   import { WebSocketServer } from "ws";
 
