@@ -116,7 +116,7 @@ Then, within this same `predict` directory, create the symbolic link files `alta
     ln -s /tmp/altairpos.txt .
     ln -s /tmp/altairdata.txt .
 
-Then, in this same `predict` directory, run `node server.cjs`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
+Then, in this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
 You should then have AIFCOMSS running in your web browser.<br><br>
 
@@ -169,7 +169,7 @@ Then, within this same `predict` directory, create the symbolic link files `alta
     ln -s /tmp/altairpos.txt .
     ln -s /tmp/altairdata.txt .
 
-Then, in this same `predict` directory, run `node server.cjs`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
+Then, in this same `predict` directory, run `node server.js`.  Open a web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`.
 
 You should then have AIFCOMSS running in your web browser.<br><br>
 
@@ -252,14 +252,14 @@ restart Apache.
 
 In a new terminal, navigate to the `AIFCOMSSwithCUPredictorTest/predict` directory, and run
 
-    node server.cjs
+    node server.js
 
 Open your web browser, and navigate to `http://localhost:8080/AIFCOMSS.html`. You should then have AIFCOMSS running in your browser.  
 
 ***IF*** the bottom frame (the p5.js window) always just says "Loading ..." (that problem can often occur, especially on some Windows systems), then modify line 6 of `predict\ALTAIR_entities_p5frame.js` to change the value of the
 audibleAlarms variable on that line from `true` to `false`, and then re-run (and let me know if you have any problems).
 
-Also, ***IF*** you get the error "This process does not have permission to listen on port 8080" when you run node server.cjs, then in that case please try the suggestion on this page: https://medium.com/@myolisi/how-to-fix-error-eacces-permission-denied-8080-in-nodejs-66d6cd5b2ed5, i.e. find the other process that is blocking your port 8080 using "netstat -aon | findstr 8080" and then kill it using "Stop-Process -ID <process_ID> -Force" (and let me know if you have any problems with that).
+Also, ***IF*** you get the error "This process does not have permission to listen on port 8080" when you run node server.js, then in that case please try the suggestion on this page: https://medium.com/@myolisi/how-to-fix-error-eacces-permission-denied-8080-in-nodejs-66d6cd5b2ed5, i.e. find the other process that is blocking your port 8080 using "netstat -aon | findstr 8080" and then kill it using "Stop-Process -ID <process_ID> -Force" (and let me know if you have any problems with that).
 
 And ***IF*** you are not getting a blue flight path prediction curve on the map in the upper left browser frame, make sure that Ampps is running (and if it is, try restarting it), and then check your `AIFCOMSSwithCUPredictorTest/predict/preds/` folder for new predictor output subdirectories.  Within the new predictor output subdirectory (which will have a long gibberish-like hexadecimal name), look in the `py_log` file for the main output of the process.  Then look at the "Some debugging hints ..." below (especially the one at the very bottom) for common problems. 
 
@@ -291,7 +291,7 @@ The log files for the different code languages used can be found in the location
 
     sudo apachectl restart
 
-and then re-running node server.cjs and AIFCOMSS.  If that doesn't help, then check that going to http://localhost in a web browser (without the :8080, and http rather than https !) is, in fact, taking you to the **parent** directory of your AIFCOMSSwithCUPredictorTest/ directory -- since, especially on MacOS, and especially right after OS upgrades or disk transfers to another computer, your /etc/apache2/httpd.conf file can get completely messed up and reset (see above, near the top of this README file), which puts your DocumentRoot setting in the wrong place (possibly amongst other problems with /etc/apache2/httpd.conf which can occur !) -- if that has happened, then replace your new /etc/apache2/httpd.conf with your previous, good /etc/apache2/httpd.conf file.  
+and then re-running node server.js and AIFCOMSS.  If that doesn't help, then check that going to http://localhost in a web browser (without the :8080, and http rather than https !) is, in fact, taking you to the **parent** directory of your AIFCOMSSwithCUPredictorTest/ directory -- since, especially on MacOS, and especially right after OS upgrades or disk transfers to another computer, your /etc/apache2/httpd.conf file can get completely messed up and reset (see above, near the top of this README file), which puts your DocumentRoot setting in the wrong place (possibly amongst other problems with /etc/apache2/httpd.conf which can occur !) -- if that has happened, then replace your new /etc/apache2/httpd.conf with your previous, good /etc/apache2/httpd.conf file.  
 
 On Windows, try either a) restarting Apache within AMPPS (there is a toggle switch in the AMPSS window for doing that), or b) restarting AMPSS entirely; and then (after having done either a or b), re-running node server.cjs and AIFCOMSS.  On any one of the three operating systems -- if you haven't run AIFCOMSS in a while (or are running the flight path prediction for the very first time), and are not getting a flight path prediction the first time you run it after your long hiatus
 since your last AIFCOMSS run (or, on your first AIFCOMSS flight path prediction run), then try just reloading the browser -- typically you just need that one browser reload to get the flight path prediction going (after it takes its ~20 seconds to determine the flight path prediction, of course).
