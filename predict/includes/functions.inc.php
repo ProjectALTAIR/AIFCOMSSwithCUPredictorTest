@@ -40,6 +40,7 @@ function createModel($post_array) {
 
     $pred_model['software'] = $post_array['software'];
 
+    date_default_timezone_set('UTC');
     // Make a timestamp of the form data
     $pred_model['timestamp'] = mktime($pred_model['hour'], $pred_model['min'], 
         $pred_model['sec'], $pred_model['month'], $pred_model['day'], 
