@@ -19,4 +19,4 @@ comment the last 5 lines, i.e. the lines:
         </Directory>
     </IfModule>
 
-Then, things should work on SELinux.
+Then, finish the rest of the AIFCOMSS installation; and then things should work on SELinux.
