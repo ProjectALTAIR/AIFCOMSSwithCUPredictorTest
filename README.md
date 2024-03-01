@@ -68,7 +68,7 @@ The next steps depend heavily on the operating system.<br><br>
 
 
 
-### <ins>Linux</ins> (tested on Mint 18.2)
+### <ins>Linux</ins> (tested on Mint 21.2 and Mint 18.2)
 	
 The following packages are needed and can be installed from your package manager (eg. `sudo apt-get install [package]`):
 
@@ -99,6 +99,8 @@ to compile the code found there. Once compiled, the following files must be made
 Furthermore, the `/var/www/AIFCOMSSwithCUPredictorTest/predict/preds` and `/var/www/AIFCOMSSwithCUPredictorTest/gfs` 
 directories must be given full (rwx) access by the PHP interpreter and both `predict.py` files. The simplest way to do so is 
 using `sudo chmod a+rwx [directory]`, although safety-conscious users may want to be more selective with their permissions.
+
+***If*** you have SELinux (Security-Enhanced Linux) enabled, you will need to do this [couple of extra steps](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/blob/master/README_CaveatsInstallingOnSELinux.md).
 
 Navigate back to `/var/www/AIFCOMSSwithCUPredictorTest/` and run `pip install -r requirements_python3.11.txt` to install the 
 Python requirements. Change directories to `/var/www/AIFCOMSSwithCUPredictorTest/predict/` and run 
@@ -175,7 +177,7 @@ You should then have AIFCOMSS running in your web browser.<br><br>
 
 
 
-### <ins>Windows</ins> (tested on Windows 7 and Windows 10)
+### <ins>Windows</ins> (tested on Windows 10 and Windows 7)
 
 Windows has no built in C compiler or interpreter.
 
