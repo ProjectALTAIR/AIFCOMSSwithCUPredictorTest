@@ -18,3 +18,5 @@ comment the last 5 lines, i.e. the lines:
             php_admin_flag engine Off
         </Directory>
     </IfModule>
+
+Then, things should work on SELinux.
