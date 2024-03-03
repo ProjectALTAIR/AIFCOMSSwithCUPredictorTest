@@ -11,7 +11,7 @@ change the default `DocumentRoot` from `/var/www` to `/var/www/html`, and within
     </Directory>
 
 and in `etc/apache2/mods-available/php8.1.conf`  
-comment the last 5 lines, i.e. the lines:  
+comment out the last 5 lines, i.e. the lines:  
 
     <IfModule mod_userdir.c>
         <Directory /home/*/public_html>
