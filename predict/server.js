@@ -17,7 +17,7 @@ import createRoute from "./scripts/createRoute.js";
 
 // JA Serial port connection code part 1 BEGIN  (added 13sep16, mod for Cesium1.114 on 9feb24)
 
-  const ROOT_DIR = '/Users/jalbert/Sites/AIFCOMSSwithCUPredictorTest/predict/';
+  import ROOT_DIR from './js_variables.js';
 
   console.log("Thinking for a moment...");
 
