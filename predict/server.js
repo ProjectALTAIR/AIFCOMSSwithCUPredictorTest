@@ -111,7 +111,7 @@ import createRoute from "./scripts/createRoute.js";
               console.log("Sending to serial: " + data + " at: " + date + " + " + date.getMilliseconds() + " milliseconds");
               myPort.write(data);
            } else {
-              console.log("I tried to send the following to the NONEXISTANT serial connection: " + data + " at: " + date + " + " + date.getMilliseconds() + " milliseconds");
+              console.log("I tried to send the following to the NONEXISTENT serial connection: " + data + " at: " + date + " + " + date.getMilliseconds() + " milliseconds");
            }
       }
   }
