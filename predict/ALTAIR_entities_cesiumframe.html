@@ -264,6 +264,14 @@ viewer.clock.onTick.addEventListener(function () {
         ALTAIRAlt = parseFloat(aLTAIRAltInput.value);
 
         ALTAIRGroundPos     = [ Cesium.Cartographic.fromDegrees(ALTAIRLon, ALTAIRLat) ];
+
+//        console.log(window);
+//        console.log(window.parent);
+//        console.log(window.parent.p5frame);
+//        console.log(window.parent.p5frame.document);
+//        console.log(window.parent.p5frame.document.getElementById('gLTAIRLat'));
+//        console.log(aLTAIRLatInput);
+      
         Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos).then(function (updatedPositions) {
           ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
         });
@@ -297,6 +305,7 @@ viewer.clock.onTick.addEventListener(function () {
             (ALTAIRPropLeft[i]).orientation  = orientationPropLeft[i];
             (ALTAIRPropRight[i]).orientation = orientationPropRight[i];
         }
+        if (eventCounter < 50) viewer.zoomTo(viewer.entities);
     }
 });
 
