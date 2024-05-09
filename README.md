@@ -8,9 +8,6 @@ Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; Mac screenshot
 <details>
 	<summary>Installation instructions and debugging hits for <b><i>Linux</i></b> machines</summary>
 	Linux instructions and debugging hints will be moved/copied here.
-
-        <summary>Installation instructions and debugging hits for <b><i>MacOS</i></b> machines</summary>
-	Mac instructions and debugging hints will be moved/copied here. 
 </details>
 <details>
 	<summary>Installation instructions and debugging hits for <b><i>MacOS</i></b> machines</summary>
