@@ -6,15 +6,15 @@ Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; Mac screenshot
 <img src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_9jul18.jpg" data-canonical-src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotWindows_9jul18.jpg" width=336 height=240 /> &nbsp; &nbsp; <img src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotMac_24jun18.jpg" data-canonical-src="https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/raw/master/screenshots/AIFCOMSSScreenshotMac_24jun18.jpg" width=336 height=240 />
 
 <details>
-	<summary>Installation instructions and debugging hits for ***Linux*** machines</summary>
+	<summary>Installation instructions and debugging hits for <b><i>Linux</i></b> machines</summary>
 	Linux instructions and debugging hints will be moved/copied here.
 </details>
 <details>
-	<summary>Installation instructions and debugging hits for ***MacOS*** machines</summary>
+	<summary>Installation instructions and debugging hits for <b><i>MacOS</i></b> machines</summary>
 	Mac instructions and debugging hints will be moved/copied here.
 </details>
 <details>
-	<summary>Installation instructions and debugging hits for ***Windows*** machines</summary>
+	<summary>Installation instructions and debugging hits for <b><i>Windows</i></b> machines</summary>
 	Windows instructions and debugging hints will be moved/copied here.
 </details>
 
