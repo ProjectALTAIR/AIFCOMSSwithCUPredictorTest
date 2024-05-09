@@ -1,5 +1,5 @@
 # AIFCOMSS with [CUSF](https://github.com/cuspaceflight) Prediction
-These instructions are intended to be read from https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest , on the bottom half of that page.  So please go to [that page](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest#readme) instead, if you are reading them from another location.<br>
+These instructions are intended to be read from https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest, on the bottom half of that page.  So please go to [that page](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest#readme) instead, if you are reading them from another location.<br>
 
 Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; Mac screenshot (on Safari v. 11 browser)                
 
@@ -308,7 +308,11 @@ The log files for the different code languages used can be found in the location
 
     sudo apachectl restart
 
-and then re-running node server.js and AIFCOMSS.  If that doesn't help, then check that going to http://localhost in a web browser (without the :8080, and http rather than https !) is, in fact, taking you to the **parent** directory of your AIFCOMSSwithCUPredictorTest/ directory -- since, especially on MacOS, and especially right after OS upgrades or disk transfers to another computer, your /etc/apache2/httpd.conf file can get completely messed up and reset (see above, near the top of this README file), which puts your DocumentRoot setting in the wrong place (possibly amongst other problems with /etc/apache2/httpd.conf which can occur !) -- if that has happened, then replace your new /etc/apache2/httpd.conf with your previous, good /etc/apache2/httpd.conf file.  
+and then re-running node server.js and AIFCOMSS.  On Macs, if that doesn't work, try
+
+    brew services restart httpd
+
+and then re-running node server.js and AIFCOMSS.  If neither of those help, then check that going to http://localhost in a web browser (without the :8080, and http rather than https !) is, in fact, taking you to the **parent** directory of your AIFCOMSSwithCUPredictorTest/ directory -- since, especially on MacOS, and especially right after OS upgrades or disk transfers to another computer, your /etc/apache2/httpd.conf file can get completely messed up and reset (see above, near the top of this README file), which puts your DocumentRoot setting in the wrong place (possibly amongst other problems with /etc/apache2/httpd.conf which can occur !) -- if that has happened, then replace your new /etc/apache2/httpd.conf with your previous, good /etc/apache2/httpd.conf file.  
 
 On Windows, try either a) restarting Apache within AMPPS (there is a toggle switch in the AMPSS window for doing that), or b) restarting AMPSS entirely; and then (after having done either a or b), re-running node server.js and AIFCOMSS.  On any one of the three operating systems -- if you haven't run AIFCOMSS in a while (or are running the flight path prediction for the very first time), and are not getting a flight path prediction the first time you run it after your long hiatus
 since your last AIFCOMSS run (or, on your first AIFCOMSS flight path prediction run), then try just reloading the browser -- typically you just need that one browser reload to get the flight path prediction going (after it takes its ~20 seconds to determine the flight path prediction, of course).
