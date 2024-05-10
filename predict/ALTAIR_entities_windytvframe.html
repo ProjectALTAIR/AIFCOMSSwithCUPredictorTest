@@ -205,7 +205,7 @@
                 var lat = parseFloat(aLTAIRLatInput.value);
                 var lon = parseFloat(aLTAIRLonInput.value);
                 map.panTo([lat, lon]);
-                makePred(map);
+                makePred(map,lat,lon);
                 latLonsALTAIRPath.push([lat,lon]);
 
 //                broadcast.once('redrawFinished', () => {
@@ -260,7 +260,7 @@
                 $('.leaflet-top.leaflet-left').prepend("<div>Wind altitude</div>");
         }
 
-        function makePred(map) {
+        function makePred(map,lat,lon) {
                 $.ajax({
                     url:      'flight_path.csv',
                     dataType: 'text',
@@ -281,6 +281,14 @@
                          }
                          var thePredline = L.polyline(latLonsALTAIRPred, {color: 'blue'}).addTo( map );
                          lastPredline = thePredline;
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                         var errorMsg = 'No flight path prediction found!!!!!<br/>Please wait ~30 seconds and/or check your predict/preds/ subdirectory.';
+                         var errorMarker = L.marker([lat-0.005, lon+0.03])
+                                            .bindTooltip(errorMsg, { permanent: true, className: "err_marker", offset: [-20,40] })
+                                            .addTo( map );
+                         errorMarker.setOpacity( 0.65 );
+                         $(".err_marker").html(errorMsg);
                     }
                 });
         }
