@@ -7,7 +7,7 @@ Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; Mac screenshot
 
 <details>
 	<summary>Installation instructions and debugging hints for <b><i>Linux</i></b> machines</summary>
-        <br>
+
 ### <ins>Linux</ins> (tested on Mint 21.2 and Mint 18.2)
 After first [completely uninstalling any other version of Anaconda](https://docs.anaconda.com/free/anaconda/install/uninstall/) or of [Python](https://www.wikihow.com/Uninstall-Python) that you might possibly already have on your computer, please install the Python 3.11 version of [Anaconda](https://www.anaconda.com/products/individual), using the installer that can be found near the bottom of [this page](https://www.anaconda.com/products/individual). Please do absolutely **nothing** via sudo or otherwise with superuser priviliges unless you absolutely have to, i.e. if there is absolutely no other way to install or perform the given action on your machine without sudo. [Installation instructions for the Anaconda installer can be found here.](https://docs.anaconda.com/anaconda/install/)
 If asked during the installation, make sure to add Anaconda3 to your PATH environment variable (even though it might say that that option is not recommended), as well as registering Anaconda3 as your default Python 3.11 (if that is asked as well).  Once you have that installed, you should then have Python 3.11 installed on your computer -- it is part of the Anaconda installation.  After you successfully install the Python 3.11 version of Anaconda on your machine, you should reboot your computer (so that Anaconda's settings to make it the default location for your Python application, etc., can take effect).<br>
@@ -117,7 +117,7 @@ will sometimes help a lot.
 </details>
 <details>
 	<summary>Installation instructions and debugging hints for <b><i>MacOS</i></b> machines</summary>
-            <br>
+
 ### (tested on v. 14.3 "Sonoma", on v. 12.6 "Catalina", and on earlier MacOS versions)
 
 After first [completely uninstalling any other version of Anaconda](https://docs.anaconda.com/free/anaconda/install/uninstall/) or of [Python](https://www.wikihow.com/Uninstall-Python) that you might possibly already have on your  Mac computer, please install the Python 3.11 version of [Anaconda](https://www.anaconda.com/products/individual), using the installer that can be found near the bottom of [this page](https://www.anaconda.com/products/individual). Using the command-line version of the Anaconda installer. Please do absolutely **nothing** via sudo or otherwise with superuser priviliges unless you absolutely have to, i.e. if there is absolutely no other way to install or perform the given action on your machine without sudo.
@@ -234,7 +234,7 @@ will sometimes help a lot.
 </details>
 <details>
 	<summary>Installation instructions and debugging hints for <b><i>Windows</i></b> machines</summary>
-        <br>
+
 
 ### <ins>Windows</ins> (tested on Windows 11, Windows 10 and Windows 7)
 Please be sure to be logged into an account with Administrator privileges for EVERY step in these instructions. 
