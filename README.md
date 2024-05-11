@@ -118,7 +118,7 @@ will sometimes help a lot.
 <details>
 	<summary>Installation instructions and debugging hints for <b><i>MacOS</i></b> machines</summary>
 
-### (tested on v. 14.3 "Sonoma", on v. 12.6 "Catalina", and on earlier MacOS versions)
+### MacOS (tested on v. 14.3 "Sonoma", on v. 12.6 "Catalina", and on earlier MacOS versions)
 
 After first [completely uninstalling any other version of Anaconda](https://docs.anaconda.com/free/anaconda/install/uninstall/) or of [Python](https://www.wikihow.com/Uninstall-Python) that you might possibly already have on your  Mac computer, please install the Python 3.11 version of [Anaconda](https://www.anaconda.com/products/individual), using the installer that can be found near the bottom of [this page](https://www.anaconda.com/products/individual). Using the command-line version of the Anaconda installer. Please do absolutely **nothing** via sudo or otherwise with superuser priviliges unless you absolutely have to, i.e. if there is absolutely no other way to install or perform the given action on your machine without sudo.
 If asked during the installation, make sure to add Anaconda3 to your PATH environment variable (even though it might say that that option is not recommended), as well as registering Anaconda3 as your default Python 3.11 (if that is asked as well).
