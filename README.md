@@ -218,6 +218,10 @@ The log files for the different code languages used can be found in the location
 
     sudo apachectl restart
 
+and then re-running node server.js and AIFCOMSS.  If that doesn't work, try
+
+    brew services restart httpd
+
 and then re-running node server.js and AIFCOMSS.  If that doesn't help, then check that going to http://localhost in a web browser (without the :8080, and http rather than https !) is, in fact, taking you to the **parent** directory of your AIFCOMSSwithCUPredictorTest/ directory -- since, especially on MacOS, and especially right after OS upgrades or disk transfers to another computer, your /etc/apache2/httpd.conf file can get completely messed up and reset (see above, near the top of this README file), which puts your DocumentRoot setting in the wrong place (possibly amongst other problems with /etc/apache2/httpd.conf which can occur !) -- if that has happened, then replace your new /etc/apache2/httpd.conf with your previous, good /etc/apache2/httpd.conf file.  
 
 If when doing the `make` command within the pred_src directory, (*especially* just after one upgrades OS versions on one's computer), you constantly get an error saying that the file glib.h can't be found (or get a similar problem with `make` being unable to find other system include files on your computer), then this problem may be due to CMake having cached the old location of your system include files and libraries, and thus you need to get rid of that old CMake-cached info, and ensure that CMake updates these locations.  Run the command:
