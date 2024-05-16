@@ -128,7 +128,7 @@ Once you have that installed, you should then have Python 3.11 installed on your
 
 Then, also following the reboot mentioned above, 
 this package <i>also</i> requires the installation of an 
-AMP (Apache/MySQL/PHP) stack. Instructions can be found online on:
+AMP (Apache/MySQL/PHP) stack. Instructions for installing an AMP stack, which depend on which version of macOS (note that you can find the version of macOS that you are currently running by looking in the "About This Mac" window under the Apple menu in the toolbar on the upper left of your screen) can be found online on:
 
 ### A sub-dropdown menu to choose what type of Mac (i.e. Apple M chip or Intel CPU; OSX version) will go here soon:
 <details>
