@@ -133,22 +133,26 @@ AMP (Apache/MySQL/PHP) stack. Instructions for installing an AMP stack, which de
 ### Please select the version of the macOS operating system that you are running here:
 <details>
    <summary>AMP stack installation instructions for Macs running MacOS 12.x.y (Monterey), MacOS 13.x.y (Ventura), or MacOS 14.x.y (Sonoma)</summary>
+	
 Instructions for setting up an AMP stack in Monterey, i.e. Mac OS 12.x.y, and higher can be found (for example) [here (for PHP & Apache](https://getgrav.org/blog/macos-monterey-apache-multiple-php-versions) and [here (for MySQL)](https://tech-cookbook.com/2021/10/25/how-to-setup-mamp-macos-apache-mysql-php-on-macos-12-monterey-2021/), but you must *definitely* note the following for macOS Monterey and higher!!!.  ⚠️Starting with MacOS Monterey (12.x.y), MacOS does **not** come with PHP (although it does come with Apache), and you will need to install PHP "ab initio" if you have (or have upgraded to) MacOS >=12.x.y ⚠️ -- to install PHP on Monterey or higher, see [here](https://getgrav.org/blog/macos-monterey-apache-multiple-php-versions) however there are, unfortunately, ⚠️multiple necessary [caveats](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest/blob/master/README_CaveatsInstallingPHPonMacOSMonterey.md) to that page ⚠️ that you will need to know if installing PHP on MacOS >= 12.x.y Monterey.
 </details>
 <details>
    <summary>AMP stack installation instructions for Macs running MacOS 10.15.x (Catalina) or MacOS 11.x.y (Big Sur)</summary>
+	
 Instructions for setting up an AMP stack in Catalina, i.e. Mac OS 10.15.x, can be found (for example) [here](https://tech-cookbook.com/2019/10/07/setting-up-your-local-server-on-macos-catalina-2019-mamp/) and [here](https://medium.com/@firstsquares/macos-catalina-set-up-localhost-e4a0b5d5be33).
 	Note that all versions of macOS ⚠️**prior to Monterey, i.e. prior to MacOS 12.x.y** ⚠️, already come with both Apache and PHP installed (you just need to turn them on, and also to install mySQL).
 	But for all versions of macOS ⚠️**prior to Monterey**⚠️, **do certainly be sure to modify your /etc/apache2/httpd.conf file to make sure that DocumentRoot is pointing to your "/Users/YOUR_USERNAME/Sites/" directory and not the default "/Library/WebServer/Documents" directory, though** (and that may need to be renewed each time you update the OS -- for example when updating from High Sierra to Mojave, Apache gets re-installed and the httpd.conf file goes back to its default).
 </details>
 <details>
    <summary>AMP stack installation instructions for Macs running MacOS 10.14.x (Mojave)</summary>
+	
 Instructions for setting up an AMP stack in Mojave, i.e. Mac OS 10.14, can be found (for example) [here](https://coolestguidesontheplanet.com/install-apache-mysql-php-on-macos-mojave-10-14/).
 	Note that all versions of macOS ⚠️**prior to Monterey, i.e. prior to MacOS 12.x.y** ⚠️, already come with both Apache and PHP installed (you just need to turn them on, and also to install mySQL).
 	But for all versions of macOS ⚠️**prior to Monterey**⚠️, **do certainly be sure to modify your /etc/apache2/httpd.conf file to make sure that DocumentRoot is pointing to your "/Users/YOUR_USERNAME/Sites/" directory and not the default "/Library/WebServer/Documents" directory, though** (and that may need to be renewed each time you update the OS -- for example when updating from High Sierra to Mojave, Apache gets re-installed and the httpd.conf file goes back to its default).
 </details>
 <details>
    <summary>AMP stack installation instructions for Macs running MacOS 10.13.x (High Sierra) or earlier</summary>
+	
 Instructions for setting up an AMP stack in High Sierra, i.e. Mac OS 10.13, can be found (for example) [here](https://websitebeaver.com/set-up-localhost-on-macos-high-sierra-apache-mysql-and-php-7-with-sslhttps).
 	You can simply google `mac apache` for instructions on setting the AMP stack up in macOS versions that are earlier than 10.13 (if you're running with such an ancient Mac OS version).
 	Note that all versions of macOS ⚠️**prior to Monterey, i.e. prior to MacOS 12.x.y** ⚠️, already come with both Apache and PHP installed (you just need to turn them on, and also to install mySQL, and if you have a pre-High Sierra OS version, i.e. pre- Mac OS 10.13, then you'll need to upgrade your PHP from v.5 to v.7.1, but you won't need to install either Apache or PHP ab initio).
