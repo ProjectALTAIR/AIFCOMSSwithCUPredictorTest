@@ -158,7 +158,7 @@ Instructions for setting up an AMP stack in High Sierra, i.e. Mac OS 10.13, can 
 	But for all versions of macOS ⚠️**prior to Monterey**⚠️, **do certainly be sure to modify your /etc/apache2/httpd.conf file to make sure that DocumentRoot is pointing to your "/Users/YOUR_USERNAME/Sites/" directory and not the default "/Library/WebServer/Documents" directory, though** (and that may need to be renewed each time you update the OS -- for example when updating from High Sierra to Mojave, Apache gets re-installed and the httpd.conf file goes back to its default).
 </details>
 
-In **all** cases above, ignore any optional steps - the goal is just to get PHP pages to display and run.
+In ***all*** cases above, ignore any optional steps - the goal is just to get PHP pages to display and run.
 
 Now, install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/)).  Use the default Node.js installation, of the version of Node.js that is "Recommended for most users" on that nodejs.org site, but making sure to add Node.js executables to your PATH if asked during the installation.  (One might need to add the Node.js executables to one's PATH manually at some point afterwards, since installation might not ask if this is wanted, and also might not do it automatically -- but if so, you will find out later that having these executables in your PATH will be needed when the system fails to find them, but that's OK, you can just add them to your PATH at that point.)
 
