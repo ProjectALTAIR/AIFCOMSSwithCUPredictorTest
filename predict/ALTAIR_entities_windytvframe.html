@@ -34,10 +34,12 @@
     <script type="text/javascript">
 
     var lastMarker = 0;
+    var errorMarker = 0;
     var lastPolyline = 0;
     var lastPredline = 0;
     var latLonsALTAIRPath = [];
     var latLonsALTAIRPred = [];
+    var errorMsg = 'No flight path prediction found!!!!!<br/>Please wait ~30 seconds and/or check your predict/preds/ subdirectory.';
 
     const options = {
 
@@ -269,6 +271,10 @@
 //                            lastPredline.remove();
                               map.removeLayer(lastPredline);
                          }
+			 if (errorMarker != 0) {
+                            map.removeLayer(errorMarker);
+                            map.removeLayer($(".err_marker"));
+                         }
                          var allRows = result.split(/\r?\n|\r/);
                          latLonsALTAIRPred = [];
                          for (var singleRow = 0; singleRow < allRows.length; singleRow++) {
@@ -283,10 +289,13 @@
                          lastPredline = thePredline;
                     },
                     error: function(XMLHttpRequest, textStatus, errorThrown) {
-                         var errorMsg = 'No flight path prediction found!!!!!<br/>Please wait ~30 seconds and/or check your predict/preds/ subdirectory.';
-                         var errorMarker = L.marker([lat-0.005, lon+0.03])
-                                            .bindTooltip(errorMsg, { permanent: true, className: "err_marker", offset: [-20,40] })
-                                            .addTo( map );
+                         if (errorMarker != 0) {
+                            map.removeLayer(errorMarker);
+                            map.removeLayer($(".err_marker"));
+                         }
+			 errorMarker = L.marker([lat-0.005, lon+0.03])
+                                        .bindTooltip(errorMsg, { permanent: true, className: "err_marker", offset: [-20,40] })
+                                        .addTo( map );
                          errorMarker.setOpacity( 0.65 );
                          $(".err_marker").html(errorMsg);
                     }
