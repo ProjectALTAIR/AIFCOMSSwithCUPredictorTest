@@ -1648,15 +1648,16 @@ function getScopeTrackingCommand() {
   // if the target were far above the atmosphere.  Consequently
   // we only apply a correction equal to the square of the fractional vertical
   // airmass multiplied by the nominal correction.  We approximate the
-  // fractional vertical airmass by (1 - e^(-z/H)), where z is the
-  // altitude difference between ALTAIR and the ground station, and H
-  // is the typical scale height of Earth's atmosphere, equal to 7650 meters.
+  // fractional vertical airmass by e^(-groundEle/H) - e^(-ele/H), where                 
+  // groundEle is the elevation above sea level of the ground station, ele is     
+  // the elevation above sea level of ALTAIR, and H is the typical scale
+  // height of Earth's atmosphere -- equal to 7650 meters.
   // The magnitude of the refraction correction is negligibly small for
   // altitudes more than 40 deg above the horizon.  The formula
   // gives the elevation correction in minutes of arc.
 
   var refraction   = 1.02 / tan(radians(degrees(el) + (10.3 / (degrees(el) + 5.11))));
-  var fracvertairm = 1.   - exp((groundEle-ele)/7650.);
+  var fracvertairm = exp(-groundEle/7650.) - exp(-ele/7650.);
   el = el + (radians(refraction/60.) * fracvertairm * fracvertairm);
 
   var azString = hex(round(az * 65536. / TWO_PI), 4);
