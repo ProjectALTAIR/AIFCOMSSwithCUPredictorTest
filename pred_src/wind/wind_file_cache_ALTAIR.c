@@ -281,35 +281,71 @@ wind_file_cache_find_entry(wind_file_cache_t *cache,
                 wind_file_cache_entry_t** earlier,
                 wind_file_cache_entry_t** later)
 {
+        // wind_file_cache_entry_t* earlierCands[4];
+        // wind_file_cache_entry_t* laterCands[4];
+
         assert(cache && earlier && later);
 
         *earlier = *later = NULL;
         
+        // fprintf(stderr, "Entered wind_file_cache_find_entry...\n");   // don't uncomment this unless _absolutely_ necessary -- it spews this message to py_log endlessly...
         // This is the best we can do if we have no entries.
         if(cache->n_entries == 0)
                 return;
 
+        // fprintf(stderr, "...and found some entries.\n");              // don't uncomment this unless _absolutely_ necessary -- it spews this message to py_log endlessly...
         // Search for earlier and later entries which match
+        // unsigned int earlyCandNum = 0, laterCandNum = 0;
         unsigned int i;
         for(i=0; i<cache->n_entries; ++i)
         {
                 wind_file_cache_entry_t* entry = cache->entries[i];
 
+                float entryLatDist   = fabs(          entry->lat - lat);
+                float entryLonDist   = _lon_dist(     entry->lon,  lon);
+                float earlierLatDist = 0.;
+                float earlierLonDist = 0.;
+                float   laterLatDist = 0.;
+                float   laterLonDist = 0.;
+                if(*earlier) {
+                      earlierLatDist = fabs(     (*earlier)->lat - lat);
+                      earlierLonDist = _lon_dist((*earlier)->lon,  lon);
+                }
+                if(*later) {
+                        laterLatDist = fabs(       (*later)->lat - lat);
+                        laterLonDist = _lon_dist(  (*later)->lon,  lon);
+                }
                 if(entry->timestamp <= timestamp) {
                         // This is an earlier entry
-                        if(!(*earlier) || (entry->timestamp > (*earlier)->timestamp))
+                        // fprintf(stderr, "Found an earlier entry.\n"); // don't uncomment this unless _absolutely_ necessary -- it spews this message to py_log endlessly...
+                        if(!(*earlier) || (entry->timestamp > (*earlier)->timestamp) || 
+                           ((entryLatDist <  earlierLatDist) && (entryLonDist <= earlierLonDist)) ||
+                           ((entryLatDist <= earlierLatDist) && (entryLonDist <  earlierLonDist)))
                         {
-                                if(wind_file_cache_entry_contains_point(entry,lat,lon))
+                                if(wind_file_cache_entry_contains_point(entry,lat,lon)) {
                                         *earlier = entry;
+                                        // earlierCands[earlyCandNum] = entry;
+                                        // ++earlyCandNum;
+                                }
                         }
                 } else {
                         // This is a later entry
-                        if(!(*later) || (entry->timestamp < (*later)->timestamp)) {
-                                if(wind_file_cache_entry_contains_point(entry,lat,lon))
-                                        *later = entry;
+                        // fprintf(stderr, "Found a later entry.\n");   // don't uncomment this unless _absolutely_ necessary -- it spews this message to py_log endlessly...
+                        if(!(*later) || (entry->timestamp < (*later)->timestamp) ||
+                           ((entryLatDist <    laterLatDist) && (entryLonDist <=   laterLonDist)) ||
+                           ((entryLatDist <=   laterLatDist) && (entryLonDist <    laterLonDist)))
+
+                        {
+                                if(wind_file_cache_entry_contains_point(entry,lat,lon)) {
+                                         *later = entry;
+                                         // laterCands[laterCandNum] = entry;
+                                         // ++laterCandNum;
+                                }
                         }
                 }
         }
+        // fprintf(stderr, "earlyCandNum = %u  and laterCandNum = %u.  minLatDiff = %f  and minLonDiff = %f.\n", earlyCandNum, laterCandNum, minLatDiff, minLonDiff);
+        // fflush(stderr);
 }
 
 const char*

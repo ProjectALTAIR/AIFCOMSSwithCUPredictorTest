@@ -24,6 +24,7 @@ extern int   verbosity;
 //                                   70000.0, 65000.0, 60000.0, 55000.0, 50000.0, 45000.0, 40000.0, 35000.0,
 //                                   30000.0, 25000.0, 20000.0, 15000.0, 10000.0,  7000.0,  5000.0,  3000.0,
 //                                    2000.0,  1000.0,   700.0,   500.0,   300.0,   200.0,   100.0 };
+// new pressure levels: 4000, 1500, and 40 Pa (all in the stratosphere)
 const  float pressurelev[34] = { 100000.0, 97500.0, 95000.0, 92500.0, 90000.0, 85000.0, 80000.0, 75000.0, 
                                   70000.0, 65000.0, 60000.0, 55000.0, 50000.0, 45000.0, 40000.0, 35000.0,
                                   30000.0, 25000.0, 20000.0, 15000.0, 10000.0,  7000.0,  5000.0,  4000.0, 3000.0,
@@ -520,6 +521,7 @@ wind_file_get_wind(wind_file_t* file, float lat, float lon, float height,
         assert(file);
         assert(windu && windv);
 
+//        fprintf(stderr, "Entered wind_file_get_wind.\n"); 
         // canonicalise the longitude
         lon = _canonicalise_longitude(lon);
 
@@ -643,7 +645,7 @@ wind_file_get_wind(wind_file_t* file, float lat, float lon, float height,
                            ((interp_height >= left_height) || 
                             (left_pr_idx == file->axes[0]->n_values)))
                         {
-// Check that the wind doesn't have crazy/stupid values at this location.  And only set pr_idx and height values if it doesn't.                         
+// Check that the wind doesn't have crazy/stupid values at this location.  Only set pr_idx and height values if it doesn't.
                             float theu, thev, thet, thez;
                             _wind_file_get_wind_raw(file,
                                 left_lat_idx, left_lon_idx, i, &theu, &thev, &thet, &thez);
@@ -657,7 +659,7 @@ wind_file_get_wind(wind_file_t* file, float lat, float lon, float height,
                            ((interp_height <= right_height) ||
                             (right_pr_idx == file->axes[0]->n_values)))
                         {
-// Check that the wind doesn't have crazy/stupid values at this location.  And only set pr_idx and height values if it doesn't.                          
+// Check that the wind doesn't have crazy/stupid values at this location.  Only set pr_idx and height values if it doesn't.
                             float theu, thev, thet, thez;
                             _wind_file_get_wind_raw(file,
                                 right_lat_idx, right_lon_idx, i, &theu, &thev, &thet, &thez);
