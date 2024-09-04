@@ -131,9 +131,9 @@ function EH_LaunchCard() {
         'initial_alt': aLTAIRAltInput,
         'drag':        5,
         'burst':   30000,
-        'delta_lat':   3,
-        'delta_lon':   3,
-        'delta_time': 10,
+        'delta_lat':  15,
+        'delta_lon':  15,
+        'delta_time': 50,
         'software':    'gfs'
     };
 
