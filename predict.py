@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# This is the Python 3.11 version of this file.  
-# (Tested in Python 3.11.5 with Anaconda.)
+# This is the Python 3 version of this file.  
+# (Tested in Python 3.8.3 with Anaconda, but should work in other Python versions, and certainly more recent versions.)
 
 # Modules from the Python standard library.
 import datetime
@@ -14,12 +14,16 @@ import logging
 import traceback
 import calendar
 import optparse
+import ctypes
+import signal
 import subprocess
 import statsd
 import tempfile
 import shutil
 import bisect
 import simplejson as json
+import re
+import httplib2
 
 # handle both predict.py's
 filepath = os.path.dirname(os.path.abspath(__file__))
@@ -48,22 +52,24 @@ else:
 statsd.init_statsd({'STATSD_BUCKET_PREFIX': 'habhub.predictor'})
 
 # We use Pydap from http://pydap.org/.
-import pydap.exceptions, pydap.client, pydap.lib
-pydap.lib.CACHE = "/tmp/pydap-cache/"
+import pydap.client, pydap.exceptions
+# from pydap.exceptions import ClientError
+# Unfortunately the NOAA GFS file servers appear to prohibit the use of a cache, so the below 2 lines are commented out
+# import pydap.lib                      					#cache
+# pydap.lib.CACHE = "/tmp/pydap-cache/"    					#cache
 
 # horrid, horrid monkey patching to force
 # otherwise broken caching from dods server
 # this is really, really hacky
 # 
-# import pydap.util.http
-# def fresh(response_headers, request_headers):
-#     cc = pydap.util.http.httplib2._parse_cache_control(response_headers)
-#     if cc.has_key('no-cache'):
-#         return 'STALE'
-#     return 'FRESH'
+# from pydap.util import http as pyhttp						#cache
+# def fresh(response_headers, request_headers):					#cache
+#     cc = pyhttp.httplib2._parse_cache_control(response_headers)		#cache
+#     if cc.has_key('no-cache'):						#cache
+#         return 'STALE'							#cache
+#     return 'FRESH'								#cache
 # pydap.util.http.httplib2._entry_disposition = fresh
 
-import httplib2
 def fresh(response_headers, request_headers):
     cc = httplib2._parse_cache_control(response_headers)
     if cc.has_key('no-cache'):
@@ -71,12 +77,49 @@ def fresh(response_headers, request_headers):
     return 'FRESH'
 httplib2._entry_disposition = fresh
 
+
+def print_linenum(signum, frame):
+    log.info('Process interrupted by SIGINT.  Currently at line:')
+    log.info(frame.f_lineno)
+
+def print_term_linenum(signum, frame):
+    log.info('Process received signal SIGTERM.  Currently at line:')
+    log.info(frame.f_lineno)
+
+def print_hup_linenum(signum, frame):
+    log.info('Process received signal SIGHUP.  Currently at line:')
+    log.info(frame.f_lineno)
+
+def print_quit_linenum(signum, frame):
+    log.info('Process received signal SIGQUIT.  Currently at line:')
+    log.info(frame.f_lineno)
+
+def print_alrm_linenum(signum, frame):
+    log.info('Process received signal SIGALRM.  Currently at line:')
+    log.info(frame.f_lineno)
+
+c_globals = ctypes.CDLL(None) # POSIX
+
+@ctypes.CFUNCTYPE(None, ctypes.c_int)
+def print_abrt_linenum(signum, frame):
+    log.info('Process terminated by SIGABRT.  Currently at line:')
+    log.info(frame.f_lineno)
+
+c_globals.signal(signal.SIGABRT, print_abrt_linenum)
+signal.signal(signal.SIGINT, print_linenum)
+signal.signal(signal.SIGTERM, print_term_linenum)
+signal.signal(signal.SIGHUP, print_hup_linenum)
+signal.signal(signal.SIGQUIT, print_quit_linenum)
+signal.signal(signal.SIGALRM, print_alrm_linenum)
+
 # Output logger format
 log = logging.getLogger('main')
 log_formatter = logging.Formatter('%(levelname)s: %(message)s')
 console = logging.StreamHandler()
 console.setFormatter(log_formatter)
 log.addHandler(console)
+exit_code = 0
+gfs_dir = b''
 
 progress_f = ''
 progress = {
@@ -112,6 +155,8 @@ def main():
     """
     The main program routine.
     """
+
+    print('starting predict.py Python code ...')
 
     statsd.increment('run')
 
@@ -265,10 +310,39 @@ def main():
     if options.verbose > 3:
         logging.basicConfig(level=logging.DEBUG)
 
-    log.debug('Using cache directory: %s' % pydap.lib.CACHE)
+    pred_in_progress = False
+    pred_process = None
+    pred_output = []
+    download_and_process_wind_data(options.lat, options.lon, options.timestamp, options, pred_in_progress, pred_process, pred_output, uuid_path, OS_IS_WINDOWS)
 
-    timestamp_to_find = options.timestamp
-    time_to_find = datetime.datetime.utcfromtimestamp(timestamp_to_find)
+    if exit_code == 1:
+        # Hard error from the predictor. Tell the javascript it completed, so that it will show the trace,
+        # but pop up a 'warnings' window with the error messages
+        log.info('predict.py exit code is 1.  Exiting...')
+        update_progress(pred_running=False, pred_complete=True, warnings=True, pred_output=pred_output)
+        statsd.increment('success_serious_warnings')
+    elif pred_output:
+        # Soft error (altitude too low error, typically): pred_output being set forces the debug
+        # window open with the messages in
+        update_progress(pred_running=False, pred_complete=True, pred_output=pred_output)
+        statsd.increment('success_minor_warnings')
+    else:
+        log.info('The predictor pred.exe executable exit_code = %s' % exit_code )
+        assert exit_code == 0
+        update_progress(pred_running=False, pred_complete=True)
+        statsd.increment('success')  
+ 
+    copy_flight_path(uuid_path, OS_IS_WINDOWS)
+
+    shutil.rmtree(gfs_dir)
+
+
+def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_progress, pred_process, pred_output, uuid_path, OS_IS_WINDOWS):
+    # log.debug('Using cache directory: %s' % pydap.lib.CACHE)				#cache
+    global exit_code
+    global gfs_dir
+
+    time_to_find = datetime.datetime.utcfromtimestamp(thetime)
     # utcoffset = datetime.timedelta(hours = 7.0)
     # time_to_find -= utcoffset
 
@@ -276,10 +350,12 @@ def main():
     try:
         dataset = dataset_for_time(time_to_find, options.hd)
     except:
-        log.error('Could not locate a dataset for the requested time.')
+        log.info('Could not locate a dataset for the requested time.')
         statsd.increment('no_dataset')
         statsd.increment('error')
-        sys.exit(1)
+        exit_code = 1
+        return
+#        sys.exit(1)
 
 #    dataset_times = map(timestamp_to_datetime, dataset.time)
 #    dataset_timestamps = map(datetime_to_posix, dataset_times)
@@ -299,45 +375,84 @@ def main():
 
     # log.info('      Latitude: %s -> %s' % (min(dataset.lat), max(dataset.lat)))
     # log.info('     Longitude: %s -> %s' % (min(dataset.lon), max(dataset.lon)))
-    log.info('      Latitude: %s -> %s' % (min(list(dataset.lat)), max(list(dataset.lat))))
-    log.info('     Longitude: %s -> %s' % (min(list(dataset.lon)), max(list(dataset.lon))))
+    # log.info('      Latitude: %s -> %s' % (min(list(dataset.lat)), max(list(dataset.lat))))
+    # log.info('     Longitude: %s -> %s' % (min(list(dataset.lon)), max(list(dataset.lon))))
 
 #    for dlat in range(0,options.lattiles):
 #        for dlon in range(0,options.lontiles):
     window = ( \
-            options.lat, options.latdelta, \
-            options.lon, options.londelta)
+            thelat, options.latdelta, \
+            thelon, options.londelta)
 
 #    gfs_dir = "/var/www/cusf-standalone-predictor/gfs/"
-    gfs_dir = os.path.join(ROOT_DIR, "gfs")
-
-    gfs_dir = tempfile.mkdtemp(dir=gfs_dir)
+    if gfs_dir == b'':
+        gfs_dir = os.path.join(ROOT_DIR, "gfs")
+        gfs_dir = tempfile.mkdtemp(dir=gfs_dir)
 
     gfs_filename = "gfs_%(time)_%(lat)_%(lon)_%(latdelta)_%(londelta).dat"
     output_format = os.path.join(gfs_dir, gfs_filename)
 
-    write_file(output_format, dataset, \
+    write_file_return_code = write_file(output_format, dataset, \
             window, \
             time_to_find - datetime.timedelta(hours=options.past), \
             time_to_find + datetime.timedelta(hours=options.future))
+    if write_file_return_code == 1:
+        log.debug('write_file_return_code is 1')
+        exit_code = 1
+        return
 
-    #purge_cache()
+    # no cache to purge, since the NOAA GFS wind file server prohibits use of a cache
+    # purge_cache()							#cache
+    log.info('Done downloading this set of wind data files')
+    if pred_in_progress:
+        haventSaidWeveSentItYet = True
+        while True:
+            pred_process.stdin.write(b'D\n')    # tell the pred subprocess that the download is done, by sending a big D to the stdin of the pred subprocess
+            pred_process.stdin.flush()
+            if haventSaidWeveSentItYet:
+                log.info('Sent a big D to the stdin of the pred subprocess')
+                haventSaidWeveSentItYet = False
+            breakOutOfMainLoop = False
+            # pred_process.stdout.seek(0)            # ensure we start at the beginning -- actually, can't do this with stdout, so this is commented out
+            while True:
+                line = pred_process.stdout.readline()
+                if not line or line == b'':
+                    break
+                sys.stdout.write(line.decode(sys.stdout.encoding))
+                if b'INFO: The pred C code got' in line:
+                    log.info('Message received')
+                    breakOutOfMainLoop = True
+                    break
+            if breakOutOfMainLoop:
+                break
+
     
     update_progress(gfs_percent=100, gfs_timeremaining='Done', gfs_complete=True, pred_running=True)
-    
+
     if options.alarm:
         alarm_flags = ["-a120"]
     else:
         alarm_flags = []
 
-    command = [pred_binary, '-i', gfs_dir, '-vv', '-o', uuid_path+'flight_path.csv', uuid_path+'scenario.ini']
-    log.info('The command is:')
-    log.info(command)
-    pred_process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    pred_output = []
+    if not pred_in_progress:
+        command = [pred_binary, '-i', gfs_dir, '-vv', '-o', uuid_path+'flight_path.csv', uuid_path+'scenario.ini']
+        log.info('The command is:')
+        log.info(command)
+        pred_process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        # pred_process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        pred_in_progress = True
+
+    # pred_process.stdout.seek(0)            # ensure we start at the beginning -- actually, can't do this with stdout, so this is commented out
+
+    copy_flight_path(uuid_path, OS_IS_WINDOWS)
 
     while True:
+        if exit_code == 1:
+            return
+
         line = pred_process.stdout.readline()
+        if not line:
+            break
         if line == b'':
             break
 
@@ -346,53 +461,50 @@ def main():
         # the required Python 3 obfuscation of the above line ...
         sys.stdout.write(line.decode(sys.stdout.encoding))
 
-        # if "ERROR: Do not have wind data" in line:
-        # more required Python 3 obfuscation ...
-        if b'ERROR: Do not have wind data' in line:
-            pred_output = ["One of the latitude, longitude or time deltas ({0}, {1}, {2}) was too small."
-                           .format(options.latdelta, options.londelta, options.future),
-                           "Please adjust the settings accordingly and re-run your prediction.",
-                           ""] + pred_output
+        pattern = re.compile(r"WARNING: Attempting to download additional wind data centred at (\d+\.\d+), (\d+\.\d+) and starting at (\d+)")
+        patmatch = pattern.match(line.decode('utf-8')) 
+        if patmatch is not None:
+            newlatcen    = float(patmatch.group(1))
+            newloncen    = float(patmatch.group(2))
+            newtimestart = int(patmatch.group(3))
+            if thelat != newlatcen or thelon != newloncen or thetime != newtimestart:
+                log.info("Python code now attempting to download additional wind data centred at lat: ")
+                log.info(newlatcen)
+                log.info(" lon: ")
+                log.info(newloncen)
+                log.info(" and starting at: ")
+                log.info(newtimestart)
+                pred_output  = ["Attempting to download additional wind data centred at lat = {0}, lon = {1} and starting at {2}."
+                                .format(newlatcen, newloncen, newtimestart),
+                                "Now attempting to download additional wind data...",
+                                ""] + pred_output
+                download_and_process_wind_data(newlatcen, newloncen, newtimestart, options, pred_in_progress, pred_process, pred_output, uuid_path, OS_IS_WINDOWS)
+                if exit_code == 1:
+                    return
 
         # if ("WARN" in line or "ERROR" in line) and len(pred_output) < 10:
         # more required Python 3 obfuscation ...
         if (b'WARN' in line or b'ERROR' in line) and len(pred_output) < 10:
             pred_output.append(line.strip())
 
-    exit_code = pred_process.wait()
-    
+    if exit_code != 1:
+        exit_code = pred_process.wait()
+
+
+
+def copy_flight_path(uuid_path, OS_IS_WINDOWS):
     if OS_IS_WINDOWS:
         copy_path = os.path.join(ROOT_DIR, "predict")
     else:
         copy_path = '/tmp'            
-            
-    if exit_code == 1:
-        # Hard error from the predictor. Tell the javascript it completed, so that it will show the trace,
-        # but pop up a 'warnings' window with the error messages
-        update_progress(pred_running=False, pred_complete=True, warnings=True, pred_output=pred_output)
-        statsd.increment('success_serious_warnings')
-    elif pred_output:
-        # Soft error (altitude too low error, typically): pred_output being set forces the debug
-        # window open with the messages in
-        update_progress(pred_running=False, pred_complete=True, pred_output=pred_output)
-        statsd.increment('success_minor_warnings')
-    else:
-        log.info('The predictor pred.exe executable exit_code = %s' % exit_code )
-        assert exit_code == 0
-        update_progress(pred_running=False, pred_complete=True)
-        statsd.increment('success')  
- 
-    copy_path = os.path.join(copy_path, 'flight_path.csv')
 
-    log.info('Copying file:')
-    log.info(uuid_path+'flight_path.csv')
-    log.info('to file:')
-    log.info(copy_path)
-
-    shutil.copyfile(uuid_path+'flight_path.csv',copy_path)
-
-    shutil.rmtree(gfs_dir)
-
+    if os.path.exists(uuid_path+'flight_path.csv'):
+        copy_path = os.path.join(copy_path, 'flight_path.csv')
+        log.info('Copying file:')
+        log.info(uuid_path+'flight_path.csv')
+        log.info('to file:')
+        log.info(copy_path)
+        shutil.copyfile(uuid_path+'flight_path.csv', copy_path)
 
 
 def purge_cache():
@@ -429,8 +541,8 @@ def write_file(output_format, thedata, window, mintime, maxtime):
 
     start_time = min(times)
     end_time = max(times)
-    log.info('Downloading from %s to %s.' % (start_time.ctime(), end_time.ctime()))
-    # print('Downloading from: ', start_time.ctime(), ' to: ', end_time.ctime()) 
+    log.info('Log downloading from %s to %s.' % (start_time.ctime(), end_time.ctime()))
+    # print('Print downloading from: ', start_time.ctime(), ' to: ', end_time.ctime())
     # print('num_times = ', num_times)
 
     # print('enumerate(hgtprs_global.maps[lon]) = ', enumerate(hgtprs_global.maps['lon']))    
@@ -444,6 +556,7 @@ def write_file(output_format, thedata, window, mintime, maxtime):
     # Below is the Python 3 version of the above.
     # (As the saying goes -- How many computer scientists does it take to make things worse?  Answer: All of them.)
     longitudes = []
+    # log.info('get hgtprs_global.maps')   #t
     for count,ele in enumerate(hgtprs_global.maps['lon']):
         if longitude_distance(ele, window[2]) <= window[3]:
             longitudes.append([count,ele])
@@ -453,6 +566,7 @@ def write_file(output_format, thedata, window, mintime, maxtime):
     #                    enumerate(hgtprs_global.maps['lat']))
     # Below is the (again, worse) Python 3 version of the above.
     latitudes = []
+    # log.info('get hgtprs_global.maps again')   #t
     for count,ele in enumerate(hgtprs_global.maps['lat']):
         if math.fabs(ele - window[0]) <= window[1]:
             latitudes.append([count,ele])
@@ -461,7 +575,7 @@ def write_file(output_format, thedata, window, mintime, maxtime):
 
     starttime = datetime.datetime.now()
 
-    # print('get big grid')
+    # log.info('get big grid')   #t
     # hgtprs_grid = thedata['hgtprs']
     # bighgtprs = hgtprs_grid[:,:,:,:]
     # print('made it past big grid')
@@ -485,44 +599,92 @@ def write_file(output_format, thedata, window, mintime, maxtime):
     maxlat = latitudes[-1][0] + 1
     minlon = longitudes[0][0]
     maxlon = longitudes[-1][0] + 1
-    # print('minlat = ', minlat)
-    # print('maxlat = ', maxlat)
-    # print('minlon = ', minlon)
-    # print('maxlon = ', maxlon)
-    # print('mintimeidx = ', mintimeidx)
-    # print('maxtimeidx = ', maxtimeidx)
+    log.info('minlat = %s' % (minlat) )  #t
+    log.info('maxlat = %s' % (maxlat) )  #t
+    log.info('minlon = %s' % (minlon) )
+    log.info('maxlon = %s' % (maxlon) )
+    log.info('mintimeidx = %s' % (mintimeidx) )
+    log.info('maxtimeidx = %s' % (maxtimeidx) )
 
-    # print('get hgtprs grid')
-    hgtprs_grid = thedata['hgtprs']
-    dgridhgtprs = hgtprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    # print('made it past hgtprs grid')
+    log.info('get hgtprs grid') #t
+    try:
+        hgtprs_grid = thedata['hgtprs']
+    except:
+        log.info('failed to get hgtprs grid')
+        return 1
 
-    # print('get ugrdprs grid')
-    ugrdprs_grid = thedata['ugrdprs']
-    dgridugrdprs = ugrdprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    # print('made it past ugrdprs grid')
-
-    # print('get vgrdprs grid')
-    vgrdprs_grid = thedata['vgrdprs']
-    dgridvgrdprs = vgrdprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    # print('made it past vgrdprs grid')
-
-    # print('get tmpprs grid')
-    tmpprs_grid = thedata['tmpprs']
-    dgridtmpprs = tmpprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    # print('made it past tmpprs grid')
-
-    # print('get vvelprs grid')
-    vvelprs_grid = thedata['vvelprs']
-    dgridvvelprs = vvelprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    # print('made it past vvelprs grid')
+    log.info('get hgtprs grid data')
+    try:
+        dgridhgtprs = hgtprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
+    except:
+        log.info('failed to get hgtprs grid data')
+        return 1
 
 
+    log.info('get ugrdprs grid') #t
+    try:
+        ugrdprs_grid = thedata['ugrdprs']
+    except:
+        log.info('failed to get ugrdprs grid')
+        return 1
+
+    log.info('get ugrdprs grid data') #t
+    try:
+        dgridugrdprs = ugrdprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
+    except:
+        log.info('failed to get ugrdprs grid data')
+        return 1
+
+
+    log.info('get vgrdprs grid') #t
+    try:
+        vgrdprs_grid = thedata['vgrdprs']
+    except:
+        log.info('failed to get vgrdprs grid')
+        return 1
+
+    log.info('get vgrdprs grid data') #t
+    try:
+        dgridvgrdprs = vgrdprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
+    except:
+        log.info('failed to get vgrdprs grid data')
+        return 1
+
+
+    log.info('get tmpprs grid') #t
+    try:
+        tmpprs_grid = thedata['tmpprs']
+    except:
+        log.info('failed to get tmpprs grid')
+        return 1
+
+    log.info('get tmpprs grid data') #t
+    try:
+        dgridtmpprs = tmpprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
+    except:
+        log.info('failed to get tmpprs grid data')
+        return 1
+
+
+    log.info('get vvelprs grid') #t
+    try:
+        vvelprs_grid = thedata['vvelprs']
+    except:
+        log.info('failed to get vvelprs grid')
+        return 1
+
+    log.info('get vvelprs grid data') #t
+    try:
+        dgridvvelprs = vvelprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
+    except:
+        log.info('failed to get vvelprs grid data')
+        return 1
 
     # Write one file for each time index.
     # for timeidx, time in enumerate(hgtprs_global.maps['time']):
     for timeidx, time in list(enumerate(hgtprs_global.maps['time'])):
 
+        # log.info('made it into time list')
         timestamp = datetime_to_posix(timestamp_to_datetime(time))
         if (timestamp < datetime_to_posix(start_time)) | (timestamp > datetime_to_posix(end_time)):
             continue
@@ -715,6 +877,7 @@ def write_file(output_format, thedata, window, mintime, maxtime):
                      'geopotential height [gpm], u-component wind [m/s], '
                      'v-component wind [m/s], temperature [K], '
                      'vertical velocity (pressure) [Pa/s]\n')
+        output.flush()
         for pressureidx, pressure in enumerate(hgtprs.maps['lev']):
             for latidx, latitude in enumerate(hgtprs.maps['lat']):
                 for lonidx, longitude in enumerate(hgtprs.maps['lon']):
@@ -725,17 +888,33 @@ def write_file(output_format, thedata, window, mintime, maxtime):
                     #            vgrdprs.array[pressureidx,latidx,lonidx], \
                     #            tmpprs.array[pressureidx,latidx,lonidx], \
                     #            vvelprs.array[pressureidx,latidx,lonidx] )
-                    record = ( hgtprs.array[pressureidx,latidx,lonidx].data, \
-                               ugrdprs.array[pressureidx,latidx,lonidx].data, \
-                               vgrdprs.array[pressureidx,latidx,lonidx].data, \
-                               tmpprs.array[pressureidx,latidx,lonidx].data, \
-                               vvelprs.array[pressureidx,latidx,lonidx].data )
+                    try:
+                        record = ( hgtprs.array[pressureidx,latidx,lonidx].data, \
+                                   ugrdprs.array[pressureidx,latidx,lonidx].data, \
+                                   vgrdprs.array[pressureidx,latidx,lonidx].data, \
+                                   tmpprs.array[pressureidx,latidx,lonidx].data, \
+                                   vvelprs.array[pressureidx,latidx,lonidx].data )
+                    except:
+                        log.info('failed to get a wind file record line')
+                        return 1
                     # record = ( hgtprs.array[0,pressureidx,latidx,lonidx].data, \
                     #            ugrdprs.array[0,pressureidx,latidx,lonidx].data, \
                     #            vgrdprs.array[0,pressureidx,latidx,lonidx].data, \
                     #            tmpprs.array[0,pressureidx,latidx,lonidx].data, \
                     #            vvelprs.array[0,pressureidx,latidx,lonidx].data )
-                    output.write(','.join(map(str,record)) + '\n')
+
+                    try:
+                        output.write(','.join(map(str,record)) + '\n')
+                    except:
+                        log.info('failed to write out a wind file record line')
+                        return 1
+                    else:
+                        output.flush()
+
+        output.close()
+        log.debug('write_file of %s completed normally' % (output_filename) )
+
+    return 0
 
 def canonicalise_longitude(lon):
     """
@@ -795,7 +974,9 @@ def possible_urls(time, hd):
     """
 
     # print('start possible_urls at time =', time)
-    period = datetime.timedelta(days = 7.5)
+    # period = datetime.timedelta(days = 7.5)
+    period = datetime.timedelta(days = 15.0)
+    maxtimeaheadofnow = datetime.timedelta(days = 1)
     # nomads dataset available times are screwed up online
     utcoffset = datetime.timedelta(hours = 7.0)
     # utcoffset = datetime.timedelta(hours = 15.0)
@@ -803,7 +984,10 @@ def possible_urls(time, hd):
     earliest = time - period
     # latest = time
     latest = time - utcoffset
+    cantbelaterthan = datetime.datetime.utcnow() + maxtimeaheadofnow
     # print('latest =', latest)
+    if latest > cantbelaterthan:
+        latest = cantbelaterthan
 
     # nomads.ncep.noaa.gov now uses https rather than http (began Feb 2019):
     if hd:
@@ -851,50 +1035,52 @@ def dataset_for_time(time, hd):
     time and return pydap dataset object for it.
     """
 
-    print('start dataset_for_time at time =', time)
+    log.debug('start dataset_for_time at time = %s' % (time) )
     url_list = possible_urls(time, hd)
-    print('the dataset_for_time url_list = ', url_list)
+    log.debug('the dataset_for_time url_list = %s' % (url_list) )
+    from pydap.client import open_url
 
     for url in url_list:
+        log.debug('Trying dataset at %s' % url)
         try:
-            log.debug('Trying dataset at %s.' % url)
-            print('Trying dataset at : ', url)
-            from pydap.client import open_url
-            print('made it past pydap.client import open_url, now opening dataset url')
-            dataset = open_url(url)
-            # dataset = open_url(url, output_grid=False)
-            print('opened datset url')
-            print('dataset_for_time dataset returned by pydap = ', dataset)
-            # print('with time = ', dataset.time)
-            # print('and location = ', dataset.location)
-            # print('and another time = ', dataset['time'][:])
-            # print('and start time = ', dataset['time'][0])
-            # print('and end time = ', dataset['time'][-1])
-            ## print('and start time data = ', dataset['time'][0].data)
-            ## print('and end time data = ', dataset['time'][-1].data)
-            # print('and sub-time = ', dataset.time.data)
-
-            # start_time = timestamp_to_datetime(dataset.time[0])
-            # end_time = timestamp_to_datetime(dataset.time[-1])
-            start_time = timestamp_to_datetime(dataset['time'][0].data)  #j
-            end_time = timestamp_to_datetime(dataset['time'][-1].data)   #j
-
-            print('start time = ', start_time)
-            print('end time = ', end_time)
-            print('time = ', time)
-            if start_time <= time and end_time >= time:
-                log.info('Found good dataset at %s.' % url)
-                dataset_id = url.split("/")[5] + "_" + url.split("/")[6].split("_")[1]
-                update_progress(gfs_timestamp=dataset_id)
-                return dataset
-#        except:
-#            raise Exception()
-        except pydap.exceptions.ServerError as e:
-            log.debug('Server error in dataset at %s from %s' % (url, e) )
+            dataset = open_url(url, timeout=10)
+        except:
+            # raise Exception()
+            log.debug('Error in dataset %s' % (url) )
             # Skip server error.
-            pass
+            continue
+#        except pydap.exceptions.DapError as e:
+#            log.debug('Dap error in dataset at %s from %s' % (url, e) )
+#            # Skip server error.
+#            pass
 
-    print('RuntimeError of Could not find appropriate dataset.')
+        # dataset = open_url(url, output_grid=False)
+        log.debug('dataset_for_time dataset returned by pydap = %s' % (dataset))
+        # print('with time = ', dataset.time)
+        # print('and location = ', dataset.location)
+        # print('and another time = ', dataset['time'][:])
+        # print('and start time = ', dataset['time'][0])
+        # print('and end time = ', dataset['time'][-1])
+        # print('and start time data = ', dataset['time'][0].data)
+        # print('and end time data = ', dataset['time'][-1].data)
+        # print('and sub-time = ', dataset.time.data)
+
+        # start_time = timestamp_to_datetime(dataset.time[0])
+        # end_time = timestamp_to_datetime(dataset.time[-1])
+        start_time = timestamp_to_datetime(dataset['time'][0].data)  #j
+        end_time = timestamp_to_datetime(dataset['time'][-1].data)   #j
+
+        log.debug('start time = %s' % (start_time) )
+        log.debug('end time = %s' % (end_time) )
+        log.debug('time = %s' % (time) )
+        if start_time <= time and end_time >= time:
+            log.info('Found good dataset at %s.' % url)
+            dataset_id = url.split("/")[5] + "_" + url.split("/")[6].split("_")[1]
+            update_progress(gfs_timestamp=dataset_id)
+            return dataset
+
+
+    log.debug('RuntimeError of Could not find appropriate dataset.')
     raise RuntimeError('Could not find appropriate dataset.')
 
 def detach_process(redirect):
@@ -932,7 +1118,6 @@ def setup_alarm():
         t.daemon = True
         t.start()
     else:
-        import signal
         signal.alarm(600)
 
 # If this is being run from the interpreter, run the main function.
