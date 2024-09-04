@@ -21,7 +21,7 @@ extern "C" {
 #include "altitude_ALTAIR.hh"
 
 // run the model
-int run_model(wind_file_cache_t* cache, 
+int run_model(wind_file_cache_t** cacheAddr, 
 // altitude_model_t is not needed for ALTAIR since we have altairState
 //            altitude_model_t* alt_model,
               float initial_lat, float initial_lng, float initial_alt, 
@@ -37,7 +37,7 @@ int run_model(wind_file_cache_t* cache,
 // get the wind values in the u and v directions at a point in space and time from the dataset data
 // we interpolate lat, lng, alt and time. The GRIB data only contains pressure levels so we first
 // determine which pressure levels straddle to our desired altitude and then interpolate between them
-int get_wind(wind_file_cache_t* cache, float lat, float lng, float alt, long int timestamp, 
+int get_wind(wind_file_cache_t** cacheAddr, float lat, float lng, float alt, long int timestamp, 
              float* wind_v, float* wind_u, float *wind_var, float *pres, float *temp, float *windz);
 // note: get_wind will likely call load_data and load a different tile into data, so just be careful that data could be pointing
 // somewhere else after running get_wind

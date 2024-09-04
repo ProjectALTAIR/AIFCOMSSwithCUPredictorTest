@@ -20,6 +20,7 @@
 extern FILE* output;
 // extern FILE* myoutput;
 extern FILE* kml_file;
+extern const char* data_dir;
 
 // start and finish KML files, basically just write header and footer in
 void start_kml();

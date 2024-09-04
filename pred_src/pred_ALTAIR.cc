@@ -317,7 +317,7 @@ int main(int argc, const char *argv[]) {
             }
 */
 
-            if (!run_model(file_cache, 
+            if (!run_model(&file_cache, 
 //                         alt_model, 
                            initial_lat, initial_lng, initial_alt, initial_timestamp,
                            rmswinderror)) {

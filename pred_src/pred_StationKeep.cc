@@ -100,7 +100,6 @@ int main(int argc, const char *argv[]) {
         printf("                           burst or cutdown. burst_alt and ascent_rate ignored.\n");
         printf(" -i --data_dir <dir>     Input directory for wind data, defaults to current dir.\n\n");
         printf(" -e --wind_error <err>   RMS windspeed error (m/s).\n");
-        printf(" -a --alarm <seconds>    Use alarm() to kill pred incase it hangs.\n");
         printf("The scenario file is an INI-like file giving the launch scenario. If it is\n");
         printf("omitted, the scenario is read from standard input.\n");
       exit(0);
@@ -317,7 +316,7 @@ int main(int argc, const char *argv[]) {
             }
 */
 
-            if (!run_model(file_cache, 
+            if (!run_model(&file_cache, 
 //                         alt_model, 
                            initial_lat, initial_lng, initial_alt, initial_timestamp,
                            rmswinderror)) {
@@ -351,10 +350,13 @@ int main(int argc, const char *argv[]) {
 void start_kml() {
     FILE* kml_header;
     char c;
+    int i;
     
     kml_header = fopen("kml_header", "r");
     
     while (!feof(kml_header)) {
+      if(i%1000 == 0) { fprintf(stderr, "INFO: Am here in the start_kml loop.\n"); fflush(stderr); }
+      ++i;
       c = fgetc(kml_header);
       if (ferror(kml_header)) {
         fprintf(stderr, "ERROR: error reading KML header file\n");
@@ -373,10 +375,13 @@ void start_kml() {
 void finish_kml() {
     FILE* kml_footer;
     char c;
+    int i;
     
     kml_footer = fopen("kml_footer", "r");
     
     while (!feof(kml_footer)) {
+      if(i%1000 == 0) { fprintf(stderr, "INFO: Am here in the finish_kml loop.\n"); fflush(stderr); }
+      ++i;
       c = fgetc(kml_footer);
       if (ferror(kml_footer)) {
         fprintf(stderr, "ERROR: error reading KML footer file\n");

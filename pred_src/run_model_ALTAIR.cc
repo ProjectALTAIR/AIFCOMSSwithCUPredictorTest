@@ -67,7 +67,7 @@ _get_frame(float lat, float lng, float alt,
 }
 
 static int 
-_advance_one_timestep(wind_file_cache_t* cache, 
+_advance_one_timestep(wind_file_cache_t** cacheAddr, 
                       unsigned long delta_t,
                       unsigned long timestamp, unsigned long initial_timestamp,
                       unsigned int n_states, model_state_t* states,
@@ -78,7 +78,7 @@ _advance_one_timestep(wind_file_cache_t* cache,
     for(i=0; i<n_states; ++i)
     {
         float ddlat, ddlng;
-        float wind_v, wind_u, wind_var, pres, temp, wind_z;
+        float wind_v, wind_u, wind_var, pres, temp, wind_z_Pas;
         float u_samp, v_samp, u_lik, v_lik;
         float prev_alt, prev_pres, wind_zvel = 0.;
         model_state_t* state = &(states[i]);
@@ -87,12 +87,14 @@ _advance_one_timestep(wind_file_cache_t* cache,
 
 // the below both updates and returns the altitude (it does more than just get it -- it updates it!)
 //        if(!altitude_model_get_altitude(state->alt_model, 
+        assert(!isnan(state->lat));
+        assert(!isnan(state->alt));
         if(!altitude_model_get_altitude( 
                                         timestamp - initial_timestamp, &state->alt))
             return 0; // alt < 0; finished
 
-        if(!get_wind(cache, state->lat, state->lng, state->alt, timestamp, 
-                    &wind_v, &wind_u, &wind_var, &pres, &temp, &wind_z))
+        if(!get_wind(cacheAddr, state->lat, state->lng, state->alt, timestamp, 
+                    &wind_v, &wind_u, &wind_var, &pres, &temp, &wind_z_Pas))
             return -1; // error
 
         _get_frame(state->lat, state->lng, state->alt, &ddlat, &ddlng);
@@ -120,8 +122,8 @@ _advance_one_timestep(wind_file_cache_t* cache,
         prev_pres = altairState->getExtEnv()->getOutsideAirPressure();
         altairState->getExtEnv()->setOutsideAirPressure(pres);
         altairState->getExtEnv()->setOutsideTemp(temp);
-// wind_z is in Pa/s rather than m/s: want to multiply by m/Pa (= d(alt)/d(pres)) to get m/s
-        if (pres != prev_pres) wind_zvel = wind_z * (state->alt - prev_alt) / (pres - prev_pres);
+// wind_z_Pas is in Pa/s rather than m/s: want to multiply by m/Pa (= d(alt)/d(pres)) to get m/s
+        if (pres != prev_pres) wind_zvel = wind_z_Pas * (state->alt - prev_alt) / (pres - prev_pres);
 // and make sure it is not a crazy value
         if (wind_zvel > 5. || wind_zvel < -5.) wind_zvel = 0.;
         state->alt += (wind_zvel * delta_t);
@@ -143,7 +145,7 @@ static int _state_compare_rev(const void* a, const void *b)
     return sb->loglik - sa->loglik;
 }
 
-int run_model(wind_file_cache_t* cache, 
+int run_model(wind_file_cache_t** cacheAddr, 
 //            altitude_model_t* alt_model,
               float initial_lat, float initial_lng, float initial_alt,
               long int initial_timestamp, float rmswinderror) 
@@ -172,7 +174,7 @@ int run_model(wind_file_cache_t* cache,
 
     while(1)
     {
-        r = _advance_one_timestep(cache, TIMESTEP, timestamp, initial_timestamp, 
+        r = _advance_one_timestep(cacheAddr, TIMESTEP, timestamp, initial_timestamp, 
                                   n_states, states, rmswinderror);
         if (r == -1) // error getting wind. Save prediction, but emit error messages
             return_code = 0;
@@ -207,66 +209,143 @@ int run_model(wind_file_cache_t* cache,
     return return_code;
 }
 
-int get_wind(wind_file_cache_t* cache, float lat, float lng, float alt, long int timestamp,
+int get_wind(wind_file_cache_t** cacheAddr, float lat, float lng, float alt, long int timestamp,
         float* wind_v, float* wind_u, float *wind_var, float *pres, float *temp, float *wind_z) {
-    int i, s;
+    char* receivedLine;
+    size_t bufLen = 10;
+    ssize_t charsReceived;
+    int brandNewCache = 0;
+    int s1, s2, i, n, m = 0, alreadySaidIt = 0;
     float lambda, wu_l, wv_l, wu_h, wv_h, pres_l, pres_h, temp_l, temp_h, wz_l, wz_h;
     float wuvar_l, wvvar_l, wuvar_h, wvvar_h;
     wind_file_cache_entry_t* found_entries[] = { NULL, NULL };
     wind_file_t* found_files[] = { NULL, NULL };
     unsigned int earlier_ts, later_ts;
 
-    // look for a wind file which matches this latitude and longitude...
-    wind_file_cache_find_entry(cache, lat, lng, timestamp, 
-            &(found_entries[0]), &(found_entries[1]));
-
-    if(!found_entries[0] || !found_entries[1]) {
-        fprintf(stderr, "ERROR: Do not have wind data for this (lat, lon, alt, time).\n");
-        return 0;
+    receivedLine = (char *)malloc(bufLen * sizeof(char));
+        
+    while(1) {
+        // if(brandNewCache && m%1000 == 0) { fprintf(stderr, "INFO: I appear to have arrived here.\n"); fflush(stderr); }
+        // look for a wind file which matches this latitude and longitude...
+        wind_file_cache_find_entry(*cacheAddr, lat, lng, timestamp,
+                &(found_entries[0]), &(found_entries[1]));
+        // if(brandNewCache && m%1000 == 0) { fprintf(stderr, "INFO: But have I arrived here?\n"); fflush(stderr); }
+        if(!found_entries[0] || !found_entries[1]) {
+           // Give the Python code a signal message in the log file to try to get the Python code to download new additional wind files.
+           if(!alreadySaidIt) {
+               fprintf(stderr, "WARNING: Attempting to download additional wind data centred at %f, %f and starting at %ld.  This will take at _least_ a minute or so...\n", lat, lng, timestamp);
+               fflush(stderr);
+               alreadySaidIt = 1;
+           }
+           if(brandNewCache && m%1000 == 0) {
+               fprintf(stderr, "INFO: Arrived at this point.  Why is the cache not properly expanded to include the new entries??\n");
+               fprintf(stderr, "INFO: Lat = %f, Lon = %f, Timestamp = %ld\n", lat, lng, timestamp);
+               fflush(stderr);
+           }
+           // Look for a signal in stdin (specifically, the character 'D') that the Python code has completed the download of the wind files!  (Otherwise, one could unintentionally
+           // cache partially-downloaded files.)  Then, re-populate the wind data file cache, and go around the loop to find a good entry from the updated cache.
+//           fscanf(stdin, "%1[^\n]", stdInput); // Scan a maximum of 1 character (+1 for the null-terminator '\0'), or until a \n, and store it in stdInput
+//           if(stdInput == 'D') {
+//           if(stdInput[0]) {
+//           if(fgets(stdInput, 1024, stdin)!=NULL) {
+//           if(scanf("%d", &n) != 0) {
+           charsReceived = getline(&receivedLine, &bufLen, stdin);
+           if(charsReceived > 0) {
+           //    fprintf(stderr, "INFO: The pred C code got: %d  from the Python code, now refreshing the pred's wind file cache to include the new wind data centred at %f, %f and starting at %ld!\n", n, lat, lng, timestamp);
+               fprintf(stderr, "INFO: The pred C code got: %s  from the Python code, now refreshing the pred's wind file cache to include the new wind data centred at %f, %f and starting at %ld!\n", receivedLine, lat, lng, timestamp);
+           //    fprintf(stderr, "INFO: The pred C code got the big D from the Python code parent process writing that input into the pred's stdin, now refreshing the pred's wind file cache!\n");
+               fflush(stderr);
+               wind_file_cache_free(*cacheAddr);
+               *cacheAddr = wind_file_cache_new(data_dir);
+               brandNewCache = 1;
+               continue;
+           //    stdInput[0] = 0;
+           }
+        } else {
+           // if(brandNewCache) fprintf(stderr, "Good news!: Found new good wind data!\n");                 // found it!
+           if(!wind_file_cache_entry_contains_point(found_entries[0], lat, lng) ||
+              !wind_file_cache_entry_contains_point(found_entries[1], lat, lng))
+           {
+              fprintf(stderr, "ERROR: Could not locate appropriate wind data tile for location "
+                      "lat=%f, lon=%f.\n", lat, lng);
+              return 0;
+           }
+          // Look in the cache for the files we need.
+          for(i=0; i<2; ++i)
+          {
+              found_files[i] = wind_file_cache_entry_file(found_entries[i]);
+          }
+          earlier_ts = wind_file_cache_entry_timestamp(found_entries[0]);
+          later_ts = wind_file_cache_entry_timestamp(found_entries[1]);
+               
+          if(earlier_ts > timestamp || later_ts < timestamp)
+          {
+              fprintf(stderr, "Error: found_entries have bad times.\n");
+              return 0;
+          }
+          if(earlier_ts != later_ts)
+              lambda = ((float)timestamp - (float)earlier_ts) /
+                       ((float)later_ts - (float)earlier_ts);
+          else
+              lambda = 0.5f;
+                      
+          s1 = wind_file_get_wind(found_files[0], lat, lng, alt, &wu_l, &wv_l, &wuvar_l, &wvvar_l,
+                                                                 &pres_l, &temp_l, &wz_l);
+          s2 = wind_file_get_wind(found_files[1], lat, lng, alt, &wu_h, &wv_h, &wuvar_h, &wvvar_h,
+                                                                 &pres_h, &temp_h, &wz_h);
+          if(s1 == 0 || s2 == 0) {
+               if(alreadySaidIt != 2) {
+                   fprintf(stderr, "WARNING: Attempting to download additional wind data centred at %f, %f and starting at %ld.  New lat-lon.  This will take at _least_ a minute or so...\n", lat, lng, timestamp);
+                   fflush(stderr);
+                   alreadySaidIt = 2;
+               }
+               charsReceived = getline(&receivedLine, &bufLen, stdin);
+               if(charsReceived > 0) {
+                   fprintf(stderr, "INFO: The pred C code got: %s  from the Python code, now refreshing the pred's wind file cache to include the new wind data centred at %f, %f and starting at %ld! New lat-lon.\n", receivedLine, lat, lng, timestamp);
+                   fflush(stderr);
+                   wind_file_cache_free(*cacheAddr);
+                   *cacheAddr = wind_file_cache_new(data_dir);
+                   brandNewCache = 2;
+                   continue;
+               }
+           } else {
+               // if(brandNewCache == 2) fprintf(stderr, "Good news!: Found new good wind data at new lat-lon!\n");                 // found it!
+               break;
+           }
+        }
+        ++m;
     }
-
-    if(!wind_file_cache_entry_contains_point(found_entries[0], lat, lng) || 
-            !wind_file_cache_entry_contains_point(found_entries[1], lat, lng))
-    {
-        fprintf(stderr, "ERROR: Could not locate appropriate wind data tile for location "
-                "lat=%f, lon=%f.\n", lat, lng);
-        return 0;
-    }
-
-    // Look in the cache for the files we need.
-    for(i=0; i<2; ++i)
-    {
-        found_files[i] = wind_file_cache_entry_file(found_entries[i]);
-    }
-
-    earlier_ts = wind_file_cache_entry_timestamp(found_entries[0]);
-    later_ts = wind_file_cache_entry_timestamp(found_entries[1]);
-
-    if(earlier_ts > timestamp || later_ts < timestamp)
-    {
-        fprintf(stderr, "Error: found_entries have bad times.\n");
-        return 0;
-    }
-
-    if(earlier_ts != later_ts)
-        lambda = ((float)timestamp - (float)earlier_ts) /
-            ((float)later_ts - (float)earlier_ts);
-    else
-        lambda = 0.5f;
-
-    s = wind_file_get_wind(found_files[0], lat, lng, alt, &wu_l, &wv_l, &wuvar_l, &wvvar_l,
-                                                          &pres_l, &temp_l, &wz_l);
-    if (s == 0) return 0; // hard error
-    s = wind_file_get_wind(found_files[1], lat, lng, alt, &wu_h, &wv_h, &wuvar_h, &wvvar_h,
-                                                          &pres_h, &temp_h, &wz_h);
-    if (s == 0) return 0;
-
+    // fprintf(stderr, "...and escaped the while loop\n");  // don't uncomment this unless _absolutely_ necessary -- it spews this message to py_log endlessly...
+                   
+    // if(!found_entries[0] || !found_entries[1]) {
+    //     fprintf(stderr, "WARNING: Do not have wind data for this (lat, lon, alt, time) = (%f, %f, %f, %ld)!\n", lat, lng, alt, timestamp);
+    //     fprintf(stderr, "WARNING: Attempting to download additional wind data centred at %f, %f and starting at %ld.  This will take at _least_ a minute or so...\n", lat, lng, timestamp);
+    //     return 0;
+    // }
+                   
+                   
+                   
+//    s = wind_file_get_wind(found_files[0], lat, lng, alt, &wu_l, &wv_l, &wuvar_l, &wvvar_l,
+//                                                          &pres_l, &temp_l, &wz_l);
+//    if (s == 0) return 0; // hard error
+//    s = wind_file_get_wind(found_files[1], lat, lng, alt, &wu_h, &wv_h, &wuvar_h, &wvvar_h,
+//                                                          &pres_h, &temp_h, &wz_h);
+//    if (s == 0) return 0;
+               
+            
+    free(receivedLine);
+    
+    assert(!isnan(wvvar_h));
+    assert(!isnan(wuvar_h));
+    assert(!isnan(wuvar_l));
+    assert(!isnan(wvvar_l));
+    
     *wind_u = lambda * wu_h   + (1.f-lambda) * wu_l  ;
     *wind_v = lambda * wv_h   + (1.f-lambda) * wv_l  ;
     *pres   = lambda * pres_h + (1.f-lambda) * pres_l;
     *temp   = lambda * temp_h + (1.f-lambda) * temp_l - kelvinMinusCelsius;
     *wind_z = lambda * wz_h   + (1.f-lambda) * wz_l  ;
-
+                   
     // flatten the u and v variances into a single mean variance for the
     // magnitude.
     *wind_var = 0.5f * (wuvar_h + wuvar_l + wvvar_h + wvvar_l);
@@ -287,7 +366,10 @@ void write_position(float lat, float lng, float alt, int timestamp) {
         }
     }
 
-    fprintf(output, "%d,%g,%g,%g\n", timestamp, lat, lng, alt);
+//    fprintf(output, "%d,%g,%g,%g\n", timestamp, lat, lng, alt);
+    fprintf(output, "%11d,%4.4f,%4.4f,%7.1f,%6.0f,%6.3f,%6.3f,%6.3f,%4d,%4d,%4d,%4d\n", timestamp, lat, lng, alt, 0.0,
+            0.0, 0.0, 0.0, 0, 0, 0, 0);
+    fflush(output);
     if (ferror(output)) {
       fprintf(stderr, "ERROR: error writing to CSV file\n");
       exit(1);
