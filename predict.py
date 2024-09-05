@@ -78,7 +78,7 @@ def fresh(response_headers, request_headers):
 httplib2._entry_disposition = fresh
 
 
-def print_linenum(signum, frame):
+def print_int_linenum(signum, frame):
     log.info('Process interrupted by SIGINT.  Currently at line:')
     log.info(frame.f_lineno)
 
@@ -98,19 +98,16 @@ def print_alrm_linenum(signum, frame):
     log.info('Process received signal SIGALRM.  Currently at line:')
     log.info(frame.f_lineno)
 
-c_globals = ctypes.CDLL(None) # POSIX
-
-@ctypes.CFUNCTYPE(None, ctypes.c_int)
 def print_abrt_linenum(signum, frame):
-    log.info('Process terminated by SIGABRT.  Currently at line:')
+    log.info('Process received signal SIGABRT.  Currently at line:')
     log.info(frame.f_lineno)
 
-c_globals.signal(signal.SIGABRT, print_abrt_linenum)
-signal.signal(signal.SIGINT, print_linenum)
+signal.signal(signal.SIGINT, print_int_linenum)
 signal.signal(signal.SIGTERM, print_term_linenum)
 signal.signal(signal.SIGHUP, print_hup_linenum)
 signal.signal(signal.SIGQUIT, print_quit_linenum)
 signal.signal(signal.SIGALRM, print_alrm_linenum)
+signal.signal(signal.SIGABRT, print_abrt_linenum)
 
 # Output logger format
 log = logging.getLogger('main')
