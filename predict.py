@@ -86,10 +86,6 @@ def print_term_linenum(signum, frame):
     log.info('Process received signal SIGTERM.  Currently at line:')
     log.info(frame.f_lineno)
 
-def print_hup_linenum(signum, frame):
-    log.info('Process received signal SIGHUP.  Currently at line:')
-    log.info(frame.f_lineno)
-
 def print_quit_linenum(signum, frame):
     log.info('Process received signal SIGQUIT.  Currently at line:')
     log.info(frame.f_lineno)
@@ -104,7 +100,6 @@ def print_abrt_linenum(signum, frame):
 
 signal.signal(signal.SIGINT, print_int_linenum)
 signal.signal(signal.SIGTERM, print_term_linenum)
-signal.signal(signal.SIGHUP, print_hup_linenum)
 signal.signal(signal.SIGQUIT, print_quit_linenum)
 signal.signal(signal.SIGALRM, print_alrm_linenum)
 signal.signal(signal.SIGABRT, print_abrt_linenum)
