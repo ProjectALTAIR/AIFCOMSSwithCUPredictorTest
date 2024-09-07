@@ -100,9 +100,10 @@ def print_abrt_linenum(signum, frame):
 
 signal.signal(signal.SIGINT, print_int_linenum)
 signal.signal(signal.SIGTERM, print_term_linenum)
-signal.signal(signal.SIGQUIT, print_quit_linenum)
-signal.signal(signal.SIGALRM, print_alrm_linenum)
-signal.signal(signal.SIGABRT, print_abrt_linenum)
+if not OS_IS_WINDOWS:
+    signal.signal(signal.SIGQUIT, print_quit_linenum)
+    signal.signal(signal.SIGALRM, print_alrm_linenum)
+    signal.signal(signal.SIGABRT, print_abrt_linenum)
 
 # Output logger format
 log = logging.getLogger('main')
@@ -305,7 +306,7 @@ def main():
     pred_in_progress = False
     pred_process = None
     pred_output = []
-    download_and_process_wind_data(options.lat, options.lon, options.timestamp, options, pred_in_progress, pred_process, pred_output, uuid_path, OS_IS_WINDOWS)
+    download_and_process_wind_data(options.lat, options.lon, options.timestamp, options, pred_in_progress, pred_process, pred_output, uuid_path)
 
     if exit_code == 1:
         # Hard error from the predictor. Tell the javascript it completed, so that it will show the trace,
@@ -324,12 +325,12 @@ def main():
         update_progress(pred_running=False, pred_complete=True)
         statsd.increment('success')  
  
-    copy_flight_path(uuid_path, OS_IS_WINDOWS)
+    copy_flight_path(uuid_path)
 
     shutil.rmtree(gfs_dir)
 
 
-def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_progress, pred_process, pred_output, uuid_path, OS_IS_WINDOWS):
+def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_progress, pred_process, pred_output, uuid_path):
     # log.debug('Using cache directory: %s' % pydap.lib.CACHE)				#cache
     global exit_code
     global gfs_dir
@@ -436,7 +437,7 @@ def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_pro
 
     # pred_process.stdout.seek(0)            # ensure we start at the beginning -- actually, can't do this with stdout, so this is commented out
 
-    copy_flight_path(uuid_path, OS_IS_WINDOWS)
+    copy_flight_path(uuid_path)
 
     while True:
         if exit_code == 1:
@@ -470,7 +471,7 @@ def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_pro
                                 .format(newlatcen, newloncen, newtimestart),
                                 "Now attempting to download additional wind data...",
                                 ""] + pred_output
-                download_and_process_wind_data(newlatcen, newloncen, newtimestart, options, pred_in_progress, pred_process, pred_output, uuid_path, OS_IS_WINDOWS)
+                download_and_process_wind_data(newlatcen, newloncen, newtimestart, options, pred_in_progress, pred_process, pred_output, uuid_path)
                 if exit_code == 1:
                     return
 
@@ -484,7 +485,7 @@ def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_pro
 
 
 
-def copy_flight_path(uuid_path, OS_IS_WINDOWS):
+def copy_flight_path(uuid_path):
     if OS_IS_WINDOWS:
         copy_path = os.path.join(ROOT_DIR, "predict")
     else:
