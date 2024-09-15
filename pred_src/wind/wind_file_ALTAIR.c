@@ -195,8 +195,8 @@ _parse_values_line(const char* line, unsigned int n_values, float* values)
                         record++;
                 
                 // and advance past delimiter
-                if(record != '\0')
-                        record++;
+                // if(*record == '\0')
+                record++;
 
                 // update the record index
                 record_idx ++;
