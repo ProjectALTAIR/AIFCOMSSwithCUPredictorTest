@@ -28,7 +28,7 @@
 //              -- Public Member Function Definitions --
 //              ----------------------------------------
 //
-void  StationKeepingAlgorithms::doStationKeep(wind_file_cache_t* cache)
+void  StationKeepingAlgorithms::doStationKeep(wind_file_cache_t** cacheAddr)
 {
     // a placeholder, here just for the time being
     PropulsionUtils::goFullSpeedAhead();

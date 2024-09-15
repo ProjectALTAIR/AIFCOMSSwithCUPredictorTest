@@ -24,7 +24,7 @@ class StationKeepingAlgorithms {
 
     public:
 
-	static void  doStationKeep(wind_file_cache_t* cache);
+	static void  doStationKeep(wind_file_cache_t** cacheAddr);
 
     protected:
 
