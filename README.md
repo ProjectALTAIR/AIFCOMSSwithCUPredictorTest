@@ -10,7 +10,7 @@ Windows screenshot (on Chrome v. 67 browser) &nbsp; &nbsp; &nbsp; Mac screenshot
 <details>
 	<summary>Installation instructions and debugging hints for <b><i>Linux</i></b> machines</summary>
 
-### <ins>Linux</ins> (tested on Mint 21.2 and Mint 18.2)
+### <ins>Linux</ins> (tested on Mint 21.2, Mint 18.2 and Ubuntu 24.04)
 After first [completely uninstalling any other version of Anaconda](https://docs.anaconda.com/free/anaconda/install/uninstall/) or of [Python](https://www.wikihow.com/Uninstall-Python) that you might possibly already have on your computer, please install the Python 3.11 version of [Anaconda](https://www.anaconda.com/products/individual), using the installer that can be found near the bottom of [this page](https://www.anaconda.com/products/individual). Please do absolutely **nothing** via sudo or otherwise with superuser priviliges unless you absolutely have to, i.e. if there is absolutely no other way to install or perform the given action on your machine without sudo. [Installation instructions for the Anaconda installer can be found here.](https://docs.anaconda.com/anaconda/install/)
 If asked during the installation, make sure to add Anaconda3 to your PATH environment variable (even though it might say that that option is not recommended), as well as registering Anaconda3 as your default Python 3.11 (if that is asked as well).  Once you have that installed, you should then have Python 3.11 installed on your computer -- it is part of the Anaconda installation.  After you successfully install the Python 3.11 version of Anaconda on your machine, you should reboot your computer (so that Anaconda's settings to make it the default location for your Python application, etc., can take effect).<br>
 Then, following the reboot mentioned above, this package <i>also</i> requires the installation of an AMP (Apache/MySQL/PHP) stack. Instructions can be found online here:
@@ -103,7 +103,24 @@ The log files for the different code languages used can be found in the location
 
     sudo apachectl restart
 
-and then re-running node server.js and AIFCOMSS.  If that doesn't help, then check that going to http://localhost in a web browser (without the :8080, and http rather than https !) is, in fact, taking you to the **parent** directory of your AIFCOMSSwithCUPredictorTest/ directory -- since, especially on MacOS, and especially right after OS upgrades or disk transfers to another computer, your /etc/apache2/httpd.conf file can get completely messed up and reset (see above, near the top of this README file), which puts your DocumentRoot setting in the wrong place (possibly amongst other problems with /etc/apache2/httpd.conf which can occur !) -- if that has happened, then replace your new /etc/apache2/httpd.conf with your previous, good /etc/apache2/httpd.conf file.  
+and then re-running node server.js and AIFCOMSS.  If that doesn't help, then check that going to http://localhost in a web browser (without the :8080, and http rather than https !) is, in fact, taking you to the **parent** directory of your AIFCOMSSwithCUPredictorTest/ directory -- since, especially on MacOS, and especially right after OS upgrades or disk transfers to another computer, your /etc/apache2/httpd.conf file can get completely messed up and reset (see above, near the top of this README file), which puts your DocumentRoot setting in the wrong place (possibly amongst other problems with /etc/apache2/httpd.conf which can occur !) -- if that has happened, then replace your new /etc/apache2/httpd.conf with your previous, good /etc/apache2/httpd.conf file.
+
+If you get a 403 error when apache attempts accesing altairpos.txt or altairdata.txt, this could be due to apache ceating it's own /tmp directory and therefore not being able to reach files in your local /tmp folder. We can disable apache's "private /tmp" by first creating an override directory:
+
+    sudo mkdir -p /etc/systemd/system/apache2.service.d/
+    sudo nano /etc/systemd/system/apache2.service.d/override.conf
+
+And adding the following to this new .conf file:
+
+    [Service]
+    PrivateTmp=false
+
+After that, reload the configuration and restart the apache2 service:
+
+    sudo systemctl daemon-reload
+    sudo systemctl restart apache2
+
+This should allow apache to reach files in /tmp
 
 If when doing the `make` command within the pred_src directory, (*especially* just after one upgrades OS versions on one's computer), you constantly get an error saying that the file glib.h can't be found (or get a similar problem with `make` being unable to find other system include files on your computer), then this problem may be due to CMake having cached the old location of your system include files and libraries, and thus you need to get rid of that old CMake-cached info, and ensure that CMake updates these locations.  Run the command:
 
