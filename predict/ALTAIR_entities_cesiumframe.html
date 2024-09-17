@@ -241,10 +241,11 @@ for (var i = 0; i < 4; ++i) {
 viewer.zoomTo(viewer.entities);
 
 
-// If we're running on Windows machines, don't spin the propellers or update the
-// position (since that doesn't work, for reasons which are not very well understood).
-if (window.navigator.userAgent.indexOf("Win") != -1 || window.navigator.userAgent.indexOf("Mac") != -1) updatePosition = false;
-
+// Don't constantly update the position (since that can cause crashes on various systems,
+// for reasons which are not very well understood).
+// if (window.navigator.userAgent.indexOf("Win") != -1 || window.navigator.userAgent.indexOf("Mac") != -1) updatePosition = false;
+updatePosition = false;
+    
 viewer.clock.onTick.addEventListener(function () {
     eventCounter++;
 
