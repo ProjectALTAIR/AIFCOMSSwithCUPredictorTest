@@ -105,7 +105,7 @@ The log files for the different code languages used can be found in the location
 
 and then re-running node server.js and AIFCOMSS.  If that doesn't help, then check that going to http://localhost in a web browser (without the :8080, and http rather than https !) is, in fact, taking you to the **parent** directory of your AIFCOMSSwithCUPredictorTest/ directory -- since, especially on MacOS, and especially right after OS upgrades or disk transfers to another computer, your /etc/apache2/httpd.conf file can get completely messed up and reset (see above, near the top of this README file), which puts your DocumentRoot setting in the wrong place (possibly amongst other problems with /etc/apache2/httpd.conf which can occur !) -- if that has happened, then replace your new /etc/apache2/httpd.conf with your previous, good /etc/apache2/httpd.conf file.
 
-If you get a 403 error when apache attempts accesing altairpos.txt or altairdata.txt, this could be due to apache ceating it's own /tmp directory and therefore not being able to reach files in your local /tmp folder. We can disable apache's "private /tmp" by first creating an override directory:
+If you get a 403 error when apache attempts to access altairpos.txt or altairdata.txt, this could be due to apache creating its own /tmp directory, and therefore not being able to reach files in your local /tmp folder.  You can disable apache's "private /tmp" by first creating an override directory:
 
     sudo mkdir -p /etc/systemd/system/apache2.service.d/
     sudo nano /etc/systemd/system/apache2.service.d/override.conf
