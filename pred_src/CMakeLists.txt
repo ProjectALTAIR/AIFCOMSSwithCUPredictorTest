@@ -1,11 +1,22 @@
 # CMake build file for the CUSF landing prediction software
 #
 # Original version: Rich Wareham <rjw57@cam.ac.uk>
+# This version: Justin Albert <jalbert@uvic.ca>
+
+# Tested with CMake 3.24 -- but I think all versions 3.0 and above are fine for this.
+cmake_minimum_required(VERSION 3.0)
+# CMake requires having a project(ProjectName) line, for some reason (otherwise a warning is produced).
+project(AIFCOMSS)
 
 # Use PkgConfig to find the glib libraries
 find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(GLIB REQUIRED glib-2.0)
+# pkg_check_modules(deps REQUIRED IMPORTED_TARGET glib-2.0)
+# target_link_libraries(pred PkgConfig::deps)
+# target_link_libraries(pred_ALTAIR PkgConfig::deps)
+# target_link_libraries(pred_StationKeep PkgConfig::deps)
+# find_path(GLIB_INCLUDE_DIRS NAMES glib.h PATH_SUFFIXES glib-2.0)
 
 include_directories(${GLIB_INCLUDE_DIRS})
 link_directories(${GLIB_LIBRARY_DIRS})

@@ -91,10 +91,14 @@ altitude_model_get_altitude(int time_into_flight, float* alt) {
                                                                              // But ultimately we should account for accel and decel here,
                                                                              // _not_ just have ascent rate of 5 and drag coeff of 5.5225,
                                                                              // have an accurate rather than estimated air density model, etc etc.
-    if (AscentAndBurstCalcMethods::areWeAtBurstAltitude()) {
-        balAndPfoil->setIsCutdown(true);
-        extEnv->setAscentRate(0.);
-    }
+
+    if (AscentAndBurstCalcMethods::areWeAtBurstAltitude()) {                 // Comment these
+        balAndPfoil->setIsCutdown(true);                                     // lines out if
+        extEnv->setAscentRate(0.);                                           // & when running
+        fprintf(stderr, "INFO: My goodness, the balloon popped!!!\n");       // tests that
+        fflush(stderr);                                                      // require the balloon
+    }                                                                        // to never burst.
+
     ascentRate       =   AscentAndBurstCalcMethods::getPresentAscentTerminalVelocity();    // Velocity is effectively always terminal.
 //    ascentRate      += TIMESTEP * AscentAndBurstCalcMethods::getVerticalAcceleration();  // Ultimately we need an accurate rather than estimated air density model for this.
     if (balAndPfoil->getIsCutdown()) {
