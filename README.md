@@ -193,7 +193,7 @@ users should replace those other existing files in `/<www>/AIFCOMSSwithCUPredict
 
 There are a few paths that need to be changed at this point:
 
- * In `/<www>/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (e.g., `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/`). **Make sure the path ends with a `/`.  Also, change `PYTHON_PATH` to the location of your anaconda3 Python executable (e.g., `/Users/<your username>/anaconda3/bin/python`).
+ * In `/<www>/AIFCOMSSwithCUPredictorTest/predict/includes/php_variables.php`, change `ROOT_DIR` to the location of the project folder (e.g., `/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/`). **Make sure the path ends with a `/`.  Also, change `PYTHON_PATH` to the location of your anaconda3 Python executable (e.g., `/opt/anaconda3/bin/python` or `/Users/<your username>/anaconda3/bin/python` -- whichever of those is the location of your active anaconda3 Python executable).
  * In `/<www>/AIFCOMSSwithCUPredictorTest/predict/py_variables.py`, change `ROOT_DIR` to the same value as you set it in the above (`php_variables.php`) file.  
  * And in `/<www>/AIFCOMSSwithCUPredictorTest/predict/js_variables.js`, change `ROOT_DIR` to be the same value, but with the addition of predict/ at the end, i.e.`/Users/<your user name>/Sites/AIFCOMSSwithCUPredictorTest/predict/`.
 and one that might possibly need to be (depending on your setup):
