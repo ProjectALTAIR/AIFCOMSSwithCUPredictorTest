@@ -4,7 +4,7 @@
 # This version: Justin Albert <jalbert@uvic.ca>
 
 # Tested with CMake 3.24 -- but I think all versions 3.0 and above are fine for this.
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 4.0)
 # CMake requires having a project(ProjectName) line, for some reason (otherwise a warning is produced).
 project(AIFCOMSS)
 
