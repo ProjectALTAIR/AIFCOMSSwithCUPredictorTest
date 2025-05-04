@@ -12,8 +12,17 @@
 
 #include "random.h"
 
-#include <glib.h>
+// #include <glib.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+static double _randfrom(double min, double max) 
+{
+    double range = (max - min); 
+    double div = RAND_MAX / range;
+    return min + (rand() / div);
+}
 
 // Sample from a normal distribution with zero mean and unit variance.
 // See http://en.wikipedia.org/wiki/Normal_distribution
@@ -23,9 +32,12 @@ static float _random_sample_normal_intl(float* loglik)
     double u, v = 0.0;
     static const double k = 0.918938533204673; // = 0.5 * (log(2) + log(pi)), see below.
 
-    u = g_random_double();
-    v = g_random_double();
-    v = sqrt(-2.0 * log(u)) * cos(2.0 * G_PI * v);
+    // u = g_random_double();
+    // v = g_random_double();
+    u = _randfrom(0., 1.);
+    v = _randfrom(0., 1.);
+    // v = sqrt(-2.0 * log(u)) * cos(2.0 * G_PI * v);
+    v = sqrt(-2.0 * log(u)) * cos(2.0 * M_PI * v);
 
     // actual likelihood is 1/sqrt(2*pi) exp(-(x^2)) since mu = 0 and sigma^2 = 1.
     // log-likelihood is therefore:
