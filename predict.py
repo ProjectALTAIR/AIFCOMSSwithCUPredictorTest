@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-# This is the Python 3.11 version of this file.  
-# (Tested in Python 3.11.5 with Anaconda, but should work in other Python versions, and certainly more recent versions.)
+# This is the Python 3.12 version of this file.  
+# (Tested in Python 3.12.7 with Anaconda, but should work in other Python versions, and certainly more recent versions.)
 
 # Modules from the Python standard library.
-import datetime
+from datetime import datetime, timezone, timedelta
 import time as timelib
 import math
 import sys
@@ -41,13 +41,7 @@ if 'win' in sys.platform.lower():
 if 'darwin' in sys.platform.lower():
     OS_IS_WINDOWS = False
     
-# Path to predictor binary
-if OS_IS_WINDOWS:
-    # Windows
-    pred_binary = './pred_src/pred_StationKeep.exe'
-else:
-    # probably Linux or Mac
-    pred_binary = './pred_src/pred_StationKeep'
+pred_binary = ''
 
 statsd.init_statsd({'STATSD_BUCKET_PREFIX': 'habhub.predictor'})
 
@@ -167,7 +161,8 @@ def main():
     parser.add_option('-t', '--timestamp', dest='timestamp',
         help='search for dataset covering the POSIX timestamp TIME \t[default: now]', 
         metavar='TIME', type='int',
-        default=calendar.timegm(datetime.datetime.utcnow().timetuple()))
+        # default=calendar.timegm(datetime.datetime.now(datetime.UTC).timetuple()))
+        default=calendar.timegm(datetime.now(timezone.utc).timetuple()))
     parser.add_option('-v', '--verbose', action='count', dest='verbose',
         help='be verbose. The more times this is specified the more verbose.', default=False)
     parser.add_option('-p', '--past', dest='past',
@@ -180,6 +175,8 @@ def main():
         type='int', default=9)
     parser.add_option('--hd', dest='hd', action="store_true",
             help='use higher definition GFS data (default: no)')
+    parser.add_option('--fastsim', dest='fastsim', action="store_true",
+            help='use fast-generated fake wind fields, instead of real NOAA GFS data (default: no)')
     parser.add_option('--preds', dest='preds_path',
             help='path that contains uuid folders for predictions [default: %default]',
             default='./predict/preds/', metavar='PATH')
@@ -235,6 +232,21 @@ def main():
 
     if options.alarm:
         setup_alarm()
+
+    # Path to predictor binary
+    global pred_binary
+    if OS_IS_WINDOWS:
+        # Windows
+        if options.fastsim:
+            pred_binary = './pred_src/pred_fastsim.exe'
+        else:
+            pred_binary = './pred_src/pred_StationKeep.exe'
+    else:
+        # probably Linux or Mac
+        if options.fastsim:
+            pred_binary = './pred_src/pred_fastsim'
+        else:
+            pred_binary = './pred_src/pred_StationKeep'
 
     uuid = args[0]
     uuid_path = options.preds_path + "/" + uuid + "/"
@@ -306,7 +318,10 @@ def main():
     pred_in_progress = False
     pred_process = None
     pred_output = []
-    download_and_process_wind_data(options.lat, options.lon, options.timestamp, options, pred_in_progress, pred_process, pred_output, uuid_path)
+    if options.fastsim:
+        do_fastsim(options.lat, options.lon, options.timestamp, options, pred_in_progress, pred_process, pred_output, uuid_path)
+    else:
+        download_and_process_wind_data(options.lat, options.lon, options.timestamp, options, pred_in_progress, pred_process, pred_output, uuid_path)
 
     if exit_code == 1:
         # Hard error from the predictor. Tell the javascript it completed, so that it will show the trace,
@@ -327,7 +342,42 @@ def main():
  
     copy_flight_path(uuid_path)
 
-    shutil.rmtree(gfs_dir)
+    if not options.fastsim:
+        shutil.rmtree(gfs_dir)
+
+
+def do_fastsim(thelat, thelon, thetime, options, pred_in_progress, pred_process, pred_output, uuid_path):
+    global exit_code
+
+    command = [pred_binary, '-vv', '-o', uuid_path+'flight_path.csv', uuid_path+'scenario.ini']
+    log.info('The command is:')
+    log.info(command)
+    # pred_process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    pred_process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    log.info('Command has been sent')
+    # sys.stdout.flush()
+    # pred_process.stdout.flush()
+
+    while True:
+        if exit_code == 1:
+            return
+
+        line = pred_process.stdout.readline()
+        if not line:
+            break
+        if line == b'':
+            break
+    
+        # pass through
+        # sys.stdout.write(line)
+        # the required Python 3 obfuscation of the above line ...
+        sys.stdout.write(line.decode(sys.stdout.encoding))
+        sys.stdout.flush()
+
+    copy_flight_path(uuid_path)
+
+    if exit_code != 1:
+        exit_code = pred_process.wait()
 
 
 def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_progress, pred_process, pred_output, uuid_path):
@@ -335,7 +385,8 @@ def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_pro
     global exit_code
     global gfs_dir
 
-    time_to_find = datetime.datetime.utcfromtimestamp(thetime)
+    # time_to_find = datetime.datetime.utcfromtimestamp(thetime)
+    time_to_find = datetime.fromtimestamp(thetime, tz=timezone.utc)
     # utcoffset = datetime.timedelta(hours = 7.0)
     # time_to_find -= utcoffset
 
@@ -387,8 +438,10 @@ def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_pro
 
     write_file_return_code = write_file(output_format, dataset, \
             window, \
-            time_to_find - datetime.timedelta(hours=options.past), \
-            time_to_find + datetime.timedelta(hours=options.future))
+            (time_to_find - timedelta(hours=options.past)).replace(tzinfo=None), \
+            (time_to_find + timedelta(hours=options.future)).replace(tzinfo=None))
+            # time_to_find - datetime.timedelta(hours=options.past), \
+            # time_to_find + datetime.timedelta(hours=options.future))
     if write_file_return_code == 1:
         log.debug('write_file_return_code is 1')
         exit_code = 1
@@ -566,7 +619,8 @@ def write_file(output_format, thedata, window, mintime, maxtime):
 
     update_progress(gfs_percent=10, gfs_timeremaining="Please wait...")
 
-    starttime = datetime.datetime.now()
+    # starttime = datetime.datetime.now()
+    starttime = datetime.now()
 
     # log.info('get big grid')   #t
     # hgtprs_grid = thedata['hgtprs']
@@ -697,7 +751,7 @@ def write_file(output_format, thedata, window, mintime, maxtime):
         # print('done transferring data to downloaded_data for timeidx: ', timeidx)
 
         current_var = 0
-        time_per_var = datetime.timedelta()
+        # time_per_var = datetime.timedelta()
         for var in ('hgtprs', 'ugrdprs', 'vgrdprs', 'tmpprs', 'vvelprs'):
             current_var += 1
             # doubvar = '%s.%s' % (var, var)
@@ -792,7 +846,8 @@ def write_file(output_format, thedata, window, mintime, maxtime):
             #l assert len(selection.shape) == 4                                 #j
             #n assert len(selection.dimensions) == 4                                 #j
 
-            now = datetime.datetime.now()
+            # now = datetime.datetime.now()
+            now = datetime.now()
             time_elapsed = now - starttime
             num_vars = (current_time - 1)*5 + current_var
             time_per_var = time_elapsed / num_vars
@@ -944,14 +999,20 @@ def timestamp_to_datetime(timestamp):
     # The GFS timestmp is a floating point number fo days from the epoch,
     # day '0' appears to be January 1st 1 AD.
 
-    (fractional_day, integer_day) = math.modf(timestamp)
+    (fractional_day, integer_day) = (0., 0)
+    if hasattr(timestamp, "__len__"):
+        (fractional_day, integer_day) = math.modf(timestamp[0])
+    else:  
+        (fractional_day, integer_day) = math.modf(timestamp)
 
     # Unfortunately, the datetime module uses a different epoch.
     ordinal_day = int(integer_day - 1)
 
     # Convert the integer day to a time and add the fractional day.
-    return datetime.datetime.fromordinal(ordinal_day) + \
-        datetime.timedelta(days = fractional_day)
+    # return datetime.datetime.fromordinal(ordinal_day) + \
+    #     datetime.timedelta(days = fractional_day)
+    return datetime.fromordinal(ordinal_day) + \
+        timedelta(days = fractional_day)
 
 def possible_urls(time, hd):
     """
@@ -966,19 +1027,25 @@ def possible_urls(time, hd):
     available corresponds to time T given target time T.
     """
 
-    # print('start possible_urls at time =', time)
+    log.debug('start possible_urls at time = %s' % (time))
     # period = datetime.timedelta(days = 7.5)
-    period = datetime.timedelta(days = 15.0)
-    maxtimeaheadofnow = datetime.timedelta(days = 1)
+    # log.debug('preperiod')
+    period = timedelta(days = 15.0)
+    # log.debug('period')
+    maxtimeaheadofnow = timedelta(days = 1)
+    # log.debug('maxtimeaheadofnow')
     # nomads dataset available times are screwed up online
-    utcoffset = datetime.timedelta(hours = 7.0)
+    utcoffset = timedelta(hours = 7.0)
     # utcoffset = datetime.timedelta(hours = 15.0)
+    # log.debug('utcoffset')
 
     earliest = time - period
     # latest = time
     latest = time - utcoffset
-    cantbelaterthan = datetime.datetime.utcnow() + maxtimeaheadofnow
-    # print('latest =', latest)
+    log.debug('latest')
+    # cantbelaterthan = datetime.utcnow() + maxtimeaheadofnow
+    cantbelaterthan = datetime.now(timezone.utc) + maxtimeaheadofnow
+    log.debug('latest = %s' % (latest))
     if latest > cantbelaterthan:
         latest = cantbelaterthan
 
@@ -1001,6 +1068,7 @@ def possible_urls(time, hd):
     # to a server on a later request that doesn't have it.
     # print('url_format =', url_format)
     selected_ip = socket.gethostbyname("nomads.ncep.noaa.gov")
+    # log.debug('here3')
     log.info("Picked IP: {0}".format(selected_ip))
     # url_format = url_format.format(host=selected_ip)
     url_format = url_format.format(host='nomads.ncep.noaa.gov')
@@ -1015,7 +1083,8 @@ def possible_urls(time, hd):
                 possible_urls.append(url_format % \
                     (proposed.year, proposed.month, proposed.day, offset))
                 print('.....................', offset, url_format % (proposed.year, proposed.month, proposed.day, offset))
-        proposed -= datetime.timedelta(days = 1)
+        # proposed -= datetime.timedelta(days = 1)
+        proposed -= timedelta(days = 1)
         print('.....................', proposed)
     
     print('possible_urls returns: ', possible_urls)
@@ -1065,8 +1134,9 @@ def dataset_for_time(time, hd):
 
         log.debug('start time = %s' % (start_time) )
         log.debug('end time = %s' % (end_time) )
-        log.debug('time = %s' % (time) )
-        if start_time <= time and end_time >= time:
+        log.debug('time = %s' % (time.replace(tzinfo=None)) )
+        # if start_time <= time and end_time >= time:
+        if start_time <= time.replace(tzinfo=None) and end_time >= time.replace(tzinfo=None):
             log.info('Found good dataset at %s.' % url)
             dataset_id = url.split("/")[5] + "_" + url.split("/")[6].split("_")[1]
             update_progress(gfs_timestamp=dataset_id)
