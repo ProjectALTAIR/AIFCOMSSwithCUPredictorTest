@@ -24,8 +24,9 @@ Now, install Node.js ([https://nodejs.org/en/](https://nodejs.org/en/)).  Use th
 Then, navigate to the directory from which your HTML and PHP files are being served, 
 this would be `/var/www/` or `/var/www/html/`, create an **entirely** new subdirectory here and install version 1.114 (not necessarily the most recent version, but version 1.114) of CesiumJS ([https://github.com/CesiumGS/cesium/releases/download/1.114/Cesium-1.114.zip](https://github.com/CesiumGS/cesium/releases/download/1.114/Cesium-1.114.zip), which is likely _not_ the most recent version in https://cesium.com/downloads/) to the new subdirectory you just created (i.e. create a new subdirectory before installing CesiumJS v1.114 into that subdirectory) - you'll need it later. 
 
-Back in your `/<www>/` (`/var/www/` or `/var/www/html/`) directory, download the package repository at [https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest) so that all the project files are located at `/<www>/AIFCOMSSwithCUPredictorTest/`  (and **note that your directory should be called** `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master` -- if it is the latter, just rename it to be the former). 
-Copy all of the files and folders ***except server.js and package.json*** from your Cesium directory into `/<www>/AIFCOMSSwithCUPredictorTest/predict`, leaving the original `server.js` and `package.json` files from this GitHub AIFCOMSSwithCUPredictorTest repository intact.  (A few other files will show up as duplicates;
+Back in your `/<www>/` (`/var/www/` or `/var/www/html/`) directory, download the package repository at [https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest) so that all the project files are located at `/<www>/AIFCOMSSwithCUPredictorTest/`  (and **note that your directory should be called** `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master` -- if it is the latter, just rename it to be the former).  I suggest *not* using git clone for this package repository download, but rather choosing to download the contents of the AIFCOMSSwithCUPredictorTest repository as a .zip file, then unzipping that file and then copying the contents to a new `/<www>/AIFCOMSSwithCUPredictorTest/` directory.  (This is not a requirement, though: a git clone of the repository can be used instead here, if you greatly prefer.)
+
+Then, copy all of the files and folders ***except server.js and package.json*** from your Cesium directory into `/<www>/AIFCOMSSwithCUPredictorTest/predict`, leaving the original `server.js` and `package.json` files from this GitHub AIFCOMSSwithCUPredictorTest repository intact.  (A few other files will show up as duplicates;
 users should replace those other existing files in `/<www>/AIFCOMSSwithCUPredictorTest/predict` with the new files from your Cesium directory, rather than just ignoring those files.)  Be sure to put those Cesium files and folders **directly** into your `/<www>/AIFCOMSSwithCUPredictorTest/predict/` directory, e.g. after doing that you should have the subdirectories `/predict/Build/`, `/predict/Apps/`, `/predict/ThirdParty/`, and files including `/predict/LICENCE.md`, etc.; rather than putting those Cesium files and folders all into a subdirectory of their own.
 
 There are a few paths that need to be changed at this point:
@@ -185,7 +186,9 @@ Then, navigate to the directory from which your HTML and PHP files are being ser
 
 Back in your `/<www>/` (`/Users/<your user name>/Sites/`) directory, download the package repository at
 [https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest)
-so that all the project files are located at `/<www>/AIFCOMSSwithCUPredictorTest/`  (and **note that your directory should be called** `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master` -- if it is the latter, just rename it to be the former). Copy all of the files and folders 
+so that all the project files are located at `/<www>/AIFCOMSSwithCUPredictorTest/`  (and **note that your directory should be called** `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master` -- if it is the latter, just rename it to be the former).  I suggest *not* using git clone for this package repository download, but rather choosing to download the contents of the AIFCOMSSwithCUPredictorTest repository as a .zip file, then unzipping that file and then copying the contents to a new `/<www>/AIFCOMSSwithCUPredictorTest/` directory.  (This is not a requirement, though: a git clone of the repository can be used instead here, if you greatly prefer.)
+
+Then, copy all of the files and folders 
 ***except server.js and package.json*** from your Cesium directory into
 `/<www>/AIFCOMSSwithCUPredictorTest/predict`, leaving the original `server.js` and `package.json` files
 from this GitHub AIFCOMSSwithCUPredictorTest repository intact.  (A few other files will show up as duplicates;
@@ -315,7 +318,9 @@ Then, navigate to the directory from which your HTML and PHP files are being ser
 
 Back in your `/<www>/` (i.e., `C:\Ampps\www\`) directory, download the package repository at
 [https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest](https://github.com/ProjectALTAIR/AIFCOMSSwithCUPredictorTest)
-so that all the project files are located at `/<www>/AIFCOMSSwithCUPredictorTest/`  (and **note that your directory should be called** `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master` -- if it is the latter, just rename it to be the former). Copy all of the files and folders 
+so that all the project files are located at `/<www>/AIFCOMSSwithCUPredictorTest/`  (and **note that your directory should be called** `AIFCOMSSwithCUPredictorTest`, ***not*** `AIFCOMSSwithCUPredictorTest-master` -- if it is the latter, just rename it to be the former). I suggest *not* using git clone for this package repository download, but rather choosing to download the contents of the AIFCOMSSwithCUPredictorTest repository as a .zip file, then unzipping that file and then copying the contents to a new `/<www>/AIFCOMSSwithCUPredictorTest/` directory.  (This is not a requirement, though: a git clone of the repository can be used instead here, if you greatly prefer.)
+
+Then, copy all of the files and folders 
 ***except server.js and package.json*** from your Cesium directory into
 `/<www>/AIFCOMSSwithCUPredictorTest/predict`, leaving the original `server.js` and `package.json` files
 from this GitHub AIFCOMSSwithCUPredictorTest repository intact.  (A few other files will show up as duplicates;
