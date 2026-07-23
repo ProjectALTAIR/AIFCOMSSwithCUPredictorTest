@@ -25,12 +25,11 @@
 
 extern "C" {
 #include "ini/iniparser.h"
-#include "wind/wind_file_cache_ALTAIR.h"
 }
 
-#include "pred_StationKeep.hh"
-#include "run_model_StationKeep.hh"
-#include "altitude_StationKeep.hh"
+#include "pred_fastsim.hh"
+#include "run_model_fastsim.hh"
+#include "altitude_fastsim.hh"
 
 #include "state/ALTAIR_state.hh"
 #include "state/ExternalEnvironState.hh"
@@ -41,10 +40,9 @@ char* getCmdOption(   char** begin, char** end, const std::string& option);
 bool  cmdOptionExists(char** begin, char** end, const std::string& option);
 
 FILE* output;
-// FILE* myoutput;
+FILE* myoutput;
 FILE* kml_file;
 
-const char* data_dir;
 int verbosity;
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
@@ -74,16 +72,17 @@ int main(int argc, const char *argv[]) {
     int alarm_time;
     char* endptr;       // used to check for errors on strtod calls 
     
-    wind_file_cache_t* file_cache;
+    // wind_file_cache_t* file_cache;
     dictionary*        scenario = NULL;
     ExternalEnvironState* extEnv      = altairState->getExtEnv()                                    ;
 
-    fprintf(stderr, "INFO: starting pred_StationKeep main program\n");
+    // for (int i = 1; i < 1000; ++i) : needed if the PYTHON program (not this program!) doesn't flush stdout every line!
+    fprintf(stderr, "INFO: starting pred_fastsim main program\n");
     fflush(stderr);
 
-//    myoutput = fopen("/tmp/mypredoutput.txt", "a");
-//    fprintf(myoutput, "made it here1!\n");
-//    fclose(myoutput);
+    myoutput = fopen("/tmp/mypredoutput.txt", "a");
+    fprintf(myoutput, "made it here1!\n");
+    fclose(myoutput);
     
     if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-h")) {
         // Help!
@@ -100,7 +99,6 @@ int main(int argc, const char *argv[]) {
         printf(" -k --kml <file>         Output KML file.\n");
         printf(" -d --descending         We are in the descent phase of the flight, i.e. after\n");
         printf("                           burst or cutdown. burst_alt and ascent_rate ignored.\n");
-        printf(" -i --data_dir <dir>     Input directory for wind data, defaults to current dir.\n\n");
         printf(" -e --wind_error <err>   RMS windspeed error (m/s).\n");
         printf("The scenario file is an INI-like file giving the launch scenario. If it is\n");
         printf("omitted, the scenario is read from standard input.\n");
@@ -115,8 +113,10 @@ int main(int argc, const char *argv[]) {
 
     if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-vv")) {
       verbosity = 2;
+      fprintf(stderr, "INFO: verbosity = 2\n");
     } else if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-v")) {
       verbosity = 1;
+      fprintf(stderr, "INFO: verbosity = 1\n");
     }
 
     if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-d"))
@@ -147,17 +147,6 @@ int main(int argc, const char *argv[]) {
     }
     
     for(int counter=0;counter<argc;counter++) fprintf(stderr, "INFO: argv[%d]: %s \n", counter, argv[counter]);
-    if (cmdOptionExists((char **) argv, (char **) (argv+argc), "-i")) {
-      fprintf(stderr, "INFO: found -i option\n");
-      data_dir = getCmdOption((char **) argv, (char **) (argv+argc), "-i");
-    } else {
-      data_dir = "./";
-    }
-
-    fprintf(stderr, "INFO: data_dir = '%s'.\n", data_dir);
-
-    // populate wind data file cache
-    file_cache = wind_file_cache_new(data_dir);
 
     // read in flight parameters
 //    n_scenarios = argc - 1;
@@ -318,16 +307,19 @@ int main(int argc, const char *argv[]) {
             }
 */
 
-            if (!run_model(&file_cache, 
-//                         alt_model, 
+            if (!run_model(0, 
+//                            alt_model, 
                            initial_lat, initial_lng, initial_alt, initial_timestamp,
                            rmswinderror)) {
                     fprintf(stderr, "ERROR: error during model run!\n");
                     exit(1);
             }
 
-//            altitude_model_free(alt_model);
+//             altitude_model_free(alt_model);
+
         }
+
+
 
         // release the scenario
         iniparser_freedict(scenario);
@@ -342,9 +334,6 @@ int main(int argc, const char *argv[]) {
             fclose(output);
         }
     }
-
-    // release the file cache resources.
-    wind_file_cache_free(file_cache);
 
     return 0;
 }
