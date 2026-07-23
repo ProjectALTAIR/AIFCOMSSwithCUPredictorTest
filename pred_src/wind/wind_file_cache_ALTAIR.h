@@ -33,6 +33,9 @@ typedef struct wind_file_cache_entry_s  wind_file_cache_entry_t;
 //                      Scan 'directory' for wind files. Return a new cache.
 wind_file_cache_t      *wind_file_cache_new    (const char               *directory);
 
+//                      Generate a new wind file cache purely from a fast simulation (rather than from GFS files containing real wind data)
+wind_file_cache_t      *wind_file_cache_fastsim(void);
+
 //                      Free resources associated with 'cache'.
 void                    wind_file_cache_free   (wind_file_cache_t        *cache);
 

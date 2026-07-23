@@ -830,5 +830,14 @@ wind_file_get_wind(wind_file_t* file, float lat, float lon, float height,
         return 1;
 }
 
+// For fastsim:
+int 
+generate_wind(float lat, float lng, float alt, long int timestamp,
+              float* wind_u, float* wind_v, float *wind_var, float *pres, float *temp, float *windz)
+{
+        return 0;
+}
+
+
 // Data for God's own editor.
 // vim:sw=8:ts=8:et:cindent

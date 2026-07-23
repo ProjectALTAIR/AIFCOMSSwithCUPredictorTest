@@ -186,7 +186,8 @@ _parse_values_line(const char* line, unsigned int n_values, float* values)
                         record++;
                 
                 // and advance past delimiter
-                if(record != '\0')
+                // if(record != '\0')
+                if(record != NULL)
                         record++;
 
                 // update the record index
@@ -618,7 +619,7 @@ wind_file_get_wind(wind_file_t* file, float lat, float lon, float height,
                            ((interp_height >= left_height) || 
                             (left_pr_idx == file->axes[0]->n_values)))
                         {
-// Check that the wind doesn't have crazy/stupid values at this location.  And only set pr_idx and height values if it doesn't.
+// Check that the wind doesn't have crazy/stupid values at this location.  And only set pr_idx and height values if it doesn't.                         
                             float theu, thev;
                             _wind_file_get_wind_raw(file,
                                 left_lat_idx, left_lon_idx, i, &theu, &thev);
@@ -632,7 +633,7 @@ wind_file_get_wind(wind_file_t* file, float lat, float lon, float height,
                            ((interp_height <= right_height) ||
                             (right_pr_idx == file->axes[0]->n_values)))
                         {
-// Check that the wind doesn't have crazy/stupid values at this location.  And only set pr_idx and height values if it doesn't.
+// Check that the wind doesn't have crazy/stupid values at this location.  And only set pr_idx and height values if it doesn't.                          
                             float theu, thev;
                             _wind_file_get_wind_raw(file,
                                 right_lat_idx, right_lon_idx, i, &theu, &thev);

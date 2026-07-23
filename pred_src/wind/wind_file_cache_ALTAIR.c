@@ -151,6 +151,18 @@ _file_filter(const struct dirent *entry)
 }
 
 wind_file_cache_t*
+wind_file_cache_fastsim(void)
+{
+        wind_file_cache_t* self;
+        self = (wind_file_cache_t*) malloc(sizeof(wind_file_cache_t));
+
+        self->n_entries = 0;
+        self->directory_name = "";
+
+        return self;
+}
+
+wind_file_cache_t*
 wind_file_cache_new(const char *directory)
 {
         wind_file_cache_t* self;
