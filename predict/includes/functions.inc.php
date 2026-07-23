@@ -93,7 +93,7 @@ function verifyModel( $pred_model, $software_available ) {
                     were outside the allowed range on this server";
             }
         } else if ( $idx == "delta_time" ) {
-            if ( $value < 5 || $value > 24) {
+            if ( $value < 5 || $value > 1000) {
                 $return_array['valid'] = false;
                 $return_array['msg'] = "The time delta was
                     outside the allowed range on this server";
@@ -137,8 +137,9 @@ function runPred($pred_model) {
         makeINI($pred_model);
     }
 
-    // If using GFS HD, then append --hd to the exec string
+    // If using GFS HD, then append --hd to the exec string; or if using fastsim, then append --fastsim
     if ( $pred_model['software'] == "gfs_hd" ) $use_hd ="--hd ";
+    else if ( $pred_model['software'] == "fastsim" ) $use_hd ="--fastsim ";
     else $use_hd = "";
 
     $predictor_lat = number_format($pred_model['lat'], 0);

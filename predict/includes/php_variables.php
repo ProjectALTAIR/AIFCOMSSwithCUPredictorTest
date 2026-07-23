@@ -1,4 +1,4 @@
 <?php
-define("ROOT_DIR", "/path/to/AIFCOMSSwithCUPredictorTest/");
-define("PYTHON_PATH", "/path/to/python");
+define("ROOT_DIR", "/Users/jalbert/Sites/AIFCOMSSwithCUPredictorTest/");
+define("PYTHON_PATH", "/opt/anaconda3/bin/python");
 ?>
