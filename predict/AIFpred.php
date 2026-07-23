@@ -25,7 +25,14 @@ $time = time() + 3600;
 <script src="js/pred/pred-ui.js" type="text/javascript"></script>
 <script src="js/pred/pred-cookie.js" type="text/javascript"></script>
 <script src="js/pred/pred-map.js" type="text/javascript"></script>
-<script src="js/pred/pred-event.js" type="text/javascript"></script>
+
+<?php
+
+$softw = $_GET['softw'];
+echo '<script type="text/javascript" data-softw="' . $softw . '" src="js/pred/pred-event.js"></script>'; 
+
+?>
+
 <script src="js/pred/pred.js" type="text/javascript"></script>
 <script src="js/calc/calc.js" type="text/javascript"></script>
 

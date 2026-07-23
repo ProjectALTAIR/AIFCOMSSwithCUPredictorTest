@@ -6,7 +6,7 @@ $stats = new StatsD();
 
 $action = $_GET['action'];
 
-$software_available = array("gfs", "gfs_hd");
+$software_available = array("gfs", "gfs_hd", "fastsim");
 
 switch($action) {
 

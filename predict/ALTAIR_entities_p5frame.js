@@ -1648,8 +1648,8 @@ function getScopeTrackingCommand() {
   // if the target were far above the atmosphere.  Consequently
   // we only apply a correction equal to the square of the fractional vertical
   // airmass multiplied by the nominal correction.  We approximate the
-  // fractional vertical airmass by e^(-groundEle/H) - e^(-ele/H), where                 
-  // groundEle is the elevation above sea level of the ground station, ele is     
+  // fractional vertical airmass by e^(-groundEle/H) - e^(-ele/H), where 
+  // groundEle is the elevation above sea level of the ground station, ele is  
   // the elevation above sea level of ALTAIR, and H is the typical scale
   // height of Earth's atmosphere -- equal to 7650 meters.
   // The magnitude of the refraction correction is negligibly small for
@@ -2082,7 +2082,10 @@ function setFakeAltairValues() {
   var strEle     =  ele.toString();
 
   textSize(150);
-  drawType("SIMULATED  DATA",             20., 305., 1.,                        0.85,                            0.85);
+  if (window.parent.fastsimframe != null)
+    drawType("FAST SIMULATION",             20., 305., 1.,                        0.85,                            0.85);
+  else
+    drawType("SIMULATED  DATA",             20., 305., 1.,                        0.85,                            0.85);
   textSize(17);
 
   for (i = 0; i <  7; ++i) setting[i]    = 2.9;

@@ -94,18 +94,30 @@ if (ALTAIRInpLat <= 90. && ALTAIRInpLat >= -90. && ALTAIRInpLon <= 180. && ALTAI
    ALTAIRAlt = ALTAIRInpAlt;
 }
 
-var ALTAIRGroundPos     = [ Cesium.Cartographic.fromDegrees(ALTAIRLon, ALTAIRLat) ];
+let ALTAIRGroundPos     = [ Cesium.Cartographic.fromDegrees(ALTAIRLon, ALTAIRLat) ];
+// console.log('crap');
+// console.log(ALTAIRGroundPos[0]);
+
 var ALTAIRTerrainHeight = window.document.getElementById('terrHeight');
-Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos).then(function (updatedPositions) {
-  ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
-});
+setTimeout(function(){
+  let promise = Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, ALTAIRGroundPos);
+  promise.then(function () {
+    // console.log('"pos" with updated height: ' + ALTAIRGroundPos[0]);
+    ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
+  });
+}, 2000); 
+
+// Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos).then(function (updatedPositions) {
+//   ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
+// });
+
 var theLocation  = Cesium.Cartesian3.fromDegrees(ALTAIRLon - epsilonDegs, ALTAIRLat - epsilonDegs, ALTAIRAlt+100.);
 
 // var theViewpoint = Cesium.HeadingPitchRange(90.0, 90.0, 100.0);
 
     viewer.camera.flyTo({
         destination : theLocation,
-        duration    : 1.0
+        duration    : 0.2
     });
 
 var ALTAIR = viewer.entities.add({
@@ -122,6 +134,8 @@ var ALTAIR = viewer.entities.add({
 //         material : Cesium.Color.ORANGE
 //     }
 });
+
+viewer.zoomTo(viewer.entities);
 
 var ALTAIRGondola = viewer.entities.add({
     name : 'ALTAIRGondola',
@@ -240,12 +254,11 @@ for (var i = 0; i < 4; ++i) {
 
 viewer.zoomTo(viewer.entities);
 
-
 // Don't constantly update the position (since that can cause crashes on various systems,
 // for reasons which are not very well understood).
 // if (window.navigator.userAgent.indexOf("Win") != -1 || window.navigator.userAgent.indexOf("Mac") != -1) updatePosition = false;
 updatePosition = false;
-    
+
 viewer.clock.onTick.addEventListener(function () {
     eventCounter++;
 
@@ -272,10 +285,19 @@ viewer.clock.onTick.addEventListener(function () {
 //        console.log(window.parent.p5frame.document);
 //        console.log(window.parent.p5frame.document.getElementById('gLTAIRLat'));
 //        console.log(aLTAIRLatInput);
-      
-        Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos).then(function (updatedPositions) {
-          ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
-        });
+
+        setTimeout(function() {   
+          let promise = Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, ALTAIRGroundPos);
+          promise.then(function() {
+            // console.log('"pos" with updated height2: ' + ALTAIRGroundPos[0]);
+            ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
+          });
+        }, 2000);  
+
+
+//        Cesium.sampleTerrain(viewer.terrainProvider, 12, ALTAIRGroundPos).then(function (updatedPositions) {
+//          ALTAIRTerrainHeight.setAttribute("value", ALTAIRGroundPos[0].height.toString());
+//        });
 
         ALTAIR.position          = Cesium.Cartesian3.fromDegrees(ALTAIRLon, ALTAIRLat, ALTAIRAlt);
         ALTAIRGondola.position   = Cesium.Cartesian3.fromDegrees(ALTAIRLon, ALTAIRLat, ALTAIRAlt);
@@ -306,7 +328,8 @@ viewer.clock.onTick.addEventListener(function () {
             (ALTAIRPropLeft[i]).orientation  = orientationPropLeft[i];
             (ALTAIRPropRight[i]).orientation = orientationPropRight[i];
         }
-        if (eventCounter < 50) viewer.zoomTo(viewer.entities);
+        // if (eventCounter < 50) viewer.zoomTo(viewer.entities);
+        if (eventCounter % 1000 == 0) viewer.zoomTo(viewer.entities);
     }
 });
 
