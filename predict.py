@@ -25,6 +25,18 @@ import simplejson as json
 import re
 import httplib2
 
+import boto3
+from botocore import UNSIGNED
+from botocore.config import Config
+import xarray as xr
+import pandas as pd
+
+BUCKET = "noaa-gfs-bdp-pds"
+VARS = ("HGT", "UGRD", "VGRD", "TMP", "VVEL")
+    
+_s3 = boto3.client("s3", region_name="us-east-1",
+                   config=Config(signature_version=UNSIGNED))
+
 # handle both predict.py's
 filepath = os.path.dirname(os.path.abspath(__file__))
 if filepath.endswith('predict'):
@@ -345,6 +357,83 @@ def main():
     if not options.fastsim:
         shutil.rmtree(gfs_dir)
 
+def _isobaric_mb(level_str):
+    parts = level_str.split()
+    if len(parts) != 2 or parts[1] != "mb":
+        return False
+    try:
+        float(parts[0])
+        return True
+    except ValueError:  
+        return False
+       
+
+def _byte_ranges_from_idx(idx_text):
+    """
+    Parse a GFS .idx file. Return list of (start, end) byte ranges for the
+    5 variables
+    """
+    lines = [l for l in idx_text.splitlines() if l.strip()]
+    # Parse each line into (start_byte, var, level)
+    parsed = []
+    starts = []
+    for l in lines:
+        f = l.split(":")
+        #f[0]=msgnum f[1]=startbyte f[2]=d=date f[3]=VAR f[4]=LEVEL f[5]=fcst
+        start = int(f[1])
+        starts.append(start)
+        parsed.append((start, f[3], f[4]))
+    ranges = []
+    for i, (start, var, level) in enumerate(parsed):
+        if var in VARS and _isobaric_mb(level):
+            end = starts[i + 1] - 1 if i + 1 < len(starts) else None
+            ranges.append((start, end))
+    return ranges
+
+def _fetch_grib_subset(key, out_path):
+    """Download the GRIB messages for `key` into out_path."""
+    idx = _s3.get_object(Bucket=BUCKET, Key=key + ".idx")["Body"].read().decode()
+    ranges = _byte_ranges_from_idx(idx)
+    with open(out_path, "wb") as fh:
+        for start, end in ranges:
+            rng = f"bytes={start}-{end}" if end is not None else f"bytes={start}-"
+            body = _s3.get_object(Bucket=BUCKET, Key=key, Range=rng)["Body"].read()
+            fh.write(body)
+        
+                        
+def _grib_key(run, fxx):
+    day = run.strftime("%Y%m%d")
+    hh = run.strftime("%H")
+    return f"gfs.{day}/{hh}/atmos/gfs.t{hh}z.pgrb2.1p00.f{fxx:03d}"
+
+
+def _key_exists(key):
+    r = _s3.list_objects_v2(Bucket=BUCKET, Prefix=key, MaxKeys=1)
+    return any(o["Key"] == key for o in r.get("Contents", []))
+        
+
+def open_forecast_hour(run, fxx, tmpdir="/tmp/gfs_s3"):
+    """
+    Fetch one forecast hour as an xarray.Dataset
+    variables gh,u,v,t,w
+    Returns None if the file isn't available yet.
+    """
+    key = _grib_key(run, fxx)
+    if not _key_exists(key):
+        return None
+    os.makedirs(tmpdir, exist_ok=True)
+    out_path = os.path.join(tmpdir, f"subset_{run:%Y%m%d%H}_f{fxx:03d}.grib2")
+    _fetch_grib_subset(key, out_path)
+            
+    dss = xr.open_dataset(
+        out_path, engine="cfgrib",
+        backend_kwargs={"filter_by_keys": {"typeOfLevel": "isobaricInhPa"},
+                        "indexpath": ""},
+    )
+    ds = dss.sortby("isobaricInhPa", ascending=False)
+    return ds
+
+
 
 def do_fastsim(thelat, thelon, thetime, options, pred_in_progress, pred_process, pred_output, uuid_path):
     global exit_code
@@ -403,8 +492,11 @@ def download_and_process_wind_data(thelat, thelon, thetime, options, pred_in_pro
 
 #    dataset_times = map(timestamp_to_datetime, dataset.time)
 #    dataset_timestamps = map(datetime_to_posix, dataset_times)
-    dataset_times = list(map(timestamp_to_datetime, dataset.time))
-    dataset_timestamps = list(map(datetime_to_posix, dataset_times))
+#    dataset_times = list(map(timestamp_to_datetime, dataset.time))
+#    dataset_timestamps = list(map(datetime_to_posix, dataset_times))
+    dataset_times = [t for (t, ds) in dataset]
+    dataset_timestamps = [int(pd.Timestamp(t).timestamp()) for t in dataset_times]
+
 
     log.info('Found appropriate dataset:')
     log.info('    Start time: %s (POSIX %s)' % \
@@ -567,402 +659,141 @@ def purge_cache():
         log.debug('   Deleting %s.' % file)
         os.remove(pydap.lib.CACHE + file)
 
-def write_file(output_format, thedata, window, mintime, maxtime):
-    log.info('Downloading data in window (lat, lon) = (%s +/- %s, %s +/- %s).' % window)
-
-    # Firstly, get the hgtprs variable to extract the times we're going to use.
-    hgtprs_global  = thedata['hgtprs']
-
-    # Check the dimensions are what we expect.
-    assert(hgtprs_global.dimensions == ('time', 'lev', 'lat', 'lon'))
-
-    # Work out what times we want to download
-    times = sorted(map(timestamp_to_datetime, hgtprs_global.maps['time']))
-    times_first = max(0, bisect.bisect_right(times, mintime) - 1)
-    times_last = min(len(times), bisect.bisect_left(times, maxtime) + 1)
-    times = times[times_first:times_last]
-
-    num_times = len(times)
-    current_time = 0
-
-    start_time = min(times)
-    end_time = max(times)
-    log.info('Log downloading from %s to %s.' % (start_time.ctime(), end_time.ctime()))
-    # print('Print downloading from: ', start_time.ctime(), ' to: ', end_time.ctime())
-    # print('num_times = ', num_times)
-
-    # print('enumerate(hgtprs_global.maps[lon]) = ', enumerate(hgtprs_global.maps['lon']))    
-    # print('list(enumerate(hgtprs_global.maps[lon])) = ', list(enumerate(hgtprs_global.maps['lon'])))    
-    # print('enumerate(hgtprs_global.maps[time]) = ', enumerate(hgtprs_global.maps['time']))    
-    # print('list(enumerate(hgtprs_global.maps[time])) = ', list(enumerate(hgtprs_global.maps['time'])))    
-
-    # Filter the longitudes we're actually going to use.
-    # longitudes = filter(lambda x: longitude_distance(x[1], window[2]) <= window[3] ,
-    #                     enumerate(hgtprs_global.maps['lon']))
-    # Below is the Python 3 version of the above.
-    # (As the saying goes -- How many computer scientists does it take to make things worse?  Answer: All of them.)
-    longitudes = []
-    # log.info('get hgtprs_global.maps')   #t
-    for count,ele in enumerate(hgtprs_global.maps['lon']):
-        if longitude_distance(ele, window[2]) <= window[3]:
-            longitudes.append([count,ele])
-
-    # Filter the latitudes we're actually going to use.
-    # latitudes = filter(lambda x: math.fabs(x[1] - window[0]) <= window[1] ,
-    #                    enumerate(hgtprs_global.maps['lat']))
-    # Below is the (again, worse) Python 3 version of the above.
-    latitudes = []
-    # log.info('get hgtprs_global.maps again')   #t
-    for count,ele in enumerate(hgtprs_global.maps['lat']):
-        if math.fabs(ele - window[0]) <= window[1]:
-            latitudes.append([count,ele])
-
-    update_progress(gfs_percent=10, gfs_timeremaining="Please wait...")
-
-    # starttime = datetime.datetime.now()
-    starttime = datetime.now()
-
-    # log.info('get big grid')   #t
-    # hgtprs_grid = thedata['hgtprs']
-    # bighgtprs = hgtprs_grid[:,:,:,:]
-    # print('made it past big grid')
- 
-    mintimeidx = 1000
-    maxtimeidx = 0
-    for timeidx, time in list(enumerate(hgtprs_global.maps['time'])):
-
-        timestamp = datetime_to_posix(timestamp_to_datetime(time))
-        if (timestamp < datetime_to_posix(start_time)) | (timestamp > datetime_to_posix(end_time)):
-            continue
-
-        if (timeidx < mintimeidx):
-            mintimeidx = timeidx
-
-        if (timeidx > maxtimeidx):
-            maxtimeidx = timeidx
-
-    maxtimeidx += 1
-    minlat = latitudes[0][0]
-    maxlat = latitudes[-1][0] + 1
-    minlon = longitudes[0][0]
-    maxlon = longitudes[-1][0] + 1
-    log.info('minlat = %s' % (minlat) )  #t
-    log.info('maxlat = %s' % (maxlat) )  #t
-    log.info('minlon = %s' % (minlon) )
-    log.info('maxlon = %s' % (maxlon) )
-    log.info('mintimeidx = %s' % (mintimeidx) )
-    log.info('maxtimeidx = %s' % (maxtimeidx) )
-
-    log.info('get hgtprs grid') #t
-    try:
-        hgtprs_grid = thedata['hgtprs']
-    except:
-        log.info('failed to get hgtprs grid')
-        return 1
-
-    log.info('get hgtprs grid data')
-    try:
-        dgridhgtprs = hgtprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    except:
-        log.info('failed to get hgtprs grid data')
-        return 1
-
-
-    log.info('get ugrdprs grid') #t
-    try:
-        ugrdprs_grid = thedata['ugrdprs']
-    except:
-        log.info('failed to get ugrdprs grid')
-        return 1
-
-    log.info('get ugrdprs grid data') #t
-    try:
-        dgridugrdprs = ugrdprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    except:
-        log.info('failed to get ugrdprs grid data')
-        return 1
-
-
-    log.info('get vgrdprs grid') #t
-    try:
-        vgrdprs_grid = thedata['vgrdprs']
-    except:
-        log.info('failed to get vgrdprs grid')
-        return 1
-
-    log.info('get vgrdprs grid data') #t
-    try:
-        dgridvgrdprs = vgrdprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    except:
-        log.info('failed to get vgrdprs grid data')
-        return 1
-
-
-    log.info('get tmpprs grid') #t
-    try:
-        tmpprs_grid = thedata['tmpprs']
-    except:
-        log.info('failed to get tmpprs grid')
-        return 1
-
-    log.info('get tmpprs grid data') #t
-    try:
-        dgridtmpprs = tmpprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    except:
-        log.info('failed to get tmpprs grid data')
-        return 1
-
-
-    log.info('get vvelprs grid') #t
-    try:
-        vvelprs_grid = thedata['vvelprs']
-    except:
-        log.info('failed to get vvelprs grid')
-        return 1
-
-    log.info('get vvelprs grid data') #t
-    try:
-        dgridvvelprs = vvelprs_grid[mintimeidx:maxtimeidx,:,minlat:maxlat,minlon:maxlon]
-    except:
-        log.info('failed to get vvelprs grid data')
-        return 1
-
-    # Write one file for each time index.
-    # for timeidx, time in enumerate(hgtprs_global.maps['time']):
-    for timeidx, time in list(enumerate(hgtprs_global.maps['time'])):
-
-        # log.info('made it into time list')
-        timestamp = datetime_to_posix(timestamp_to_datetime(time))
-        if (timestamp < datetime_to_posix(start_time)) | (timestamp > datetime_to_posix(end_time)):
-            continue
-
-        current_time += 1
+# NEW: mainly some variable name changes (eg. hgtprs is gh etc.): Amine's code
+def write_file(output_format, dataset_list, window, mintime, maxtime):
+    """
+    dataset_list: list of (valid_datetime, xarray.Dataset) tuples.
+    Each ds is 3D: (isobaricInhPa, latitude, longitude), vars gh,u,v,w,t.
+    Writes one .dat file per forecast hour whose valid time is in [mintime, maxtime].
+    """
+    log.info('Writing data in window (lat, lon) = (%s +/- %s, %s +/- %s).' % window)
         
-        log.info('Downloading data for %s.' % (timestamp_to_datetime(time).ctime()))
-
-        # print('transferring data to downloaded_data for timeidx: ', timeidx, ' at time: ', timestamp_to_datetime(time).ctime())
-        dgridtidx = timeidx - mintimeidx
-        downloaded_data = { }
-        downloaded_data['hgtprs']  = dgridhgtprs[dgridtidx,:,:,:]
-        downloaded_data['ugrdprs'] = dgridugrdprs[dgridtidx,:,:,:]
-        downloaded_data['vgrdprs'] = dgridvgrdprs[dgridtidx,:,:,:]
-        downloaded_data['tmpprs']  = dgridtmpprs[dgridtidx,:,:,:]
-        downloaded_data['vvelprs'] = dgridvvelprs[dgridtidx,:,:,:]
-        # print('done transferring data to downloaded_data for timeidx: ', timeidx)
-
-        current_var = 0
-        # time_per_var = datetime.timedelta()
-        for var in ('hgtprs', 'ugrdprs', 'vgrdprs', 'tmpprs', 'vvelprs'):
-            current_var += 1
-            # doubvar = '%s.%s' % (var, var)
-            #k grid = thedata['hgtprs.hgtprs']
-            grid = thedata[var]
-            #xx grid = thedata[doubvar]
-            #l log.info('Processing variable \'%s\' with shape %s...' % (var, grid.shape))   #j
-            log.info('Processing variable \'%s\' with dimensions %s...' % (var, grid.dimensions))   #j
-            #l log.info('Processing variable \'%s\' ' % (var))   #j
-            # print('grid = ', grid)
-            # print('thedata = ', thedata)
-            # print('grid.dimensions = ', grid.dimensions)
-            # print('var = ', var)
-            # print('doubvar = ', doubvar)
-
-            # Check the dimensions are what we expect.
-            assert(grid.dimensions == ('time', 'lev', 'lat', 'lon'))
-
-            # print('latitudes = ', latitudes)
-            # print('longitudes = ', longitudes)
-            # print('longitudes[0][0] = ', longitudes[0][0])
-            # print('longitudes[-1][0] = ', longitudes[-1][0])
-            # print('latitudes[0][0] = ', latitudes[0][0])
-            # print('latitudes[-1][0] = ', latitudes[-1][0])
-            # print('timeidx = ', timeidx)
-            # print('time = ', timestamp_to_datetime(time).ctime())
-
-            # print('get enormous grid')
-            # gridload = hgtprs_grid[:,:,:,:]
-            # print('made it past enormous grid')
-
-            ## print('hgtprs_global.maps[lat].shape[0]-1 = ', hgtprs_global.maps['lat'].shape[0]-1)
-            # print('grid[time] = ', grid['time'])
-            # print('grid[time].data = ', grid['time'].data)
-            #x print('grid.array = ', grid.array)
-            #x print('grid.array[:] = ', grid.array[:])
-            #x print('grid.array[:].data = ', grid.array[:].data)
-            #x print('grid.array.data = ', grid.array.data)
-            #x print('grid[:] = ', grid[:])
-            #x print('list(grid) = ', list(grid))
-            ## print('grid[var] = ', grid[var])
-            # print('grid.maps = ', grid.maps)
-            # print('grid.time = ', grid.time)
-            ## print('grid.shape = ', grid.shape)
-            # print('grid.attributes = ', grid.attributes)
-            # print('grid.time.shape = ', grid.time.shape)
-            # print('grid.lev.shape = ',  grid.lev.shape)
-            # print('grid.lat.shape = ',  grid.lat.shape)
-            # print('grid.lon.shape = ',  grid.lon.shape)
-            ## testsela = thedata[1,10:14,5:10,5:10]
-            # testsela = grid[2,10:14,5:10,5:10]
-            ## print('testsela.shape = ', testsela.shape)
-            ## print('data[var][:] = ', data[var][:])
-            ## testsela = list(data)
-            ## testselb = testsela[var]
-            ## print('list(grid.var) = ', list(grid.var))
-            ## print('selection on grid[time] = ', grid['time'])
-
-            # See if the longitude region wraps...
-            # if (longitudes[0][0] == 0) & (longitudes[-1][0] == hgtprs_global.maps['lat'].shape[0]-1):
-                # Download the data. Unfortunately, OpeNDAP only supports remote access of
-                # contiguous regions. Since the longitude data wraps, we may require two 
-                # windows. The 'right' way to fix this is to download a 'left' and 'right' window
-                # and munge them together. In terms of download speed, however, the overhead of 
-                # downloading is so great that it is quicker to download all the longitude 
-                # data in our slice and do the munging afterwards.
-                # selection = grid[\
-                #     timeidx,
-                #     :, \
-                #     latitudes[0][0]:(latitudes[-1][0]+1), \
-                #     : ]
-            # else:
-                # selection = grid[2, :, 0:181, 0:360] # for testing
-                # bigselection = grid[timeidx, :, 0:181, 0:360] # for testing
-                # bigselection = grid[timeidx, :, :, :] # for testing
-                # selection = grid[timeidx, :, minlat:maxlat, 0:360] # for testing
-                # selection = grid[timeidx, :, 0:181, minlon:maxlon] # for testing
-                # selection = grid[\
-                #     timeidx,
-                #     :, \
-                #     latitudes[0][0]:(latitudes[-1][0]+1), \
-                #     longitudes[0][0]:(longitudes[-1][0]+1) ]
-                # selection = bigselection[:, minlat:maxlat, minlon:maxlon]
-
-            # Cache the downloaded data for later
-            # downloaded_data[var] = selection
-
-            #l log.info('   Downloaded data has shape %s...', selection.shape)  #j
-            #n log.info('   Downloaded data from variable %s has dimensions %s...' % (var, selection.dimensions))  #j
-            #n print('   printing Downloaded data from variable ', var, ' has dimensions: ', selection.dimensions)  #j
-            # assert len(selection.shape) == 3                               #j
-            #l assert len(selection.shape) == 4                                 #j
-            #n assert len(selection.dimensions) == 4                                 #j
-
-            # now = datetime.datetime.now()
-            now = datetime.now()
-            time_elapsed = now - starttime
-            num_vars = (current_time - 1)*5 + current_var
-            time_per_var = time_elapsed / num_vars
-            total_time = num_times * 5 * time_per_var
-            time_left = total_time - time_elapsed
-            time_left = timelib.strftime('%M:%S', timelib.gmtime(time_left.seconds))
-            
-            update_progress(gfs_percent=int(
-                10 +
-                (((current_time - 1) * 90) / num_times) +
-                ((current_var * 90) / (5 * num_times))
-                ), gfs_timeremaining=time_left)
-
-        # Check all the downloaded data has the same shape
-        target_shape = downloaded_data['hgtprs']
-        #j assert( all( map( lambda x: x == target_shape,                      
-        #j        filter( lambda x: x.shape, iter(downloaded_data.values()) ) ) ) ) 
-
-        log.info('Writing output...')
-
-        hgtprs = downloaded_data['hgtprs']
-        ugrdprs = downloaded_data['ugrdprs']
-        vgrdprs = downloaded_data['vgrdprs']
-        tmpprs = downloaded_data['tmpprs']
-        vvelprs = downloaded_data['vvelprs']
-
-        # log.debug('Using longitudes: %s' % (map(lambda x: x[1], longitudes),))
-        # update the above for Python 3
-        log.debug('Using longitudes: %s to %s' % (longitudes[0][0], (longitudes[-1][0]+1)))
-
+    # Filter to the forecast hours we actually want.
+    wanted = list(dataset_list)
+    if not wanted:
+        # If nothing lands in-window, fall back to using all we have.
+        wanted = dataset_list
+    num_times = len(wanted)
+    log.info('Writing %d forecast-hour files.' % num_times)
+    
+    starttime = datetime.now() 
+    current_time = 0
+    
+    for (valid_dt, ds) in wanted:   
+        current_time += 1
+        timestamp = int(pd.Timestamp(valid_dt).timestamp())
+        log.info('Writing data for %s (POSIX %s).' % (valid_dt.ctime(), timestamp))
+        
+        # Grab the five variables as plain numpy arrays: shape (lev, lat, lon).
+        try:
+            gh = ds['gh'].values
+            u  = ds['u'].values
+            v  = ds['v'].values
+            t  = ds['t'].values
+            w  = ds['w'].values
+        except Exception as e:
+            log.info('failed to get variable arrays: %s' % e)
+            import traceback; traceback.print_exc()
+            return 1
+    
+        levs = ds['isobaricInhPa'].values          # pressures, descending
+        lats_all = ds['latitude'].values
+        lons_all = ds['longitude'].values
+        
+        # Which latitudes/longitudes fall in the window.
+        latitudes = [[i, la] for i, la in enumerate(lats_all)
+                     if math.fabs(la - window[0]) <= window[1]]
+        center = window[2]
+        longitudes = []
+        for i, lo in enumerate(lons_all):
+            if longitude_distance(lo, center) <= window[3]:
+                disp = lo
+                while disp - center > 180:
+                    disp -= 360
+                while disp - center < -180:
+                    disp += 360
+                longitudes.append([i, disp])
+        longitudes.sort(key=lambda x: x[1])  
+        
+        if not latitudes or not longitudes:
+            log.info('window selects no grid points (lat=%s lon=%s)'
+                     % (len(latitudes), len(longitudes)))
+            return 1
+        
+        # Build the output filename for this timestamp.
         output_filename = output_format
         output_filename = output_filename.replace('%(time)', str(timestamp))
         output_filename = output_filename.replace('%(lat)', str(window[0]))
         output_filename = output_filename.replace('%(latdelta)', str(window[1]))
         output_filename = output_filename.replace('%(lon)', str(window[2]))
         output_filename = output_filename.replace('%(londelta)', str(window[3]))
-
+        
         log.info('   Writing \'%s\'...' % output_filename)
         output = open(output_filename, 'w')
-
-        # Write the header.
+        
+        # Header.
         output.write('# window centre latitude, window latitude radius, window centre longitude, window longitude radius, POSIX timestamp\n')
         header = window + (timestamp,)
-        output.write(','.join(map(str,header)) + '\n')
-
-        # Write the axis count.
+        output.write(','.join(map(str, header)) + '\n')
+        
+        # Axis count.
         output.write('# num_axes\n')
-        output.write('3\n') # FIXME: HARDCODED!
-
-        # Write each axis, a record showing the size and then one with the values.
+        output.write('3\n')
+                
+        # Axis 1: pressures.
         output.write('# axis 1: pressures\n')
-        output.write(str(hgtprs.maps['lev'].shape[0]) + '\n')
-        #l output.write(str(len(hgtprs.dimensions)) + '\n')
-        output.write(','.join(map(str,hgtprs.maps['lev'][:])) + '\n')
+        output.write(str(len(levs)) + '\n')
+        output.write(','.join(map(str, levs)) + '\n')
+                     
+        # Axis 2: latitudes.
         output.write('# axis 2: latitudes\n')
         output.write(str(len(latitudes)) + '\n')
         output.write(','.join(map(lambda x: str(x[1]), latitudes)) + '\n')
+        
+        # Axis 3: longitudes.
         output.write('# axis 3: longitudes\n')
         output.write(str(len(longitudes)) + '\n')
         output.write(','.join(map(lambda x: str(x[1]), longitudes)) + '\n')
-
-        # Write the number of lines of data.
-        output.write('# number of lines of data\n')                                  #j
-        #l output.write('%s\n' % (hgtprs.shape[1] * len(latitudes) * len(longitudes)))  #j
-        output.write('%s\n' % (hgtprs.maps['lev'].shape[0] * len(latitudes) * len(longitudes)))  #j
-        #l output.write('%s\n' % (len(hgtprs.dimensions) * len(latitudes) * len(longitudes)))  #j
-
-        # Write the number of components in each data line.
+        
+        # Number of data lines.
+        output.write('# number of lines of data\n')
+        output.write('%s\n' % (len(levs) * len(latitudes) * len(longitudes)))
+        
+        # Components per line.
         output.write('# data line component count\n')
-        output.write('5\n') # FIXME: HARDCODED!
-
-        # Write the data itself.
+        output.write('5\n')
+        
         output.write('# now the data in axis 3 major order\n')
-        output.write('# data is: '
+        output.write('# data is: '  
                      'geopotential height [gpm], u-component wind [m/s], '
                      'v-component wind [m/s], temperature [K], '
                      'vertical velocity (pressure) [Pa/s]\n')
         output.flush()
-        for pressureidx, pressure in enumerate(hgtprs.maps['lev']):
-            for latidx, latitude in enumerate(hgtprs.maps['lat']):
-                for lonidx, longitude in enumerate(hgtprs.maps['lon']):
-                    if longitude_distance(longitude, window[2]) > window[3]:
-                        continue
-                    # record = ( hgtprs.array[pressureidx,latidx,lonidx], \
-                    #            ugrdprs.array[pressureidx,latidx,lonidx], \
-                    #            vgrdprs.array[pressureidx,latidx,lonidx], \
-                    #            tmpprs.array[pressureidx,latidx,lonidx], \
-                    #            vvelprs.array[pressureidx,latidx,lonidx] )
-                    try:
-                        record = ( hgtprs.array[pressureidx,latidx,lonidx].data, \
-                                   ugrdprs.array[pressureidx,latidx,lonidx].data, \
-                                   vgrdprs.array[pressureidx,latidx,lonidx].data, \
-                                   tmpprs.array[pressureidx,latidx,lonidx].data, \
-                                   vvelprs.array[pressureidx,latidx,lonidx].data )
-                    except:
-                        log.info('failed to get a wind file record line')
-                        return 1
-                    # record = ( hgtprs.array[0,pressureidx,latidx,lonidx].data, \
-                    #            ugrdprs.array[0,pressureidx,latidx,lonidx].data, \
-                    #            vgrdprs.array[0,pressureidx,latidx,lonidx].data, \
-                    #            tmpprs.array[0,pressureidx,latidx,lonidx].data, \
-                    #            vvelprs.array[0,pressureidx,latidx,lonidx].data )
-
-                    try:
-                        output.write(','.join(map(str,record)) + '\n')
-                    except:
-                        log.info('failed to write out a wind file record line')
-                        return 1
-                    else:
-                        output.flush()
-
+        
+        # Data: pressures outer, then latitudes, then longitudes.
+        try:         
+            for pidx in range(len(levs)):
+                for (latidx, _lat) in latitudes:
+                    for (lonidx, _lon) in longitudes:
+                        record = (gh[pidx, latidx, lonidx],
+                                  u[pidx, latidx, lonidx],
+                                  v[pidx, latidx, lonidx],
+                                  t[pidx, latidx, lonidx],
+                                  w[pidx, latidx, lonidx])
+                        output.write(','.join(map(str, record)) + '\n')
+        except Exception as e:
+            log.info('failed writing data records: %s' % e)
+            import traceback; traceback.print_exc()
+            output.close()
+            return 1
+        
         output.close()
-        log.debug('write_file of %s completed normally' % (output_filename) )
-
+        update_progress(gfs_percent=int(10 + (current_time * 90) / num_times),
+                        gfs_timeremaining="Please wait...")
+        log.debug('write_file of %s completed normally' % output_filename)
+        
     return 0
+
 
 def canonicalise_longitude(lon):
     """
@@ -1091,60 +922,49 @@ def possible_urls(time, hd):
 
     return possible_urls
 
+# NEW: Amine's code
 def dataset_for_time(time, hd):
     """
-    Given a datetime object, attempt to find the latest dataset which covers that 
-    time and return pydap dataset object for it.
-    """
+    Grab GFS forecast hours from NOAA's S3 bucket
+    Returns one list of (valid_datetime, xarray.Dataset) per hour.
+    Each dataset is (isobaricInhPa, latitude, longitude).
+    """ 
+    sys.path.insert(0, ROOT_DIR.rstrip('/'))
 
-    log.debug('start dataset_for_time at time = %s' % (time) )
-    url_list = possible_urls(time, hd)
-    log.debug('the dataset_for_time url_list = %s' % (url_list) )
-    from pydap.client import open_url
-
-    for url in url_list:
-        log.debug('Trying dataset at %s' % url)
+    log.info(f"Looking for GFS data covering {time}")
+    fxx_range = range(0, 27, 3)
+            
+    for offset in [6, 12, 18, 24]:
+        run = time - timedelta(hours=offset)
+        run = run.replace(hour=(run.hour // 6) * 6, minute=0, second=0,
+                          microsecond=0, tzinfo=None)
+        log.info(f"Trying run {run}")
+        datasets = []
         try:
-            dataset = open_url(url, timeout=10)
-        except:
-            # raise Exception()
-            log.debug('Error in dataset %s' % (url) )
-            # Skip server error.
+            for fxx in fxx_range:
+                ds = open_forecast_hour(run, fxx)
+                if ds is None:
+                    raise RuntimeError(f"f{fxx:03d} not available for run {run}")
+                valid = pd.Timestamp(run) + timedelta(hours=fxx)
+                datasets.append((valid.to_pydatetime(), ds))
+
+            latest = datasets[-1][0]
+            if latest < time.replace(tzinfo=None):
+                log.info(f"Run {run} only reaches {latest}; trying older run.")
+                continue
+
+            log.info(f"Got {len(datasets)} forecast hours from run {run}.")
+            update_progress(gfs_timestamp=run.strftime("%Y%m%d_%Hz"))
+            return datasets
+
+        except Exception as e:
+            log.info(f"Run {run} failed: {e}")
+            import traceback; traceback.print_exc()
             continue
-#        except pydap.exceptions.DapError as e:
-#            log.debug('Dap error in dataset at %s from %s' % (url, e) )
-#            # Skip server error.
-#            pass
 
-        # dataset = open_url(url, output_grid=False)
-        log.debug('dataset_for_time dataset returned by pydap = %s' % (dataset))
-        # print('with time = ', dataset.time)
-        # print('and location = ', dataset.location)
-        # print('and another time = ', dataset['time'][:])
-        # print('and start time = ', dataset['time'][0])
-        # print('and end time = ', dataset['time'][-1])
-        # print('and start time data = ', dataset['time'][0].data)
-        # print('and end time data = ', dataset['time'][-1].data)
-        # print('and sub-time = ', dataset.time.data)
+    raise RuntimeError('Could not find a complete GFS dataset')
 
-        # start_time = timestamp_to_datetime(dataset.time[0])
-        # end_time = timestamp_to_datetime(dataset.time[-1])
-        start_time = timestamp_to_datetime(dataset['time'][0].data)  #j
-        end_time = timestamp_to_datetime(dataset['time'][-1].data)   #j
-
-        log.debug('start time = %s' % (start_time) )
-        log.debug('end time = %s' % (end_time) )
-        log.debug('time = %s' % (time.replace(tzinfo=None)) )
-        # if start_time <= time and end_time >= time:
-        if start_time <= time.replace(tzinfo=None) and end_time >= time.replace(tzinfo=None):
-            log.info('Found good dataset at %s.' % url)
-            dataset_id = url.split("/")[5] + "_" + url.split("/")[6].split("_")[1]
-            update_progress(gfs_timestamp=dataset_id)
-            return dataset
-
-
-    log.debug('RuntimeError of Could not find appropriate dataset.')
-    raise RuntimeError('Could not find appropriate dataset.')
+ 
 
 def detach_process(redirect):
     # Fork
